@@ -102,8 +102,10 @@ class Application():
         for track in session.tracks:
             if track.is_rec:
                 clip_to_commit = left if track.rec_source == 'L' else right
-                track.get_audio_clip().overwrite(
-                    clip_to_commit, fragment.starting_frame)
+                clip = track.get_audio_clip()
+                clip.writeable = True
+                clip.overwrite(clip_to_commit, fragment.starting_frame)
+                clip.writeable = False
                 track.notify_modified()
 
     def _on_input_chunk(self, input_chunk):

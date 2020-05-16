@@ -41,9 +41,11 @@ class Track:
         self._on_modify = None
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
+            self._audio.writeable = False
         else:
             try:
                 self._audio = AudioClip.from_soundfile(self.filename)
+                self._audio.writeable = False
             except FileNotFoundError:
                 self._audio = None
 
