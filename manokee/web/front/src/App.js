@@ -136,6 +136,18 @@ function onVolumeUp(track_name) {
     socket.emit('volume_up', {track: track_name});
 }
 
+function onRemoveTrack(track_name) {
+    socket.emit('remove_track', {track: track_name});
+}
+
+function onMoveTrackUp(track_name) {
+    socket.emit('move_track_up', {track: track_name});
+}
+
+function onMoveTrackDown(track_name) {
+    socket.emit('move_track_down', {track: track_name});
+}
+
 class UpperControlPanelRow extends Component {
   render() {
     return <div className="upper-control-panel-row">
@@ -262,7 +274,10 @@ export class App extends Component {
         onPanChange={onPanChange}
         onVolumeDown={onVolumeDown}
         onVolumeUp={onVolumeUp}
-        onAddTrack={onAddTrack} />
+        onAddTrack={onAddTrack}
+        onRemove={onRemoveTrack}
+        onMoveUp={onMoveTrackUp}
+        onMoveDown={onMoveTrackDown} />
     </div>;
   }
   updateTrackEditMode(value) {

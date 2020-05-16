@@ -125,13 +125,22 @@ class Track extends Component {
               </div>
             }
             {this.props.edit_mode &&
-              <button className="track-table-col remove-track-btn">❌</button>
+              <button className="track-table-col remove-track-btn"
+                      onClick={evt => this.props.onRemove()} >
+                ❌
+              </button>
             }
             {this.props.edit_mode &&
-              <button className="track-table-col move-track-btn">ᐃ</button>
+              <button className="track-table-col move-track-btn"
+                      onClick={evt => this.props.onMoveUp()} >
+                ᐃ
+              </button>
             }
             {this.props.edit_mode &&
-              <button className="track-table-col move-track-btn">ᐁ</button>
+              <button className="track-table-col move-track-btn"
+                      onClick={evt => this.props.onMoveDown()} >
+                ᐁ
+              </button>
             }
             {this.props.edit_mode
               ? <div className="track-table-col editable-track-name">
@@ -199,7 +208,10 @@ export class Tracks extends Component {
               onPanChange={pan => this.props.onPanChange(
                 track.name, pan)}
               onVolumeDown={() => this.props.onVolumeDown(track.name)}
-              onVolumeUp={() => this.props.onVolumeUp(track.name)} />
+              onVolumeUp={() => this.props.onVolumeUp(track.name)}
+              onRemove={() => this.props.onRemove(track.name)}
+              onMoveDown={() => this.props.onMoveDown(track.name)}
+              onMoveUp={() => this.props.onMoveUp(track.name)} />
           })
         }
       </div>

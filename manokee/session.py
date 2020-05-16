@@ -217,8 +217,36 @@ class Session:
             if track.name == name:
                 return track
 
+    def _index_of_track(self, name):
+        for i, track in enumerate(self._tracks):
+            if track.name == name:
+                return i
+
+    def remove_track(self, name):
+        i = self._index_of_track(name)
+        if i is not None:
+            del self._tracks[i]
+        self._onModified()
+
+    def move_track_up(self, name):
+        i = self._index_of_track(name)
+        if i is None or i == 0:
+            return  # can't move the track up
+        self._tracks[i - 1], self._tracks[i] = (
+            self._tracks[i], self._tracks[i - 1])
+        self._onModified()
+
+    def move_track_down(self, name):
+        i = self._index_of_track(name)
+        if i is None or i == len(self._tracks) - 1:
+            return  # can't move the track down
+        self._tracks[i + 1], self._tracks[i] = (
+            self._tracks[i], self._tracks[i + 1])
+        self._onModified()
+
     def add_track(self, name):
         self._tracks.append(Track(self, element=None, name=name))
+        self._onModified()
 
     @property
     def bpm(self):

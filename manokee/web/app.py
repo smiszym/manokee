@@ -249,3 +249,18 @@ def volume_up(sid, attr):
         attr['track'])
     track.fader.vol_dB = track.fader.vol_dB + 1
     track.notify_modified()
+
+
+@sio.event
+def remove_track(sid, attr):
+    application.playspec_controller.session.remove_track(attr['track'])
+
+
+@sio.event
+def move_track_up(sid, attr):
+    application.playspec_controller.session.move_track_up(attr['track'])
+
+
+@sio.event
+def move_track_down(sid, attr):
+    application.playspec_controller.session.move_track_down(attr['track'])
