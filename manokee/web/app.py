@@ -87,6 +87,7 @@ def _construct_state_update_json(state_update_id):
         'beat_formatted': format_beat(
             amio_interface, playspec_controller, frame),
         'session': session_js,
+        'capture_meter': application.capture_meter.current_rms_dB,
         'recorded_fragments': recorded_fragments,
         }
     if state_update_id is not None:

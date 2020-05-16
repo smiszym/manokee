@@ -49,6 +49,10 @@ class Application():
         return self._input_recorder.fragments
 
     @property
+    def capture_meter(self):
+        return self._input_recorder.meter
+
+    @property
     def on_session_change(self):
         return self._on_session_change
 

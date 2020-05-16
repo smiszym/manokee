@@ -1,5 +1,6 @@
 from amio import AudioClip
 from collections import deque
+from manokee.meter import Meter
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
 import soundfile as sf
@@ -73,6 +74,11 @@ class InputRecorder:
         self._input_fragments = deque([InputFragment(0, False)])
         self._io_interface = io_interface
         self._is_recording = False
+        self._meter = Meter(2)
+
+    @property
+    def meter(self):
+        return self._meter
 
     @property
     def fragments(self):
@@ -96,6 +102,7 @@ class InputRecorder:
         self._is_recording = value
 
     def append_input_chunk(self, input_chunk):
+        self._update_meter(input_chunk)
         if not self.last_fragment.is_chunk_compatible(input_chunk):
             if (self.last_fragment.transport_state != TransportState.STOPPED
                     and not input_chunk.was_transport_rolling):
@@ -111,3 +118,8 @@ class InputRecorder:
             for fragment in reversed(self._input_fragments):
                 for chunk in fragment.chunks:
                     f.write(chunk.array)
+
+    def _update_meter(self, input_chunk):
+        left_x, left_Y = input_chunk.channel(0).create_metering_data()
+        right_x, right_Y = input_chunk.channel(1).create_metering_data()
+        self._meter.current_rms_dB = [max(left_Y), max(right_Y)]

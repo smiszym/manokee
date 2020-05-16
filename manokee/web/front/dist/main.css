@@ -117,6 +117,22 @@ button {
   overflow-y: scroll;
 }
 
+.main-meters-row {
+  width: 100%;
+  padding-top: 2em;
+  position: relative;
+}
+
+.main-meters {
+  position: absolute;
+  top: 0.4em;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 10% 45% 45%;
+}
+
 .vol-ctrl > div {
   display: inline-block;
 }

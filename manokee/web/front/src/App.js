@@ -11,8 +11,17 @@ import {
   TransportControl,
   Timing,
   Tracks,
+  PlaybackCaptureMeters,
   RecordedFragments
 } from './components';
+
+function factor_to_dB(factor) {
+  return 20.0 * Math.log10(factor);
+}
+
+function dB_to_factor(dB) {
+  return Math.pow(10, dB / 20.0);
+}
 
 var socket;
 var recent_sessions;
@@ -38,6 +47,7 @@ export function onLoad() {
                 session={msg.session}
                 track_metering_data={track_metering_data}
                 recent_sessions={recent_sessions}
+                capture_meter={msg.capture_meter}
                 recorded_fragments={msg.recorded_fragments}
                 onCommit={onCommit}
                 frame_rate={msg.frame_rate}
@@ -256,6 +266,13 @@ export class App extends Component {
       result[track.name] = value_prefader + track.vol_dB;
       return result;
     }, {});
+    const gains = tracks.map(track => {
+      const factor = dB_to_factor(meter_values[track.name]);
+      return [factor * (1.0 - track.pan), factor * (1.0 + track.pan)];
+    });
+    const playback_meter_values = gains.reduce((result, gain) => {
+      return [result[0] + gain[0], result[1] + gain[1]];
+    }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
 
     return <div>
       <SummaryLine
@@ -280,6 +297,9 @@ export class App extends Component {
           onGoToMark={onGoToMark}
           current_position={this.props.current_position}
           current_beat={this.props.current_beat} />
+        <PlaybackCaptureMeters
+          capture_meter={this.props.capture_meter}
+          playback_meter={playback_meter_values} />
       </div>
       <Tracks
         track_edit_mode={this.state.track_edit_mode}
