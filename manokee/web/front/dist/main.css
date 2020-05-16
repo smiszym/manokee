@@ -132,6 +132,11 @@ button {
   color: #4c4b16;
 }
 
+#change-track-name > div > button {
+  background-color: #dedc8c !important;
+  color: #4c4b16;
+}
+
 .Collapsible__contentInner {
   padding: 0.5em;
   background-color: #262924;

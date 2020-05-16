@@ -252,6 +252,14 @@ def volume_up(sid, attr):
 
 
 @sio.event
+def rename_track(sid, attr):
+    track = application.playspec_controller.session.track_for_name(
+        attr['track'])
+    if track is not None:
+        track.name = attr['new_name']
+
+
+@sio.event
 def remove_track(sid, attr):
     application.playspec_controller.session.remove_track(attr['track'])
 

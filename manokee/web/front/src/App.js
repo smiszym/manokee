@@ -136,6 +136,10 @@ function onVolumeUp(track_name) {
     socket.emit('volume_up', {track: track_name});
 }
 
+function onTrackNameChange(old_name, new_name) {
+    socket.emit('rename_track', {track: old_name, new_name: new_name});
+}
+
 function onRemoveTrack(track_name) {
     socket.emit('remove_track', {track: track_name});
 }
@@ -275,6 +279,7 @@ export class App extends Component {
         onVolumeDown={onVolumeDown}
         onVolumeUp={onVolumeUp}
         onAddTrack={onAddTrack}
+        onNameChange={onTrackNameChange}
         onRemove={onRemoveTrack}
         onMoveUp={onMoveTrackUp}
         onMoveDown={onMoveTrackDown} />

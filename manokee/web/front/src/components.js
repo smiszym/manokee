@@ -56,6 +56,35 @@ class Meter extends Component {
   }
 }
 
+class EditTrackNamePopup extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      track_name: '',
+    };
+  }
+  render() {
+    return <Popup modal
+        trigger={this.props.trigger}>
+      <div>
+        {this.props.prompt}
+        <input
+          type="text" value={this.state.track_name}
+          onChange={evt => this.updateTrackName(evt)} />
+        <button
+            onClick={evt => this.props.onSubmit(this.state.track_name)}>
+          {this.props.submit_text}
+        </button>
+      </div>
+    </Popup>
+  }
+  updateTrackName(evt) {
+    this.setState({
+      track_name: evt.target.value
+    });
+  }
+}
+
 class Track extends Component {
   render() {
     const track = this.props.track;
@@ -143,10 +172,15 @@ class Track extends Component {
               </button>
             }
             {this.props.edit_mode
-              ? <div className="track-table-col editable-track-name">
-                  <div>{track.name}</div>
-                  <Meter value={current_meter_value} />
-                </div>
+              ? <EditTrackNamePopup
+                  trigger={
+                    <div className="track-table-col track-name">
+                      <div>{track.name}</div>
+                      <Meter value={current_meter_value} />
+                    </div>}
+                  prompt="New name:"
+                  submit_text="OK"
+                  onSubmit={new_name => this.props.onNameChange(new_name)} />
               : <div className="track-table-col track-name">
                   <div>{track.name}</div>
                   <Meter value={this.props.meter_value} />
@@ -157,32 +191,14 @@ class Track extends Component {
 }
 
 class AddTrackButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      new_track_name: '',
-    };
-  }
   render() {
-    return <Popup modal
+    return <EditTrackNamePopup
         trigger={<button className="track-table-col add-track-btn">
                    Add track
-                 </button>}>
-      <div>
-        <button
-          onClick={evt => this.props.onAddTrack(this.state.new_track_name)}>
-          Add track with name:
-        </button>
-        <input
-          id="new-track-name" type="text" value={this.state.new_track_name}
-          onChange={evt => this.updateNewTrackName(evt)} />
-      </div>
-    </Popup>
-  }
-  updateNewTrackName(evt) {
-    this.setState({
-      new_track_name: evt.target.value
-    });
+                 </button>}
+        prompt="New track name:"
+        submit_text="OK"
+        onSubmit={track_name => this.props.onAddTrack(track_name)} />;
   }
 }
 
@@ -209,6 +225,8 @@ export class Tracks extends Component {
                 track.name, pan)}
               onVolumeDown={() => this.props.onVolumeDown(track.name)}
               onVolumeUp={() => this.props.onVolumeUp(track.name)}
+              onNameChange={
+                new_name => this.props.onNameChange(track.name, new_name)}
               onRemove={() => this.props.onRemove(track.name)}
               onMoveDown={() => this.props.onMoveDown(track.name)}
               onMoveUp={() => this.props.onMoveUp(track.name)} />
