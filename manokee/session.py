@@ -204,6 +204,11 @@ class Session:
         return self._session_file_path
 
     @property
+    def name(self):
+        # TODO: Store the session name inside the session file
+        return os.path.basename(os.path.dirname(self._session_file_path))
+
+    @property
     def session_format_name(self):
         return self._session_format_name
 
@@ -307,6 +312,7 @@ class Session:
         :return: A Python dictionary with JSON-like session representation.
         """
         return {
+            'name': self.name,
             'configuration': self._configuration,
             'marks': self._marks,
             'tracks': [track.to_js() for track in self._tracks],

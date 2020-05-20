@@ -248,6 +248,7 @@ export class App extends Component {
     return <div>
       <SummaryLine
           is_audio_io_running={this.props.is_audio_io_running}
+          session={this.props.session}
           current_position={this.props.current_position}
           current_beat={this.props.current_beat} />
       <div className="control-panel">
