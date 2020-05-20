@@ -176,6 +176,7 @@ class Session:
                         in et.getroot().find('tracks').findall('track')]
         for track in self._tracks:
             track.on_modify = self._onModified
+        self._are_controls_modified = False
         self._on_modify = None
 
     def save(self):
@@ -189,7 +190,12 @@ class Session:
     def on_modify(self, callback):
         self._on_modify = callback
 
+    @property
+    def are_controls_modified(self):
+        return self._are_controls_modified
+
     def _onModified(self):
+        self._are_controls_modified = True
         if self._on_modify is not None:
             self._on_modify()
 
