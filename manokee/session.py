@@ -39,6 +39,7 @@ class Track:
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
         self._on_modify = None
+        self.requires_audio_save = False
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
             self._audio.writeable = False
@@ -150,6 +151,7 @@ class Track:
             'rec_source': self._rec_source,
             'vol_dB': self._fader.vol_dB,
             'pan': self._fader.pan,
+            'requires_audio_save': self.requires_audio_save,
         }
 
 

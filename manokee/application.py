@@ -106,6 +106,7 @@ class Application():
                 clip.writeable = True
                 clip.overwrite(clip_to_commit, fragment.starting_frame)
                 clip.writeable = False
+                track.requires_audio_save = True
                 track.notify_modified()
 
     def _on_input_chunk(self, input_chunk):

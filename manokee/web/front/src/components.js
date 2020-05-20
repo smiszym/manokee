@@ -182,7 +182,7 @@ class Track extends Component {
                   submit_text="OK"
                   onSubmit={new_name => this.props.onNameChange(new_name)} />
               : <div className="track-table-col track-name">
-                  <div>{track.name}</div>
+                  <div>{track.requires_audio_save ? "*" : ""}{track.name}</div>
                   <Meter value={this.props.meter_value} />
                 </div>
             }
