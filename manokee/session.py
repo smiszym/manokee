@@ -313,6 +313,7 @@ class Session:
         """
         return {
             'name': self.name,
+            'are_controls_modified': self.are_controls_modified,
             'configuration': self._configuration,
             'marks': self._marks,
             'tracks': [track.to_js() for track in self._tracks],
