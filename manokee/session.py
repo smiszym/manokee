@@ -1,4 +1,5 @@
 from amio import AudioClip, Fader, Playspec
+import manokee
 import manokee.audacity.project as audacity_project
 from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, \
@@ -180,7 +181,43 @@ class Session:
         self._on_modify = None
 
     def save(self):
-        raise NotImplementedError
+        for track in self._tracks:
+            if track.requires_audio_save:
+                track.get_audio_clip().to_soundfile(track.filename)
+                track.requires_audio_save = False
+
+        root = ET.Element(
+            'session', attrib={'format-name': 'manokee', 'format-version': '1'})
+
+        ET.SubElement(
+            root, 'program-version',
+            attrib={'modified-with': manokee.__version__})
+
+        configuration = ET.SubElement(root, 'configuration')
+        for key, value in self._configuration.items():
+            ET.SubElement(configuration, 'setting', name=key, value=value)
+
+        marks = ET.SubElement(root, 'marks')
+        for key, value in self._marks.items():
+            ET.SubElement(marks, 'mark', name=key, position=value)
+
+        tracks = ET.SubElement(root, 'tracks')
+        for track in self._tracks:
+            ET.SubElement(
+                tracks, 'track',
+                attrib={
+                    'rec': "1" if track.is_rec else "0",
+                    'rec-source': track.rec_source,
+                    'mute': "1" if track.is_mute else "0",
+                    'solo': "1" if track.is_solo else "0",
+                    'vol': str(track.fader.vol_dB),
+                    'pan': str(track.fader.pan),
+                    'name': track.name,
+                    })
+
+        tree = ET.ElementTree(root)
+        tree.write(self._session_file_path)
+        self._are_controls_modified = False
 
     @property
     def on_modify(self):
