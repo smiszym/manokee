@@ -23,8 +23,12 @@ export function onLoad() {
     socket.on('connect', function (msg) {
         socket.emit('connected');
         socket.on('state_update', function (msg) {
+            if (msg.state_update_id) {
+                socket.emit('state_update_ack', {'id': msg.state_update_id});
+            }
             ReactDOM.render(
               <App
+                ping_latency={msg.ping_latency}
                 is_audio_io_running={msg.is_audio_io_running}
                 position_seconds={msg.position_seconds}
                 current_position={msg.frame_formatted}
@@ -179,6 +183,9 @@ class LowerControlPanelRow extends Component {
           onClick={evt => this.props.onGoToBeat(0)} />
         <Popup trigger={<input className="image-button" type="image" src="/more.svg" />} modal>
           <div id="more-options">
+            <div className="ui-latency-info">
+              UI latency: {(this.props.ping_latency * 1000).toFixed(0)} ms
+            </div>
             <AudioIoControl
               is_audio_io_running={this.props.is_audio_io_running}
               onStartAudio={onStartAudio}
@@ -256,6 +263,7 @@ export class App extends Component {
           onPlayStop={onPlayStop}
           onStartRecording={onStartRecording} />
         <LowerControlPanelRow
+          ping_latency={this.props.ping_latency}
           track_edit_mode={this.state.track_edit_mode}
           onSetTrackEditMode={(value) => this.updateTrackEditMode(value)}
           session={this.props.session}

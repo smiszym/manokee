@@ -64,6 +64,10 @@ button {
   display: inline-block;
 }
 
+.ui-latency-info {
+  font-size: 0.7em;
+}
+
 .audio-ok {
   color: #00b000;
 }

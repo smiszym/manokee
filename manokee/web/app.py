@@ -1,10 +1,12 @@
 import logging
 from manokee.application import Application
+from manokee.ping import Ping
 from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame, parse_frame
 from manokee.timing_utils import beat_number_to_frame
 import socketio
 import threading
+import time
 
 
 logging.basicConfig(
@@ -53,10 +55,12 @@ app = socketio.WSGIApp(
     }
 )
 application = Application()
+_ping = Ping()
 _should_stop_updating_clients = threading.Event()
 
 
-def _construct_state_update_json():
+def _construct_state_update_json(state_update_id):
+    global _ping
     amio_interface = application.amio_interface
     if amio_interface is not None:
         playspec_controller = application.playspec_controller
@@ -71,20 +75,27 @@ def _construct_state_update_json():
         session_js = {}
     recorded_fragments = [fragment.to_js(amio_interface)
                           for fragment in application.recorded_fragments]
-    return {'is_audio_io_running': application.is_audio_io_running,
-            'frame_rate': application.frame_rate,
-            'position_seconds': position_seconds,
-            'frame_formatted': format_frame(amio_interface, frame),
-            'beat_formatted': format_beat(
-                amio_interface, playspec_controller, frame),
-            'session': session_js,
-            'recorded_fragments': recorded_fragments,
-            }
+    state_update_json = {
+        'ping_latency': _ping.current_ping_latency,
+        'is_audio_io_running': application.is_audio_io_running,
+        'frame_rate': application.frame_rate,
+        'position_seconds': position_seconds,
+        'frame_formatted': format_frame(amio_interface, frame),
+        'beat_formatted': format_beat(
+            amio_interface, playspec_controller, frame),
+        'session': session_js,
+        'recorded_fragments': recorded_fragments,
+        }
+    if state_update_id is not None:
+        state_update_json['state_update_id'] = state_update_id
+    return state_update_json
 
 
 def _update_task():
+    global _ping
     while not _should_stop_updating_clients.wait(0.1):
-        sio.emit('state_update', _construct_state_update_json())
+        sio.emit('state_update', _construct_state_update_json(
+            _ping.ping_id_to_send()))
         sio.sleep()
 
 
@@ -99,6 +110,12 @@ def stop_updating_clients():
 @sio.event
 def connected(sid):
     logging.info('A client connected.')
+
+
+@sio.event
+def state_update_ack(sid, attr):
+    global _ping
+    latency = _ping.pong_received(attr['id'])
 
 
 @sio.event
