@@ -21,6 +21,7 @@ var track_metering_data = {};
 export function onLoad() {
     socket = io();
     socket.on('connect', function (msg) {
+        socket.removeAllListeners();
         socket.emit('connected');
         socket.on('state_update', function (msg) {
             if (msg.state_update_id) {
