@@ -45,6 +45,8 @@ class Meter extends Component {
     const width = ctx.canvas.clientWidth;
     const height = ctx.canvas.clientHeight;
     const minValue = this.props.min_value || -48;
+    const yellowValue = this.props.yellow_value || -9;
+    const redValue = this.props.red_value || -3;
     const maxValue = this.props.max_value || 6;
     const filledWidth =
       (this.props.value - minValue) * width / (maxValue - minValue);
@@ -54,6 +56,34 @@ class Meter extends Component {
     ctx.fillStyle = gradient;
     ctx.clearRect(0,0, width, height);
     ctx.fillRect(0, 0, filledWidth, height);
+    ctx.strokeStyle = '#009000';
+    ctx.beginPath();
+    let dB;
+    for (dB = minValue; dB < yellowValue; dB += 6) {
+      const x = (dB - minValue) * width / (maxValue - minValue)
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.strokeStyle = '#909000';
+    ctx.beginPath();
+    for (; dB < redValue; dB += 6) {
+      const x = (dB - minValue) * width / (maxValue - minValue)
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.strokeStyle = '#e00000';
+    ctx.beginPath();
+    for (; dB <= maxValue; dB += 6) {
+      const x = (dB - minValue) * width / (maxValue - minValue)
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    ctx.closePath();
+    ctx.stroke();
   }
   render() {
     return <canvas className="meter" ref="canvas" width="100%" height="8px" />;
