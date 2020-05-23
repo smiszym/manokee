@@ -35,12 +35,15 @@ export class AudioIoControl extends Component {
 
 class Meter extends Component {
   componentDidMount() {
-    this.updateCanvas();
+    this.displayedValue = -200;
+    requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
   }
   componentDidUpdate() {
-    this.updateCanvas();
+    if (this.props.value > this.displayedValue) {
+      this.displayedValue = this.props.value;
+    }
   }
-  updateCanvas() {
+  updateCanvas(timestamp) {
     const ctx = this.refs.canvas.getContext('2d');
     const width = ctx.canvas.clientWidth;
     const height = ctx.canvas.clientHeight;
@@ -49,7 +52,7 @@ class Meter extends Component {
     const redValue = this.props.red_value || -3;
     const maxValue = this.props.max_value || 6;
     const filledWidth =
-      (this.props.value - minValue) * width / (maxValue - minValue);
+      (this.displayedValue - minValue) * width / (maxValue - minValue);
     const gradient = ctx.createLinearGradient(0, 0, width, 0);
     gradient.addColorStop(0, "#006000");
     gradient.addColorStop(1, "#909000");
@@ -84,6 +87,12 @@ class Meter extends Component {
     }
     ctx.closePath();
     ctx.stroke();
+
+    let timeElapsed = (timestamp - this.lastTimestamp) / 1000.0;
+    this.lastTimestamp = timestamp;
+    if (timeElapsed)
+      this.displayedValue -= 30 * timeElapsed;  // 30 dB/s decay
+    requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
   }
   render() {
     return <canvas className="meter" ref="canvas" width="100%" height="8px" />;
