@@ -65,11 +65,13 @@ def _construct_state_update_json(state_update_id):
     if amio_interface is not None:
         playspec_controller = application.playspec_controller
         frame = amio_interface.get_position()
+        is_transport_rolling = amio_interface.is_transport_rolling()
         position_seconds = amio_interface.frame_to_secs(frame)
         session = playspec_controller.session
         session_js = session.to_js() if session is not None else {}
     else:
         frame = 0
+        is_transport_rolling = False
         position_seconds = 0
         playspec_controller = None
         session_js = {}
@@ -79,6 +81,7 @@ def _construct_state_update_json(state_update_id):
         'ping_latency': _ping.current_ping_latency,
         'is_audio_io_running': application.is_audio_io_running,
         'frame_rate': application.frame_rate,
+        'is_transport_rolling': is_transport_rolling,
         'position_seconds': position_seconds,
         'frame_formatted': format_frame(amio_interface, frame),
         'beat_formatted': format_beat(

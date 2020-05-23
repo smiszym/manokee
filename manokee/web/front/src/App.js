@@ -30,6 +30,7 @@ export function onLoad() {
               <App
                 ping_latency={msg.ping_latency}
                 is_audio_io_running={msg.is_audio_io_running}
+                is_transport_rolling={msg.is_transport_rolling}
                 position_seconds={msg.position_seconds}
                 current_position={msg.frame_formatted}
                 current_beat={msg.beat_formatted}
@@ -238,7 +239,10 @@ export class App extends Component {
 
     const soloed = tracks.some(track => track.is_solo);
     const audible = tracks.reduce((result, track) => {
-      result[track.name] = soloed ? track.is_solo : !track.is_mute;
+      if (this.props.is_transport_rolling)
+        result[track.name] = soloed ? track.is_solo : !track.is_mute;
+      else
+        result[track.name] = false;
       return result;
     }, {});
     const meter_values = tracks.reduce((result, track) => {
