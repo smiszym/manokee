@@ -35,6 +35,7 @@ setup(
         "Flask",
         "Flask-SocketIO",
         "mido",
+        "netifaces",
         "python-rtmidi",
     ],
 )
