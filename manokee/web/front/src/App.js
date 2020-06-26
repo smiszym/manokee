@@ -44,6 +44,7 @@ export function onLoad() {
                 position_seconds={msg.position_seconds}
                 current_position={msg.frame_formatted}
                 current_beat={msg.beat_formatted}
+                current_bar={msg.current_bar}
                 session={msg.session}
                 track_metering_data={track_metering_data}
                 recent_sessions={recent_sessions}
@@ -219,6 +220,7 @@ class LowerControlPanelRow extends Component {
             <TransportControl
               current_position={this.props.current_position}
               current_beat={this.props.current_beat}
+              current_bar={this.props.current_bar}
               onGoToBeat={this.props.onGoToBeat} />
             <Timing
               onSessionTiming={onSessionTiming}
@@ -296,7 +298,8 @@ export class App extends Component {
           onGoToBeat={onGoToBeat}
           onGoToMark={onGoToMark}
           current_position={this.props.current_position}
-          current_beat={this.props.current_beat} />
+          current_beat={this.props.current_beat}
+          current_bar={this.props.current_bar} />
         <PlaybackCaptureMeters
           capture_meter={this.props.capture_meter}
           playback_meter={playback_meter_values} />

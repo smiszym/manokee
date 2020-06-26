@@ -467,9 +467,11 @@ export class TransportControl extends Component {
         </button>
       </Collapsible>
       <div>
-        <button>Go to beginning</button>
-        <button>Previous bar</button>
-        <button>Next bar</button>
+        Go to bar:
+        <button>0</button>
+        <button className="goto-previous">{this.props.current_bar + 0}</button>
+        <button className="goto-current">{this.props.current_bar + 1}</button>
+        <button className="goto-next">{this.props.current_bar + 2}</button>
       </div>
     </div>;
   }

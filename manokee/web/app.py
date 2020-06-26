@@ -3,7 +3,7 @@ from manokee.application import Application
 from manokee.ping import Ping
 from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame, parse_frame
-from manokee.timing_utils import beat_number_to_frame
+from manokee.timing_utils import beat_number_to_frame, frame_to_bar_beat
 import socketio
 import threading
 import time
@@ -80,6 +80,14 @@ def _construct_state_update_json(state_update_id):
         session_js = {}
     recorded_fragments = [fragment.to_js(amio_interface)
                           for fragment in application.recorded_fragments]
+    if playspec_controller is not None:
+        bar, beat = frame_to_bar_beat(
+            amio_interface,
+            playspec_controller.session,
+            playspec_controller.timing,
+            frame)
+    else:
+        bar, beat = None, None
     state_update_json = {
         'ping_latency': _ping.current_ping_latency,
         'is_audio_io_running': application.is_audio_io_running,
@@ -89,6 +97,7 @@ def _construct_state_update_json(state_update_id):
         'frame_formatted': format_frame(amio_interface, frame),
         'beat_formatted': format_beat(
             amio_interface, playspec_controller, frame),
+        'current_bar': bar,
         'session': session_js,
         'capture_meter': application.capture_meter.current_rms_dB,
         'recorded_fragments': recorded_fragments,

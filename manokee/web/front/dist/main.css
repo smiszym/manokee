@@ -43,6 +43,11 @@ button {
   height: 2.5em;
 }
 
+.goto-current {
+  background-color: #7bb858;
+  color: #2e501b;
+}
+
 #start-recording {
   background-color: #000000;
 }
