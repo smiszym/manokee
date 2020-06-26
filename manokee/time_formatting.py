@@ -1,4 +1,4 @@
-from manokee.timing_utils import frame_to_beat_number
+from manokee.timing_utils import frame_to_bar_beat
 import re
 
 
@@ -31,12 +31,13 @@ def parse_frame(amio_interface, formatted):
 def format_beat(amio_interface, playspec_controller, frame):
     if amio_interface is None:
         return "??+??"
+    if playspec_controller.session is None:
+        return "--"
     # frame + 1, because we want to include the frame just before
     # the one that starts a beat
-    beat = int(frame_to_beat_number(
-        amio_interface, playspec_controller.timing, frame + 1))
-    session = playspec_controller.session
-    if session is None:
-        return "--"
-    sig = session.time_signature
-    return f"{beat // sig + 1}+{beat % sig + 1}"
+    bar, beat = frame_to_bar_beat(
+        amio_interface,
+        playspec_controller.session,
+        playspec_controller.timing,
+        frame + 1)
+    return f"{bar + 1}+{beat + 1}"
