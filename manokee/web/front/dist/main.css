@@ -39,6 +39,10 @@ button {
   height: 100%;
 }
 
+.metronome-menu {
+  height: 2.5em;
+}
+
 #start-recording {
   background-color: #000000;
 }

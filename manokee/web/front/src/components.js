@@ -383,7 +383,8 @@ export class SessionManagement extends Component {
               </button>
         }
       </div>
-      <Collapsible trigger={<button>Metronome...</button>}>
+      <Collapsible trigger={<input
+          className="image-button metronome-menu" type="image" src="/metronome.svg" />}>
         <div>
           <button onClick={evt => this.props.onToggleMetronome()}>
             Toggle
