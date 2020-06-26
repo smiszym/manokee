@@ -384,7 +384,7 @@ export class SessionManagement extends Component {
         }
       </div>
       <Collapsible trigger={<input
-          className="image-button metronome-menu" type="image" src="/metronome.svg" />}>
+          className="image-button menu-image-button" type="image" src="/metronome.svg" />}>
         <div>
           <button onClick={evt => this.props.onToggleMetronome()}>
             Toggle
@@ -455,7 +455,7 @@ export class TransportControl extends Component {
         ({this.props.current_beat}).
       </div>
       <div>
-        <button>Toggle auto-rewind</button>
+        <input className="image-button menu-image-button" type="image" src="/auto-rewind.svg" />
       </div>
       <Collapsible trigger={<button>Go to beat...</button>}>
         <input

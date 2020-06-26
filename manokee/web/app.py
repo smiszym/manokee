@@ -55,6 +55,9 @@ app = socketio.WSGIApp(
         '/metronome.svg': {
             'content_type': 'image/svg+xml',
             'filename': 'manokee/web/front/dist/metronome.svg'},
+        '/auto-rewind.svg': {
+            'content_type': 'image/svg+xml',
+            'filename': 'manokee/web/front/dist/auto-rewind.svg'},
     }
 )
 application = Application()
