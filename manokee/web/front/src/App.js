@@ -3,17 +3,15 @@ import ReactDOM from "react-dom";
 import Popup from 'reactjs-popup';
 import io from 'socket.io-client';
 
-import {
-  SummaryLine,
-  AudioIoControl,
-  SessionManagement,
-  Marks,
-  TransportControl,
-  Timing,
-  Tracks,
-  PlaybackCaptureMeters,
-  RecordedFragments
-} from './components';
+import {SummaryLine} from "./SummaryLine";
+import {AudioIoControl} from "./AudioIoControl";
+import {PlaybackCaptureMeters} from "./PlaybackCaptureMeters";
+import {Marks} from "./Marks";
+import {TransportControl} from "./TransportControl";
+import {Timing} from "./Timing";
+import {RecordedFragments} from "./RecordedFragments";
+import {Tracks} from "./Tracks";
+import {SessionManagement} from "./SessionManagement";
 
 function factor_to_dB(factor) {
   return 20.0 * Math.log10(factor);
