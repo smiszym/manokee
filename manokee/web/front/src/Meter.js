@@ -3,7 +3,14 @@ import React, {Component} from "react";
 export class Meter extends Component {
   componentDidMount() {
     this.displayedValue = -200;
-    requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
+    this.callback = requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
+  }
+
+  componentWillUnmount() {
+    if (this.callback) {
+      cancelAnimationFrame(this.callback);
+      this.callback = null;
+    }
   }
 
   componentDidUpdate() {
@@ -61,7 +68,7 @@ export class Meter extends Component {
     this.lastTimestamp = timestamp;
     if (timeElapsed)
       this.displayedValue -= 30 * timeElapsed;  // 30 dB/s decay
-    requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
+    this.callback = requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
   }
 
   render() {
