@@ -182,49 +182,67 @@ class UpperControlPanelRow extends Component {
   }
 }
 
+class MoreOptions extends Component {
+  render() {
+    return <div id="more-options">
+      <div className="ui-latency-info">
+        UI latency: {(this.props.pingLatency * 1000).toFixed(0)} ms
+      </div>
+      <AudioIoControl
+        is_audio_io_running={this.props.audioIoRunning}
+        onStartAudio={onStartAudio}
+        onStopAudio={onStopAudio}/>
+      <SessionManagement
+        track_edit_mode={this.props.trackEditMode}
+        onSetTrackEditMode={this.props.onSetTrackEditMode}
+        recent_sessions={this.props.recentSessions}
+        session={this.props.session}
+        onLoadSession={onLoadSession}
+        onSaveSession={onSaveSession}
+        onToggleMetronome={onToggleMetronome}
+        onMetronomeVolDown={onMetronomeVolDown}
+        onMetronomeVolUp={onMetronomeVolUp}/>
+      <Marks session={this.props.session}/>
+      <RecordedFragments
+        recorded_fragments={this.props.recordedFragments}
+        onCommit={this.props.onCommit}/>
+      <TransportControl
+        session={this.props.session}
+        current_position={this.props.currentPosition}
+        current_beat={this.props.currentBeat}
+        current_bar={this.props.currentBar}
+        onGoToBeat={this.props.onGoToBeat}/>
+      <Timing
+        onSessionTiming={onSessionTiming}
+        onAudacityTiming={onAudacityTiming}/>
+    </div>;
+  }
+}
+
 class LowerControlPanelRow extends Component {
   render() {
     return <div className="lower-control-panel-row">
       <div className="lower-control-panel-buttons">
         <input className="image-button" type="image" src="/A.svg"
-          onClick={evt => this.props.onGoToMark("a")} />
+               onClick={evt => this.props.onGoToMark("a")}/>
         <input className="image-button" type="image" src="/B.svg"
-          onClick={evt => this.props.onGoToMark("b")} />
+               onClick={evt => this.props.onGoToMark("b")}/>
         <input className="image-button" type="image" src="/rewind.svg"
-          onClick={evt => this.props.onGoToBeat(0)} />
-        <Popup trigger={<input className="image-button" type="image" src="/more.svg" />} modal>
-          <div id="more-options">
-            <div className="ui-latency-info">
-              UI latency: {(this.props.ping_latency * 1000).toFixed(0)} ms
-            </div>
-            <AudioIoControl
-              is_audio_io_running={this.props.is_audio_io_running}
-              onStartAudio={onStartAudio}
-              onStopAudio={onStopAudio} />
-            <SessionManagement
-              track_edit_mode={this.props.track_edit_mode}
-              onSetTrackEditMode={this.props.onSetTrackEditMode}
-              recent_sessions={this.props.recent_sessions}
-              session={this.props.session}
-              onLoadSession={onLoadSession}
-              onSaveSession={onSaveSession}
-              onToggleMetronome={onToggleMetronome}
-              onMetronomeVolDown={onMetronomeVolDown}
-              onMetronomeVolUp={onMetronomeVolUp} />
-            <Marks session={this.props.session} />
-            <RecordedFragments
-              recorded_fragments={this.props.recorded_fragments}
-              onCommit={this.props.onCommit} />
-            <TransportControl
-              session={this.props.session}
-              current_position={this.props.current_position}
-              current_beat={this.props.current_beat}
-              current_bar={this.props.current_bar}
-              onGoToBeat={this.props.onGoToBeat} />
-            <Timing
-              onSessionTiming={onSessionTiming}
-              onAudacityTiming={onAudacityTiming} />
-          </div>
+               onClick={evt => this.props.onGoToBeat(0)}/>
+        <Popup trigger={<input className="image-button" type="image" src="/more.svg"/>} modal>
+          <MoreOptions
+            pingLatency={this.props.ping_latency}
+            audioIoRunning={this.props.is_audio_io_running}
+            trackEditMode={this.props.track_edit_mode}
+            onSetTrackEditMode={this.props.onSetTrackEditMode}
+            recentSessions={this.props.recent_sessions}
+            session={this.props.session}
+            recordedFragments={this.props.recorded_fragments}
+            onCommit={this.props.onCommit}
+            currentPosition={this.props.current_position}
+            currentBar={this.props.current_bar}
+            currentBeat={this.props.current_beat}
+            onGoToBeat={this.props.onGoToBeat} />
         </Popup>
       </div>
     </div>;
