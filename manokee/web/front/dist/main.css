@@ -52,6 +52,11 @@ button {
   background-color: #000000;
 }
 
+.full-area {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
 .summary-line {
   width: 100%;
   padding-top: 1em;
@@ -65,12 +70,8 @@ button {
   left: 0;
   bottom: 0;
   right: 0;
-  display: grid;
-  grid-template-columns: 33% 33% 33%;
-}
-
-.summary-entries > div {
-  display: inline-block;
+  display: flex;
+  justify-content: space-between;
 }
 
 .ui-latency-info {
@@ -85,6 +86,11 @@ button {
   color: #b00000;
 }
 
+.control-panel {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
 .upper-control-panel-row {
   width: 100%;
   padding-top: 25%;
@@ -97,8 +103,8 @@ button {
   left: 0;
   bottom: 0;
   right: 0;
-  display: grid;
-  grid-template-columns: 33% 33% 33%;
+  display: flex;
+  justify-content: space-between;
 }
 
 .lower-control-panel-row {
@@ -113,8 +119,8 @@ button {
   left: 0;
   bottom: 0;
   right: 0;
-  display: grid;
-  grid-template-columns: 25% 25% 25% 25%;
+  display: flex;
+  justify-content: space-between;
 }
 
 /* Override reactjs-popup style */
@@ -126,20 +132,9 @@ button {
   overflow-y: scroll;
 }
 
-.main-meters-row {
-  width: 100%;
-  padding-top: 2em;
-  position: relative;
-}
-
 .main-meters {
-  position: absolute;
-  top: 0.4em;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  display: grid;
-  grid-template-columns: 10% 45% 45%;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .vol-ctrl > div {

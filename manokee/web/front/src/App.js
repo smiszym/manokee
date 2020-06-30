@@ -281,7 +281,7 @@ export class App extends Component {
       return [result[0] + gain[0], result[1] + gain[1]];
     }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
 
-    return <div>
+    return <div className="full-area">
       <SummaryLine
           is_audio_io_running={this.props.is_audio_io_running}
           session={this.props.session}
