@@ -34,9 +34,9 @@ button {
   color: #007000;
   padding: 0.5em;
   margin: 2px;
-  display: inline-block;
   box-sizing: border-box;
-  height: 100%;
+  width: 23vw;
+  height: 21vw;
 }
 
 .menu-image-button {
@@ -58,20 +58,9 @@ button {
 }
 
 .summary-line {
-  width: 100%;
-  padding-top: 1em;
-  position: relative;
-  font-size: 0.7em;
-}
-
-.summary-entries {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
   display: flex;
   justify-content: space-between;
+  font-size: 0.7em;
 }
 
 .ui-latency-info {
@@ -92,33 +81,11 @@ button {
 }
 
 .upper-control-panel-row {
-  width: 100%;
-  padding-top: 25%;
-  position: relative;
-}
-
-.upper-control-panel-buttons {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
   display: flex;
   justify-content: space-between;
 }
 
 .lower-control-panel-row {
-  width: 100%;
-  padding-top: 19%;
-  position: relative;
-}
-
-.lower-control-panel-buttons {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
   display: flex;
   justify-content: space-between;
 }

@@ -170,14 +170,12 @@ function onMoveTrackDown(track_name) {
 class UpperControlPanelRow extends Component {
   render() {
     return <div className="upper-control-panel-row">
-      <div className="upper-control-panel-buttons">
-        <input className="image-button" type="image" src="/record.svg"
-               id="start-recording"
-               onClick={this.props.onStartRecording} />
-        <input className="image-button" type="image" src="/play-pause.svg"
-               onClick={this.props.onPlayStop} />
-        <input className="image-button" type="image" src="/remove-arm-for-recording.svg" />
-      </div>
+      <input className="image-button" type="image" src="/record.svg"
+             id="start-recording"
+             onClick={this.props.onStartRecording} />
+      <input className="image-button" type="image" src="/play-pause.svg"
+             onClick={this.props.onPlayStop} />
+      <input className="image-button" type="image" src="/remove-arm-for-recording.svg" />
     </div>;
   }
 }
@@ -222,16 +220,14 @@ class MoreOptions extends Component {
 class LowerControlPanelRow extends Component {
   render() {
     return <div className="lower-control-panel-row">
-      <div className="lower-control-panel-buttons">
-        <input className="image-button" type="image" src="/A.svg"
-               onClick={evt => this.props.onGoToMark("a")}/>
-        <input className="image-button" type="image" src="/B.svg"
-               onClick={evt => this.props.onGoToMark("b")}/>
-        <input className="image-button" type="image" src="/rewind.svg"
-               onClick={evt => this.props.onGoToBeat(0)}/>
-        <input className="image-button" type="image" src="/more.svg"
-               onClick={evt => this.props.onToggleMainViewMode()}/>
-      </div>
+      <input className="image-button" type="image" src="/A.svg"
+             onClick={evt => this.props.onGoToMark("a")}/>
+      <input className="image-button" type="image" src="/B.svg"
+             onClick={evt => this.props.onGoToMark("b")}/>
+      <input className="image-button" type="image" src="/rewind.svg"
+             onClick={evt => this.props.onGoToBeat(0)}/>
+      <input className="image-button" type="image" src="/more.svg"
+             onClick={evt => this.props.onToggleMainViewMode()}/>
     </div>;
   }
 }
