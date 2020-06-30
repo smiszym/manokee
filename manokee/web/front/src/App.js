@@ -229,21 +229,8 @@ class LowerControlPanelRow extends Component {
                onClick={evt => this.props.onGoToMark("b")}/>
         <input className="image-button" type="image" src="/rewind.svg"
                onClick={evt => this.props.onGoToBeat(0)}/>
-        <Popup trigger={<input className="image-button" type="image" src="/more.svg"/>} modal>
-          <MoreOptions
-            pingLatency={this.props.ping_latency}
-            audioIoRunning={this.props.is_audio_io_running}
-            trackEditMode={this.props.track_edit_mode}
-            onSetTrackEditMode={this.props.onSetTrackEditMode}
-            recentSessions={this.props.recent_sessions}
-            session={this.props.session}
-            recordedFragments={this.props.recorded_fragments}
-            onCommit={this.props.onCommit}
-            currentPosition={this.props.current_position}
-            currentBar={this.props.current_bar}
-            currentBeat={this.props.current_beat}
-            onGoToBeat={this.props.onGoToBeat} />
-        </Popup>
+        <input className="image-button" type="image" src="/more.svg"
+               onClick={evt => this.props.onToggleMainViewMode()}/>
       </div>
     </div>;
   }
@@ -254,6 +241,7 @@ export class App extends Component {
     super(props);
     this.state = {
       track_edit_mode: false,
+      main_view_mode: 'mixer',
     };
   }
   render() {
@@ -316,32 +304,54 @@ export class App extends Component {
           onGoToMark={onGoToMark}
           current_position={this.props.current_position}
           current_beat={this.props.current_beat}
-          current_bar={this.props.current_bar} />
+          current_bar={this.props.current_bar}
+          onToggleMainViewMode={() => this.toggleMainViewMode()} />
         <PlaybackCaptureMeters
           capture_meter={this.props.capture_meter}
           playback_meter={playback_meter_values} />
       </div>
-      <Tracks
-        track_edit_mode={this.state.track_edit_mode}
-        session={this.props.session}
-        meter_values={meter_values}
-        onRecChange={onRecChange}
-        onRecSourceChange={onRecSourceChange}
-        onMuteChange={onMuteChange}
-        onSoloChange={onSoloChange}
-        onPanChange={onPanChange}
-        onVolumeDown={onVolumeDown}
-        onVolumeUp={onVolumeUp}
-        onAddTrack={onAddTrack}
-        onNameChange={onTrackNameChange}
-        onRemove={onRemoveTrack}
-        onMoveUp={onMoveTrackUp}
-        onMoveDown={onMoveTrackDown} />
+      {
+        this.state.main_view_mode === 'mixer'
+         ? <Tracks
+             track_edit_mode={this.state.track_edit_mode}
+             session={this.props.session}
+             meter_values={meter_values}
+             onRecChange={onRecChange}
+             onRecSourceChange={onRecSourceChange}
+             onMuteChange={onMuteChange}
+             onSoloChange={onSoloChange}
+             onPanChange={onPanChange}
+             onVolumeDown={onVolumeDown}
+             onVolumeUp={onVolumeUp}
+             onAddTrack={onAddTrack}
+             onNameChange={onTrackNameChange}
+             onRemove={onRemoveTrack}
+             onMoveUp={onMoveTrackUp}
+             onMoveDown={onMoveTrackDown} />
+         : <MoreOptions
+             pingLatency={this.props.ping_latency}
+             audioIoRunning={this.props.is_audio_io_running}
+             trackEditMode={this.props.track_edit_mode}
+             onSetTrackEditMode={this.props.onSetTrackEditMode}
+             recentSessions={this.props.recent_sessions}
+             session={this.props.session}
+             recordedFragments={this.props.recorded_fragments}
+             onCommit={this.props.onCommit}
+             currentPosition={this.props.current_position}
+             currentBar={this.props.current_bar}
+             currentBeat={this.props.current_beat}
+             onGoToBeat={this.props.onGoToBeat} />
+      }
     </div>;
   }
   updateTrackEditMode(value) {
     this.setState({
       track_edit_mode: value
+    });
+  }
+  toggleMainViewMode() {
+    this.setState({
+      main_view_mode: this.state.main_view_mode === 'mixer' ? 'options' : 'mixer'
     });
   }
 }
