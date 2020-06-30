@@ -306,6 +306,7 @@ export class App extends Component {
           capture_meter={this.props.capture_meter}
           playback_meter={playback_meter_values} />
       </div>
+      <div className="main-view">
       {
         this.state.main_view_mode === 'mixer'
          ? <Tracks
@@ -338,6 +339,7 @@ export class App extends Component {
              currentBeat={this.props.current_beat}
              onGoToBeat={this.props.onGoToBeat} />
       }
+      </div>
     </div>;
   }
   updateTrackEditMode(value) {

@@ -55,6 +55,7 @@ button {
 .full-area {
   display: flex;
   flex-flow: column nowrap;
+  height: 100vh;
 }
 
 .summary-line {
@@ -133,7 +134,7 @@ button {
   background-color: #262924;
 }
 
-#mixing-console {
+.main-view {
   overflow-y: scroll;
 }
 
