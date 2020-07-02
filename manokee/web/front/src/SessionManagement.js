@@ -60,7 +60,10 @@ export class SessionManagement extends Component {
           recent_sessions={this.props.recent_sessions}
           onLoadSession={this.props.onLoadSession}/>
       </Collapsible>
-      <Collapsible trigger={<button>Session options...</button>}>
+      <Collapsible trigger={<input
+                              className="image-button menu-image-button"
+                              type="image"
+                              src="/session.svg" />}>
         <button>Render session</button>
         <button>Export to Ardour</button>
         <button>Export to zip-packed wav</button>
