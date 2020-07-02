@@ -8,7 +8,6 @@ import {AudioIoControl} from "./AudioIoControl";
 import {PlaybackCaptureMeters} from "./PlaybackCaptureMeters";
 import {Marks} from "./Marks";
 import {TransportControl} from "./TransportControl";
-import {Timing} from "./Timing";
 import {RecordedFragments} from "./RecordedFragments";
 import {Tracks} from "./Tracks";
 import {SessionManagement} from "./SessionManagement";
@@ -199,7 +198,9 @@ class MoreOptions extends Component {
         onSaveSession={onSaveSession}
         onToggleMetronome={onToggleMetronome}
         onMetronomeVolDown={onMetronomeVolDown}
-        onMetronomeVolUp={onMetronomeVolUp}/>
+        onMetronomeVolUp={onMetronomeVolUp}
+        onSessionTiming={onSessionTiming}
+        onAudacityTiming={onAudacityTiming} />
       <Marks session={this.props.session}/>
       <RecordedFragments
         recorded_fragments={this.props.recordedFragments}
@@ -210,9 +211,6 @@ class MoreOptions extends Component {
         current_beat={this.props.currentBeat}
         current_bar={this.props.currentBar}
         onGoToBeat={this.props.onGoToBeat}/>
-      <Timing
-        onSessionTiming={onSessionTiming}
-        onAudacityTiming={onAudacityTiming}/>
     </div>;
   }
 }

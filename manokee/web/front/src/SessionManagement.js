@@ -102,6 +102,8 @@ export class SessionManagement extends Component {
           <div>Metronome enabled: {metronome}</div>
           <div>Metronome volume: {metronome_vol}</div>
           <div>Metronome pan: {metronome_pan}</div>
+          <button onClick={this.props.onSessionTiming}>Session timing</button>
+          <button onClick={this.props.onAudacityTiming}>Audacity timing</button>
         </div>
       </Collapsible>
     </div>;
