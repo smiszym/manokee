@@ -226,8 +226,13 @@ class LowerControlPanelRow extends Component {
              onClick={evt => this.props.onGoToMark("b")}/>
       <input className="image-button" type="image" src="/rewind.svg"
              onClick={evt => this.props.onGoToBeat(0)}/>
-      <input className="image-button" type="image" src="/more.svg"
-             onClick={evt => this.props.onToggleMainViewMode()}/>
+      {
+        this.props.main_view_mode === 'mixer'
+          ? <input className="image-button" type="image" src="/more.svg"
+              onClick={evt => this.props.onToggleMainViewMode()}/>
+          : <input className="image-button highlighted-button" type="image" src="/more.svg"
+              onClick={evt => this.props.onToggleMainViewMode()}/>
+      }
     </div>;
   }
 }
@@ -301,6 +306,7 @@ export class App extends Component {
           current_position={this.props.current_position}
           current_beat={this.props.current_beat}
           current_bar={this.props.current_bar}
+          main_view_mode={this.state.main_view_mode}
           onToggleMainViewMode={() => this.toggleMainViewMode()} />
         <PlaybackCaptureMeters
           capture_meter={this.props.capture_meter}
