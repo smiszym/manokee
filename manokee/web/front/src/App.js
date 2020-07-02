@@ -8,6 +8,7 @@ import {PlaybackCaptureMeters} from "./PlaybackCaptureMeters";
 import {Marks} from "./Marks";
 import {TransportControl} from "./TransportControl";
 import {RecordedFragments} from "./RecordedFragments";
+import {TimingManagement} from "./TimingManagement";
 import {Tracks} from "./Tracks";
 import {SessionManagement} from "./SessionManagement";
 import {Status} from "./Status";
@@ -191,9 +192,10 @@ class MoreOptions extends Component {
         track_edit_mode={this.props.trackEditMode}
         onSetTrackEditMode={this.props.onSetTrackEditMode}
         recent_sessions={this.props.recentSessions}
-        session={this.props.session}
         onLoadSession={onLoadSession}
-        onSaveSession={onSaveSession}
+        onSaveSession={onSaveSession} />
+      <TimingManagement
+        session={this.props.session}
         onToggleMetronome={onToggleMetronome}
         onMetronomeVolDown={onMetronomeVolDown}
         onMetronomeVolUp={onMetronomeVolUp}
