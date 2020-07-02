@@ -25,7 +25,8 @@ export class RecordedFragments extends Component {
     const recorded_fragments = this.props.recorded_fragments || [];
 
     return <div>
-      <Collapsible trigger={<button>Recorded fragments...</button>}>
+      <Collapsible trigger={<input
+          className="image-button menu-image-button" type="image" src="/microphone.svg" />}>
         <div className="fragment-table">
           <div className="fragment-table-row">
             <div className="fragment-table-col">
