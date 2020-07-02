@@ -58,6 +58,12 @@ app = socketio.WSGIApp(
         '/audio-io-stopped.svg': {
             'content_type': 'image/svg+xml',
             'filename': 'manokee/web/front/dist/audio-io-stopped.svg'},
+        '/status-good.svg': {
+            'content_type': 'image/svg+xml',
+            'filename': 'manokee/web/front/dist/status-good.svg'},
+        '/status-bad.svg': {
+            'content_type': 'image/svg+xml',
+            'filename': 'manokee/web/front/dist/status-bad.svg'},
         '/mark.svg': {
             'content_type': 'image/svg+xml',
             'filename': 'manokee/web/front/dist/mark.svg'},

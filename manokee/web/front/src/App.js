@@ -4,13 +4,13 @@ import Popup from 'reactjs-popup';
 import io from 'socket.io-client';
 
 import {SummaryLine} from "./SummaryLine";
-import {AudioIoControl} from "./AudioIoControl";
 import {PlaybackCaptureMeters} from "./PlaybackCaptureMeters";
 import {Marks} from "./Marks";
 import {TransportControl} from "./TransportControl";
 import {RecordedFragments} from "./RecordedFragments";
 import {Tracks} from "./Tracks";
 import {SessionManagement} from "./SessionManagement";
+import {Status} from "./Status";
 
 function factor_to_dB(factor) {
   return 20.0 * Math.log10(factor);
@@ -182,11 +182,9 @@ class UpperControlPanelRow extends Component {
 class MoreOptions extends Component {
   render() {
     return <div id="more-options">
-      <div className="ui-latency-info">
-        UI latency: {(this.props.pingLatency * 1000).toFixed(0)} ms
-      </div>
-      <AudioIoControl
-        is_audio_io_running={this.props.audioIoRunning}
+      <Status
+        pingLatency={this.props.pingLatency}
+        audioIoRunning={this.props.audioIoRunning}
         onStartAudio={onStartAudio}
         onStopAudio={onStopAudio}/>
       <SessionManagement
