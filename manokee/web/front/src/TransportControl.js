@@ -19,10 +19,6 @@ export class TransportControl extends Component {
       <div>Tape length: {tape_length}</div>
       <div>Transport state: <span>unknown</span>.</div>
       <div>
-        Current position: {this.props.current_position}
-        ({this.props.current_beat}).
-      </div>
-      <div>
         <input className="image-button menu-image-button" type="image" src="/auto-rewind.svg"/>
       </div>
       <Collapsible trigger={<button>Go to beat...</button>}>
