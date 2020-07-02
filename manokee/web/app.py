@@ -64,6 +64,9 @@ app = socketio.WSGIApp(
         '/metronome.svg': {
             'content_type': 'image/svg+xml',
             'filename': 'manokee/web/front/dist/metronome.svg'},
+        '/transport.svg': {
+            'content_type': 'image/svg+xml',
+            'filename': 'manokee/web/front/dist/transport.svg'},
         '/session.svg': {
             'content_type': 'image/svg+xml',
             'filename': 'manokee/web/front/dist/session.svg'},

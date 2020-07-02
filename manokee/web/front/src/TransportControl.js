@@ -15,7 +15,8 @@ export class TransportControl extends Component {
       tape_length = '',
     } = configuration || {};
 
-    return <div>
+    return <Collapsible trigger={<input
+        className="image-button menu-image-button" type="image" src="/transport.svg" />} >
       <div>Tape length: {tape_length}</div>
       <div>Transport state: <span>unknown</span>.</div>
       <div>
@@ -37,7 +38,7 @@ export class TransportControl extends Component {
         <button className="highlighted-button">{this.props.current_bar + 1}</button>
         <button>{this.props.current_bar + 2}</button>
       </div>
-    </div>;
+    </Collapsible>;
   }
 
   updateBeatNumber(evt) {
