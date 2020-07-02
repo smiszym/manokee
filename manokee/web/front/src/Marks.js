@@ -4,7 +4,8 @@ import Collapsible from "react-collapsible";
 export class Marks extends Component {
   render() {
     const {marks = {}} = this.props.session || {};
-    return <Collapsible trigger={<button>Marks...</button>}>
+    return <Collapsible trigger={<input
+        className="image-button menu-image-button" type="image" src="/mark.svg"/>}>
       <div>
         <button>Set mark here</button>
       </div>
