@@ -43,6 +43,12 @@ button {
   height: 2.5em;
 }
 
+.audio-io-control-button {
+  background-color: #000000;
+  outline: none;
+  height: 4em;
+}
+
 .goto-current {
   background-color: #7bb858;
   color: #2e501b;
