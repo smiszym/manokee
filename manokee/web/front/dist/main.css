@@ -49,7 +49,7 @@ button {
   height: 4em;
 }
 
-.goto-current {
+.highlighted-button {
   background-color: #7bb858;
   color: #2e501b;
 }

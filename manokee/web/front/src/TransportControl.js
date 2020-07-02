@@ -37,9 +37,9 @@ export class TransportControl extends Component {
       <div>
         Go to bar:
         <button>0</button>
-        <button className="goto-previous">{this.props.current_bar + 0}</button>
-        <button className="goto-current">{this.props.current_bar + 1}</button>
-        <button className="goto-next">{this.props.current_bar + 2}</button>
+        <button>{this.props.current_bar + 0}</button>
+        <button className="highlighted-button">{this.props.current_bar + 1}</button>
+        <button>{this.props.current_bar + 2}</button>
       </div>
     </div>;
   }
