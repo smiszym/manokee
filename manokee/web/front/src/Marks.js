@@ -1,11 +1,9 @@
 import React, {Component} from "react";
-import Collapsible from "react-collapsible";
 
 export class Marks extends Component {
   render() {
     const {marks = {}} = this.props.session || {};
-    return <Collapsible trigger={<input
-        className="image-button menu-image-button" type="image" src="/mark.svg"/>}>
+    return <div>
       <div>
         <button>Set mark here</button>
       </div>
@@ -25,6 +23,6 @@ export class Marks extends Component {
           })
         }
       </div>
-    </Collapsible>;
+    </div>;
   }
 }

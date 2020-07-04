@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import Popup from 'reactjs-popup';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import io from 'socket.io-client';
 
 import {SummaryLine} from "./SummaryLine";
@@ -182,35 +183,78 @@ class UpperControlPanelRow extends Component {
 
 class MoreOptions extends Component {
   render() {
+    const status_icon =
+      this.props.audioIoRunning
+        ? <input className="image-button" type="image" src="/status-good.svg" />
+        : <input className="image-button" type="image" src="/status-bad.svg" />;
+
+    const session_icon =
+      <input className="image-button" type="image" src="/session.svg" />;
+
+    const timing_icon =
+      <input className="image-button" type="image" src="/metronome.svg" />;
+
+    const marks_icon =
+      <input className="image-button" type="image" src="/mark.svg" />;
+
+    const rec_icon =
+      <input className="image-button" type="image" src="/microphone.svg" />;
+
+    const transport_icon =
+      <input className="image-button" type="image" src="/transport.svg" />;
+
     return <div id="more-options">
-      <Status
-        pingLatency={this.props.pingLatency}
-        audioIoRunning={this.props.audioIoRunning}
-        onStartAudio={onStartAudio}
-        onStopAudio={onStopAudio}/>
-      <SessionManagement
-        track_edit_mode={this.props.trackEditMode}
-        onSetTrackEditMode={this.props.onSetTrackEditMode}
-        recent_sessions={this.props.recentSessions}
-        onLoadSession={onLoadSession}
-        onSaveSession={onSaveSession} />
-      <TimingManagement
-        session={this.props.session}
-        onToggleMetronome={onToggleMetronome}
-        onMetronomeVolDown={onMetronomeVolDown}
-        onMetronomeVolUp={onMetronomeVolUp}
-        onSessionTiming={onSessionTiming}
-        onAudacityTiming={onAudacityTiming} />
-      <Marks session={this.props.session}/>
-      <RecordedFragments
-        recorded_fragments={this.props.recordedFragments}
-        onCommit={this.props.onCommit}/>
-      <TransportControl
-        session={this.props.session}
-        current_position={this.props.currentPosition}
-        current_beat={this.props.currentBeat}
-        current_bar={this.props.currentBar}
-        onGoToBeat={this.props.onGoToBeat}/>
+      <Tabs>
+        <TabList>
+          <Tab>{status_icon}</Tab>
+          <Tab>{session_icon}</Tab>
+          <Tab>{timing_icon}</Tab>
+          <Tab>{marks_icon}</Tab>
+          <Tab>{rec_icon}</Tab>
+          <Tab>{transport_icon}</Tab>
+        </TabList>
+
+        <TabPanel>
+          <Status
+            pingLatency={this.props.pingLatency}
+            audioIoRunning={this.props.audioIoRunning}
+            onStartAudio={onStartAudio}
+            onStopAudio={onStopAudio}/>
+        </TabPanel>
+        <TabPanel>
+          <SessionManagement
+            track_edit_mode={this.props.trackEditMode}
+            onSetTrackEditMode={this.props.onSetTrackEditMode}
+            recent_sessions={this.props.recentSessions}
+            onLoadSession={onLoadSession}
+            onSaveSession={onSaveSession} />
+        </TabPanel>
+        <TabPanel>
+          <TimingManagement
+            session={this.props.session}
+            onToggleMetronome={onToggleMetronome}
+            onMetronomeVolDown={onMetronomeVolDown}
+            onMetronomeVolUp={onMetronomeVolUp}
+            onSessionTiming={onSessionTiming}
+            onAudacityTiming={onAudacityTiming} />
+        </TabPanel>
+        <TabPanel>
+          <Marks session={this.props.session}/>
+        </TabPanel>
+        <TabPanel>
+          <RecordedFragments
+            recorded_fragments={this.props.recordedFragments}
+            onCommit={this.props.onCommit}/>
+        </TabPanel>
+        <TabPanel>
+          <TransportControl
+            session={this.props.session}
+            current_position={this.props.currentPosition}
+            current_beat={this.props.currentBeat}
+            current_bar={this.props.currentBar}
+            onGoToBeat={this.props.onGoToBeat}/>
+        </TabPanel>
+      </Tabs>
     </div>;
   }
 }

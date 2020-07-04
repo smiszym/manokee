@@ -106,6 +106,31 @@ button {
   overflow-y: scroll;
 }
 
+.react-tabs {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+}
+
+.react-tabs ul {
+  list-style: none;
+  padding: 0;
+}
+
+.react-tabs ul li {
+  display: inline;
+}
+
+.react-tabs ul li input {
+  display: inline;
+  width: 15vw;
+  height: 15vw;
+}
+
+.react-tabs ul li.react-tabs__tab--selected input {
+  background-color: #7bb858;
+}
+
 .main-meters {
   display: flex;
   justify-content: space-evenly;

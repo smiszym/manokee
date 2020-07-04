@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import Collapsible from "react-collapsible";
 
 class Fragment extends Component {
   render() {
@@ -25,33 +24,30 @@ export class RecordedFragments extends Component {
     const recorded_fragments = this.props.recorded_fragments || [];
 
     return <div>
-      <Collapsible trigger={<input
-          className="image-button menu-image-button" type="image" src="/microphone.svg" />}>
-        <div className="fragment-table">
-          <div className="fragment-table-row">
-            <div className="fragment-table-col">
-              <b>state</b>
-            </div>
-            <div className="fragment-table-col">
-              <b>start</b>
-            </div>
-            <div className="fragment-table-col">
-              <b>length</b>
-            </div>
+      <div className="fragment-table">
+        <div className="fragment-table-row">
+          <div className="fragment-table-col">
+            <b>state</b>
           </div>
-          {
-            recorded_fragments.map((fragment, i) => {
-              return <Fragment
-                key={fragment.id}
-                transport_state={fragment.transport_state}
-                starting_time={fragment.starting_time}
-                length={fragment.length}
-                onCommit={() => this.props.onCommit(fragment.id)}/>
-            })
-
-          }
+          <div className="fragment-table-col">
+            <b>start</b>
+          </div>
+          <div className="fragment-table-col">
+            <b>length</b>
+          </div>
         </div>
-      </Collapsible>
+        {
+          recorded_fragments.map((fragment, i) => {
+            return <Fragment
+              key={fragment.id}
+              transport_state={fragment.transport_state}
+              starting_time={fragment.starting_time}
+              length={fragment.length}
+              onCommit={() => this.props.onCommit(fragment.id)}/>
+          })
+
+        }
+      </div>
     </div>;
   }
 }
