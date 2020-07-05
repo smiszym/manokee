@@ -1,6 +1,7 @@
 import amio
 from manokee.global_config import *
 from manokee.input_recorder import InputRecorder
+from manokee.midi_control import MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
 
 
@@ -16,6 +17,11 @@ class Application():
         self._global_config = read_global_config()
         self._recent_sessions = RecentSessions()
         self._input_recorder = InputRecorder(None)
+        self._midi_interpreter = MidiInterpreter()
+        self._midi_input_receiver = MidiInputReceiver(
+            lambda raw_message: self._on_midi_message(
+                self._midi_interpreter.interpret(raw_message)))
+        self._midi_input_receiver.start()
 
     @property
     def amio_interface(self):
@@ -49,6 +55,10 @@ class Application():
     @on_session_change.setter
     def on_session_change(self, callback):
         self._on_session_change = callback
+
+    def _on_midi_message(self, message):
+        if message is not None:
+            message.apply(self)
 
     def _onSessionChanged(self):
         self._recent_sessions.append(

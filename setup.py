@@ -34,5 +34,7 @@ setup(
         "eventlet",
         "Flask",
         "Flask-SocketIO",
+        "mido",
+        "python-rtmidi",
     ],
 )
