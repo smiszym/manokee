@@ -3,6 +3,7 @@ from manokee.global_config import *
 from manokee.input_recorder import InputRecorder
 from manokee.midi_control import MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
+from manokee.workspace import Workspace
 
 
 class Application():
@@ -15,6 +16,7 @@ class Application():
         self._playspec_controller = None
         self._on_session_change = None
         self._global_config = read_global_config()
+        self._workspace = Workspace(self._global_config.get('workspace'))
         self._recent_sessions = RecentSessions()
         self._input_recorder = InputRecorder(None)
         self._midi_interpreter = MidiInterpreter()
