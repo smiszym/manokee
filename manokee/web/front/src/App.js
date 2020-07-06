@@ -23,7 +23,7 @@ function dB_to_factor(dB) {
 }
 
 var socket;
-var recent_sessions;
+var workspace_sessions;
 var track_metering_data = {};
 
 export function onLoad() {
@@ -46,7 +46,7 @@ export function onLoad() {
                 current_bar={msg.current_bar}
                 session={msg.session}
                 track_metering_data={track_metering_data}
-                recent_sessions={recent_sessions}
+                workspace_sessions={workspace_sessions}
                 capture_meter={msg.capture_meter}
                 recorded_fragments={msg.recorded_fragments}
                 onCommit={onCommit}
@@ -55,8 +55,8 @@ export function onLoad() {
               document.getElementById('app')
             );
         });
-        socket.on('recent_sessions', function (msg) {
-            recent_sessions = msg;
+        socket.on('workspace_sessions', function (msg) {
+            workspace_sessions = msg;
         });
         socket.on('track_metering_data', function (msg) {
             track_metering_data[msg.track] = msg;
@@ -225,7 +225,7 @@ class MoreOptions extends Component {
           <SessionManagement
             track_edit_mode={this.props.trackEditMode}
             onSetTrackEditMode={this.props.onSetTrackEditMode}
-            recent_sessions={this.props.recentSessions}
+            workspace_sessions={this.props.workspaceSessions}
             onLoadSession={onLoadSession}
             onSaveSession={onSaveSession} />
         </TabPanel>
@@ -340,7 +340,7 @@ export class App extends Component {
           onSetTrackEditMode={(value) => this.updateTrackEditMode(value)}
           session={this.props.session}
           is_audio_io_running={this.props.is_audio_io_running}
-          recent_sessions={this.props.recent_sessions}
+          workspace_sessions={this.props.workspace_sessions}
           recorded_fragments={this.props.recorded_fragments}
           onCommit={onCommit}
           onGoToBeat={onGoToBeat}
@@ -378,7 +378,7 @@ export class App extends Component {
              audioIoRunning={this.props.is_audio_io_running}
              trackEditMode={this.props.track_edit_mode}
              onSetTrackEditMode={this.props.onSetTrackEditMode}
-             recentSessions={this.props.recent_sessions}
+             workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
              recordedFragments={this.props.recorded_fragments}
              onCommit={this.props.onCommit}

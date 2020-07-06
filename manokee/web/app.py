@@ -165,6 +165,7 @@ def state_update_ack(sid, attr):
 def start_audio(sid):
     application.start_audio_io()
     sio.emit('recent_sessions', application.recent_sessions)
+    sio.emit('workspace_sessions', application.workspace.sessions)
 
 
 @sio.event

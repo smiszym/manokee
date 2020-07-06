@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import Collapsible from "react-collapsible";
 
-class RecentSessions extends Component {
+class WorkspaceSessions extends Component {
   render() {
-    const sessions = this.props.recent_sessions || [];
+    const sessions = this.props.workspace_sessions || [];
 
     return <div>
       {
@@ -44,9 +44,9 @@ export class SessionManagement extends Component {
           onClick={evt => this.props.onLoadSession(this.state.session_path)}>
           Load
         </button>
-        <h3>Recent sessions</h3>
-        <RecentSessions
-          recent_sessions={this.props.recent_sessions}
+        <h3>Workspace</h3>
+        <WorkspaceSessions
+          workspace_sessions={this.props.workspace_sessions}
           onLoadSession={this.props.onLoadSession}/>
       </Collapsible>
       <div>

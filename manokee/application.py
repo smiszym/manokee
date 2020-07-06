@@ -43,6 +43,10 @@ class Application():
         return self._playspec_controller
 
     @property
+    def workspace(self):
+        return self._workspace
+
+    @property
     def recent_sessions(self):
         return self._recent_sessions.get()
 
