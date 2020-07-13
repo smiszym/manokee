@@ -159,9 +159,13 @@ class Track:
 class Session:
     def __init__(self, session_file_path):
         assert os.path.exists(session_file_path)
-        self._session_file_path = os.path.join(
-            os.path.curdir, session_file_path)
-        et = ET.parse(session_file_path)
+        if os.path.isdir(session_file_path):
+            self._session_file_path = os.path.join(
+                os.path.curdir, session_file_path, "session.mnk")
+        else:
+            self._session_file_path = os.path.join(
+                os.path.curdir, session_file_path)
+        et = ET.parse(self._session_file_path)
         self._session_format_name = et.getroot().attrib['format-name']
         self._session_format_version = et.getroot().attrib['format-version']
         self._modified_with = et.getroot().find(
