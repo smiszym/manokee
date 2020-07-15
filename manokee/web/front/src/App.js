@@ -216,6 +216,7 @@ class LowerControlPanelRow extends Component {
               recorded_fragments={this.props.recorded_fragments}
               onCommit={this.props.onCommit} />
             <TransportControl
+              session={this.props.session}
               current_position={this.props.current_position}
               current_beat={this.props.current_beat}
               current_bar={this.props.current_bar}
