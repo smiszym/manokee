@@ -1,0 +1,290 @@
+body {
+  background-color: #000000;
+  color: #b0e690;
+  margin: 0;
+  padding: 0;
+  font-size: 13pt;
+  font-family: sans-serif;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+#app {
+  background-color: #000000;
+  color: #b0e690;
+}
+
+button {
+  background-color: #39671f;
+  border: none;
+  color: #c0e8a8;
+  padding: 0.5em;
+  margin: 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 13pt;
+}
+
+.image-button {
+  background-color: #39671f;
+  border: none;
+  border-radius: 1em;
+  outline: none;
+  color: #007000;
+  padding: 0.5em;
+  margin: 2px;
+  display: inline-block;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+#start-recording {
+  background-color: #000000;
+}
+
+.summary-line {
+  width: 100%;
+  padding-top: 1em;
+  position: relative;
+  font-size: 0.7em;
+}
+
+.summary-entries {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 33% 33% 33%;
+}
+
+.summary-entries > div {
+  display: inline-block;
+}
+
+.audio-ok {
+  color: #00b000;
+}
+
+.no-audio {
+  color: #b00000;
+}
+
+.upper-control-panel-row {
+  width: 100%;
+  padding-top: 25%;
+  position: relative;
+}
+
+.upper-control-panel-buttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 33% 33% 33%;
+}
+
+.lower-control-panel-row {
+  width: 100%;
+  padding-top: 19%;
+  position: relative;
+}
+
+.lower-control-panel-buttons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+}
+
+/* Override reactjs-popup style */
+.lower-control-panel-buttons > div > div.popup-content {
+  background-color: #172111 !important;
+  width: 100% !important;
+  margin: 2em !important;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.vol-ctrl > div {
+  display: inline-block;
+}
+
+.vol-ctrl > div > div.popup-content {
+  background-color: #afad6f !important;
+  color: #4c4b16;
+  width: 100% !important;
+  margin: 70% 30% !important;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  text-align: center;
+}
+
+#change-volume > div > button {
+  background-color: #dedc8c !important;
+  color: #4c4b16;
+}
+
+.Collapsible__contentInner {
+  padding: 0.5em;
+  background-color: #262924;
+}
+
+#mixing-console {
+  overflow-y: scroll;
+}
+
+.mark-table {
+  display: table;
+  width: 100%;
+  border-spacing: 0.1em 1.6em;
+}
+
+.mark-table-row {
+  display: table-row;
+  width: auto;
+  clear: both;
+}
+
+.mark-table-col {
+  float: left;  /* fix for buggy browsers */
+  display: table-column;
+  width: 33%;
+}
+
+.fragment-table {
+  display: table;
+  width: 100%;
+  border-spacing: 0.1em 1.6em;
+}
+
+.fragment-table-row {
+  display: table-row;
+  width: auto;
+  clear: both;
+}
+
+.fragment-table-col {
+  float: left;  /* fix for buggy browsers */
+  display: table-column;
+  width: 33%;
+}
+
+.track-table {
+  display: table;
+  width: auto;
+  border-spacing: 0 1em;
+}
+
+.track-table-row {
+  display: table-row;
+  width: auto;
+  clear: both;
+}
+
+.track-table-col {
+  float: left;  /* fix for buggy browsers */
+  display: table-column;
+  width: 100px;
+}
+
+.track-table-col.small-button {
+  width: 20px;
+}
+.track-table-col.pan-ctrl {
+  width: 20%;
+}
+.track-table-col.pan-ctrl > input {
+  width: 85%;
+}
+.track-table-col.vol-ctrl {
+  width: 14%;
+  text-align: right;
+  padding-right: 0.5em;
+}
+.track-table-col.vol-ctrl > button {
+  padding: 2px;
+}
+.meter {
+  display: block;
+}
+
+.track-table-col.remove-track-btn {
+  width: 1.7em;
+}
+.track-table-col.move-track-btn {
+  width: 1.7em;
+}
+
+input.rec-toggle,
+input.rec-source,
+input.mute-toggle,
+input.solo-toggle {
+  -webkit-appearance: none;
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  padding: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+input.rec-toggle:before {
+  content: 'R';
+}
+
+input.mute-toggle:before {
+  content: 'M';
+}
+
+input.solo-toggle:before {
+  content: 'S';
+}
+
+input.rec-toggle {
+  background-color: #600000;
+  color: #b00000;
+}
+input.rec-toggle:checked {
+  background-color: #e00000;
+  color: #ffa0a0;
+}
+
+input.rec-source {
+  background-color: #989898;
+  color: #e8e800;
+}
+input.rec-source:before {  /* left */
+  content: 'L';
+}
+input.rec-source:checked:before {  /* right */
+  content: 'R';
+}
+
+input.mute-toggle {
+  background-color: #000060;
+  color: #0000b0;
+}
+input.mute-toggle:checked {
+  background-color: #0000e0;
+  color: #a0a0ff;
+}
+
+input.solo-toggle {
+  background-color: #006000;
+  color: #00b000;
+}
+input.solo-toggle:checked {
+  background-color: #00e000;
+  color: #a0ffa0;
+}
