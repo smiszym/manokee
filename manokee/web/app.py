@@ -186,7 +186,12 @@ def _js_metering_data_for_track(track):
 def load_session(sid, attr):
     path = attr['session']
     logging.info('Loading session: ' + path)
-    application.playspec_controller.session = Session(path)
+    # TODO Make it possible to open a session without specifying frame rate
+    application.playspec_controller.session = Session(
+        application.amio_interface.get_frame_rate()
+        if application.amio_interface is not None
+        else 48000,
+        path)
     # Due to a message limit in socketio (btw, the message exceeding
     # the limit is currently silently discarded, which I consider a bug),
     # we need to send the metering data in parts. I decided to split
@@ -219,7 +224,8 @@ def metronome_vol_up(sid):
 
 @sio.event
 def add_track(sid, attr):
-    application.playspec_controller.session.add_track(attr['name'])
+    application.playspec_controller.session.add_track(
+        attr['name'], application.amio_interface.get_frame_rate())
 
 
 @sio.event

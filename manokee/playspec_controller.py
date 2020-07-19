@@ -17,7 +17,11 @@ class PlayspecController:
         self._is_audacity_timing_on = False
         self._session_holder = SessionHolder()
         self._session_holder.on_session_change = self._on_session_changed
-        self._session_holder.session = Session()
+        # TODO Make it possible to open a session without specifying frame rate
+        self._session_holder.session = Session(
+            self._amio_interface.get_frame_rate()
+            if self._amio_interface is not None
+            else 48000)
 
     def _on_session_changed(self):
         self._session_holder.session.on_modify = (

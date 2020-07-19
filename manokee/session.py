@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 
 class Track:
-    def __init__(self, session, element=None, name=None):
+    def __init__(self, session, frame_rate, element=None, name=None):
         self._session = session
         if element is not None:
             assert name is None
@@ -50,9 +50,9 @@ class Track:
                     self._audio = AudioClip.from_soundfile(self.filename)
                     self._audio.writeable = False
                 except FileNotFoundError:
-                    self._audio = None
+                    self._audio = AudioClip.zeros(1, 1, frame_rate)
             else:
-                self._audio = None
+                self._audio = AudioClip.zeros(1, 1, frame_rate)
 
     @property
     def on_modify(self):
@@ -162,7 +162,7 @@ class Track:
 
 
 class Session:
-    def __init__(self, session_file_path: str = None):
+    def __init__(self, frame_rate, session_file_path: str = None):
         if session_file_path is not None and os.path.exists(session_file_path):
             self._exists_on_disk = True
             if os.path.isdir(session_file_path):
@@ -183,7 +183,7 @@ class Session:
             self._marks = {element.attrib['name']: element.attrib['position']
                            for element
                            in et.getroot().find('marks').findall('mark')}
-            self._tracks = [Track(self, element) for element
+            self._tracks = [Track(self, frame_rate, element) for element
                             in et.getroot().find('tracks').findall('track')]
             for track in self._tracks:
                 track.on_modify = self._onModified
@@ -346,8 +346,8 @@ class Session:
             self._tracks[i], self._tracks[i + 1])
         self._onModified()
 
-    def add_track(self, name):
-        self._tracks.append(Track(self, element=None, name=name))
+    def add_track(self, name, frame_rate):
+        self._tracks.append(Track(self, frame_rate, element=None, name=name))
         self._onModified()
 
     @property
