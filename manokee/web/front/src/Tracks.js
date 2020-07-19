@@ -124,7 +124,7 @@ class Track extends Component {
           trigger={
             <div className="track-table-col track-name">
               <div>{track.name}</div>
-              <Meter value={current_meter_value}/>
+              <Meter value={this.props.meter_value}/>
             </div>}
           prompt="New name:"
           submit_text="OK"
