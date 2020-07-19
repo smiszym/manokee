@@ -377,7 +377,7 @@ export class App extends Component {
              pingLatency={this.props.ping_latency}
              audioIoRunning={this.props.is_audio_io_running}
              trackEditMode={this.props.track_edit_mode}
-             onSetTrackEditMode={this.props.onSetTrackEditMode}
+             onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
              recordedFragments={this.props.recorded_fragments}
