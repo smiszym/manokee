@@ -376,7 +376,7 @@ export class App extends Component {
          : <MoreOptions
              pingLatency={this.props.ping_latency}
              audioIoRunning={this.props.is_audio_io_running}
-             trackEditMode={this.props.track_edit_mode}
+             trackEditMode={this.state.track_edit_mode}
              onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
