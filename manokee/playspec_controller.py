@@ -1,5 +1,6 @@
 import logging
 from manokee.metronome import Metronome
+from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
@@ -8,14 +9,15 @@ from manokee.timing.interpolated_timing import InterpolatedTiming
 class PlayspecController:
     def __init__(self, amio_interface):
         self._amio_interface = amio_interface
-        self._session_holder = SessionHolder()
-        self._session_holder.on_session_change = self._on_session_changed
         self._metronome = None
         self._first_audacity_track = None
         self._on_session_change = None
         self._playspec = None
         self._timing = FixedBpmTiming()
         self._is_audacity_timing_on = False
+        self._session_holder = SessionHolder()
+        self._session_holder.on_session_change = self._on_session_changed
+        self._session_holder.session = Session()
 
     def _on_session_changed(self):
         self._session_holder.session.on_modify = (

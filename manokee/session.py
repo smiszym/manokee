@@ -45,10 +45,13 @@ class Track:
             self._audio = self.audacity_project.as_audio_clip()
             self._audio.writeable = False
         else:
-            try:
-                self._audio = AudioClip.from_soundfile(self.filename)
-                self._audio.writeable = False
-            except FileNotFoundError:
+            if self.filename is not None:
+                try:
+                    self._audio = AudioClip.from_soundfile(self.filename)
+                    self._audio.writeable = False
+                except FileNotFoundError:
+                    self._audio = None
+            else:
                 self._audio = None
 
     @property
@@ -74,6 +77,8 @@ class Track:
 
     @property
     def filename(self):
+        if self._session.session_file_path is None:
+            return None
         return os.path.join(
             os.path.dirname(self._session.session_file_path), self.name + ".flac")
 
@@ -157,34 +162,61 @@ class Track:
 
 
 class Session:
-    def __init__(self, session_file_path):
-        assert os.path.exists(session_file_path)
-        if os.path.isdir(session_file_path):
-            self._session_file_path = os.path.join(
-                os.path.curdir, session_file_path, "session.mnk")
+    def __init__(self, session_file_path: str = None):
+        if session_file_path is not None and os.path.exists(session_file_path):
+            self._exists_on_disk = True
+            if os.path.isdir(session_file_path):
+                self._session_file_path = os.path.join(
+                    os.path.curdir, session_file_path, "session.mnk")
+            else:
+                self._session_file_path = os.path.join(
+                    os.path.curdir, session_file_path)
+            et = ET.parse(self._session_file_path)
+            self._session_format_name = et.getroot().attrib['format-name']
+            self._session_format_version = et.getroot().attrib['format-version']
+            self._modified_with = et.getroot().find(
+                'program-version').attrib['modified-with']
+            self._configuration = {
+                element.attrib['name']: element.attrib['value']
+                for element
+                in et.getroot().find('configuration').findall('setting')}
+            self._marks = {element.attrib['name']: element.attrib['position']
+                           for element
+                           in et.getroot().find('marks').findall('mark')}
+            self._tracks = [Track(self, element) for element
+                            in et.getroot().find('tracks').findall('track')]
+            for track in self._tracks:
+                track.on_modify = self._onModified
         else:
-            self._session_file_path = os.path.join(
-                os.path.curdir, session_file_path)
-        et = ET.parse(self._session_file_path)
-        self._session_format_name = et.getroot().attrib['format-name']
-        self._session_format_version = et.getroot().attrib['format-version']
-        self._modified_with = et.getroot().find(
-            'program-version').attrib['modified-with']
-        self._configuration = {
-            element.attrib['name']: element.attrib['value']
-            for element
-            in et.getroot().find('configuration').findall('setting')}
-        self._marks = {element.attrib['name']: element.attrib['position']
-                       for element
-                       in et.getroot().find('marks').findall('mark')}
-        self._tracks = [Track(self, element) for element
-                        in et.getroot().find('tracks').findall('track')]
-        for track in self._tracks:
-            track.on_modify = self._onModified
+            self._exists_on_disk = False
+            if session_file_path is None:
+                self._session_file_path = None
+            elif session_file_path.endswith(".mnk"):
+                self._session_file_path = session_file_path
+            else:
+                self._session_file_path = os.path.join(
+                    os.path.curdir, session_file_path, "session.mnk")
+            self._session_format_name = "manokee"
+            self._session_format_version = "1"
+            self._modified_with = manokee.__version__
+            self._configuration = {
+                "tape_length": "10",
+                "bpm": "120",
+                "time_sig": "4",
+                "intro_len": "-1",
+                "met_intro_only": "0",
+                "metronome": "0",
+                "metronome_vol": "-12.0",
+                "metronome_pan": "0",
+            }
+            self._marks = {}
+            self._tracks = []
         self._are_controls_modified = False
         self._on_modify = None
 
     def save(self):
+        assert self._session_file_path is not None
+
         for track in self._tracks:
             if track.requires_audio_save:
                 track.get_audio_clip().to_soundfile(track.filename)
@@ -221,6 +253,7 @@ class Session:
 
         tree = ET.ElementTree(root)
         tree.write(self._session_file_path)
+        self._exists_on_disk = True
         self._are_controls_modified = False
 
     @property
@@ -244,9 +277,17 @@ class Session:
     def session_file_path(self):
         return self._session_file_path
 
+    @session_file_path.setter
+    def session_file_path(self, value):
+        if self._exists_on_disk:
+            raise NotImplementedError
+        self._session_file_path = value
+
     @property
     def name(self):
         # TODO: Store the session name inside the session file
+        if self._session_file_path is None:
+            return "(untitled)"
         return os.path.basename(os.path.dirname(self._session_file_path))
 
     @property
