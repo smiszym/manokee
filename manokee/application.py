@@ -114,7 +114,8 @@ class Application():
                 clip_to_commit = left if track.rec_source == 'L' else right
                 clip = track.get_audio_clip()
                 clip.writeable = True
-                clip.overwrite(clip_to_commit, fragment.starting_frame)
+                clip.overwrite(clip_to_commit, fragment.starting_frame,
+                               extend_to_fit=True)
                 clip.writeable = False
                 track.requires_audio_save = True
                 track.notify_modified()
