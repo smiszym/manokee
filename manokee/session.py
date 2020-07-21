@@ -347,7 +347,9 @@ class Session:
         self._onModified()
 
     def add_track(self, name, frame_rate):
-        self._tracks.append(Track(self, frame_rate, element=None, name=name))
+        track = Track(self, frame_rate, element=None, name=name)
+        track.on_modify = self._onModified
+        self._tracks.append(track)
         self._onModified()
 
     @property
