@@ -107,11 +107,11 @@ class InputRecorder:
 
     def append_input_chunk(self, input_chunk):
         self._update_meter(input_chunk)
+        if (self.last_fragment.transport_state != TransportState.STOPPED
+                and not input_chunk.was_transport_rolling):
+            # Stop recording when AMIO transport stops rolling
+            self._is_recording = False
         if not self.last_fragment.is_chunk_compatible(input_chunk):
-            if (self.last_fragment.transport_state != TransportState.STOPPED
-                    and not input_chunk.was_transport_rolling):
-                # Stop recording when AMIO transport stops rolling
-                self._is_recording = False
             self._input_fragments.appendleft(InputFragment(
                 len(self._input_fragments), self._is_recording))
         self.last_fragment.append_chunk(input_chunk)
