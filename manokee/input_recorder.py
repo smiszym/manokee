@@ -69,9 +69,8 @@ class InputFragment:
 
 
 class InputRecorder:
-    def __init__(self, io_interface):
+    def __init__(self):
         self._input_fragments = deque([InputFragment(0, False)])
-        self._io_interface = io_interface
         self._is_recording = False
         self._meter = Meter(2)
 

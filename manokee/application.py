@@ -18,7 +18,7 @@ class Application():
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get('workspace'))
         self._recent_sessions = RecentSessions()
-        self._input_recorder = InputRecorder(None)
+        self._input_recorder = InputRecorder()
         self._midi_interpreter = MidiInterpreter()
         self._midi_input_receiver = MidiInputReceiver(
             lambda raw_message: self._on_midi_message(
@@ -83,12 +83,10 @@ class Application():
         self._amio_interface.input_chunk_callback = self._on_input_chunk
         self._playspec_controller = PlayspecController(self.amio_interface)
         self._playspec_controller.on_session_change = self._onSessionChanged
-        self._input_recorder = InputRecorder(self._amio_interface)
         self._recent_sessions.read()
 
     def stop_audio_io(self):
         assert self._amio_interface is not None
-        self._input_recorder = InputRecorder(None)
         self._amio_interface.close()
         self._amio_interface = None
         self._recent_sessions.write()
