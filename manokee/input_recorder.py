@@ -59,6 +59,14 @@ class InputFragment:
     def seconds_since_last_append(self):
         return (datetime.now() - self._last_chunk_append_time).total_seconds()
 
+    def cut(self, desired_length):
+        # This will cut to a bit longer fragment than desired_length,
+        # because it won't cut individual chunks.
+        while (len(self._chunks) > 1
+               and desired_length < len(self) - len(self._chunks[-1])):
+            chunk = self._chunks.pop(0)
+            self._length -= len(chunk)
+
     def as_clip(self):
         return AudioClip.concatenate(self._chunks)
 
@@ -75,10 +83,12 @@ class InputFragment:
 
 
 class InputRecorder:
-    def __init__(self):
+    def __init__(self, keepalive_mins, keepalive_margin_mins):
         self._input_fragments = deque([InputFragment(0, False)])
         self._is_recording = False
         self._meter = Meter(2)
+        self._keepalive_mins = keepalive_mins
+        self._keepalive_margin_mins = keepalive_margin_mins
 
     @property
     def meter(self):
@@ -115,6 +125,34 @@ class InputRecorder:
             self._input_fragments.appendleft(InputFragment(
                 len(self._input_fragments), self._is_recording))
         self.last_fragment.append_chunk(input_chunk)
+
+    def remove_old_fragments(self, amio_interface):
+        # Discard old fragments, but keep at least 1 fragment
+        index = self._first_to_discard(60 * self._keepalive_mins)
+        last_recording_fragment = None
+        if index is not None and index >= 1:
+            while len(self._input_fragments) > index:
+                fragment = self._input_fragments.pop()
+                if fragment.transport_state == TransportState.RECORDING:
+                    last_recording_fragment = fragment
+            # If no recording fragment remained, append the last removed
+            # recording fragment
+            if not any(fragment.transport_state == TransportState.RECORDING
+                       for fragment in self._input_fragments):
+                self._input_fragments.append(last_recording_fragment)
+
+        total_length = sum(len(fragment) for fragment in self._input_fragments)
+        last_fragment_length = len(self._input_fragments[-1])
+        # Cut the last fragment if too long
+        total_allowed = amio_interface.secs_to_frame(
+            60 * (self._keepalive_mins + self._keepalive_margin_mins))
+        self._input_fragments[-1].cut(
+            total_allowed - (total_length - last_fragment_length))
+
+    def _first_to_discard(self, discard_threshold):
+        for i, fragment in enumerate(self._input_fragments):
+            if fragment.seconds_since_last_append() >= discard_threshold:
+                return i
 
     def _update_meter(self, input_chunk):
         left_x, left_Y = input_chunk.channel(0).create_metering_data()

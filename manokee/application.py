@@ -18,7 +18,7 @@ class Application():
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get('workspace'))
         self._recent_sessions = RecentSessions()
-        self._input_recorder = InputRecorder()
+        self._input_recorder = InputRecorder(4, 2)
         self._midi_interpreter = MidiInterpreter()
         self._midi_input_receiver = MidiInputReceiver(
             lambda raw_message: self._on_midi_message(
@@ -125,3 +125,4 @@ class Application():
 
     def _on_input_chunk(self, input_chunk):
         self._input_recorder.append_input_chunk(input_chunk)
+        self._input_recorder.remove_old_fragments(self._amio_interface)
