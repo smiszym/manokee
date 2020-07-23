@@ -72,6 +72,10 @@ function onStopAudio() {
     socket.emit('stop_audio');
 }
 
+function onNewSession() {
+    socket.emit('new_session');
+}
+
 function onLoadSession(session_path) {
     socket.emit('load_session', {session: session_path});
 }
@@ -231,6 +235,7 @@ class MoreOptions extends Component {
             track_edit_mode={this.props.trackEditMode}
             onSetTrackEditMode={this.props.onSetTrackEditMode}
             workspace_sessions={this.props.workspaceSessions}
+            onNewSession={onNewSession}
             onLoadSession={onLoadSession}
             onSaveSession={onSaveSession}
             onSaveSessionAs={onSaveSessionAs} />

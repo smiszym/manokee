@@ -183,6 +183,15 @@ def _js_metering_data_for_track(track):
 
 
 @sio.event
+def new_session(sid):
+    # TODO Make it possible to open a session without specifying frame rate
+    application.playspec_controller.session = Session(
+        application.amio_interface.get_frame_rate()
+        if application.amio_interface is not None
+        else 48000)
+
+
+@sio.event
 def load_session(sid, attr):
     path = attr['session']
     logging.info('Loading session: ' + path)
