@@ -5,7 +5,13 @@ export class Marks extends Component {
     const {marks = {}} = this.props.session || {};
     return <div>
       <div>
-        <button>Set mark here</button>
+        Currently at bar {this.props.current_bar + 1}
+        <button onClick={evt => this.props.onSetMarkAtBar('a', this.props.current_bar)}>
+          Set mark A at this bar
+        </button>
+        <button onClick={evt => this.props.onSetMarkAtBar('b', this.props.current_bar)}>
+          Set mark B at this bar
+        </button>
       </div>
       <div><b>Currently set marks:</b></div>
       <div className="mark-table">

@@ -374,6 +374,12 @@ class Session:
     def time_signature(self):
         return int(self.configuration['time_sig'])
 
+    def beat_to_bar(self, beat):
+        return beat / self.time_signature
+
+    def bar_to_beat(self, bar):
+        return bar * self.time_signature
+
     @property
     def timing(self):
         return FixedBpmTiming(self.bpm)

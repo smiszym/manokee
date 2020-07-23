@@ -262,6 +262,17 @@ def go_to_mark(sid, attr):
 
 
 @sio.event
+def set_mark_at_bar(sid, attr):
+    amio_interface = application.amio_interface
+    playspec_controller = application.playspec_controller
+    beat = playspec_controller.session.bar_to_beat(attr['bar'])
+    position = playspec_controller.timing.beat_to_seconds(beat)
+    frame = amio_interface.secs_to_frame(position)
+    frame_formatted = format_frame(amio_interface, frame)
+    playspec_controller.session.marks[attr['name']] = frame_formatted
+
+
+@sio.event
 def play_stop(sid):
     application.play_stop()
 

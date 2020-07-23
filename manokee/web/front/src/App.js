@@ -112,6 +112,10 @@ function onGoToMark(name) {
     socket.emit('go_to_mark', {mark: name});
 }
 
+function onSetMarkAtBar(name, bar) {
+    socket.emit('set_mark_at_bar', {name: name, bar: bar});
+}
+
 function onPlayStop() {
     socket.emit('play_stop');
 }
@@ -250,7 +254,10 @@ class MoreOptions extends Component {
             onAudacityTiming={onAudacityTiming} />
         </TabPanel>
         <TabPanel>
-          <Marks session={this.props.session}/>
+          <Marks
+            session={this.props.session}
+            current_bar={this.props.currentBar}
+            onSetMarkAtBar={onSetMarkAtBar} />
         </TabPanel>
         <TabPanel>
           <RecordedFragments
