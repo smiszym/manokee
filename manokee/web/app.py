@@ -174,11 +174,13 @@ def stop_audio(sid):
 
 
 def _js_metering_data_for_track(track):
-    if track.get_audio_clip() is None:
+    clip = track.get_audio_clip()
+    if clip is None:
         return {'track': track.name}
-    x, y = track.get_audio_clip().create_metering_data()
+    x, y = clip.create_metering_data()
+    fragment_length = x[1] - x[0] if len(x) > 1 else len(clip) / clip.frame_rate
     return {'track': track.name,
-            'fragment_length': x[1] - x[0],
+            'fragment_length': fragment_length,
             'values': y}
 
 
