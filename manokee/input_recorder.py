@@ -89,9 +89,9 @@ class InputRecorder:
         return self._input_fragments[0]
 
     def fragment_by_id(self, id):
-        result = self._input_fragments[-(id+1)]
-        assert result.id == id
-        return result
+        for fragment in self._input_fragments:
+            if fragment.id == id:
+                return fragment
 
     @property
     def is_recording(self):
