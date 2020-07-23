@@ -44,6 +44,7 @@ export function onLoad() {
                 current_position={msg.frame_formatted}
                 current_beat={msg.beat_formatted}
                 current_bar={msg.current_bar}
+                autoRewind={msg.auto_rewind}
                 session={msg.session}
                 track_metering_data={track_metering_data}
                 workspace_sessions={workspace_sessions}
@@ -90,6 +91,10 @@ function onSaveSessionAs(name) {
 
 function onToggleMetronome() {
     socket.emit('toggle_metronome');
+}
+
+function onSetAutoRewind(value) {
+    socket.emit('set_auto_rewind', {value: value});
 }
 
 function onMetronomeVolDown() {
@@ -270,6 +275,8 @@ class MoreOptions extends Component {
             current_position={this.props.currentPosition}
             current_beat={this.props.currentBeat}
             current_bar={this.props.currentBar}
+            autoRewind={this.props.autoRewind}
+            onSetAutoRewind={onSetAutoRewind}
             onGoToBeat={this.props.onGoToBeat}/>
         </TabPanel>
       </Tabs>
@@ -402,6 +409,7 @@ export class App extends Component {
              onCommit={this.props.onCommit}
              currentPosition={this.props.current_position}
              currentBar={this.props.current_bar}
+             autoRewind={this.props.autoRewind}
              currentBeat={this.props.current_beat}
              onGoToBeat={this.props.onGoToBeat} />
       }

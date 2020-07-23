@@ -14,6 +14,8 @@ class Application():
     def __init__(self):
         self._amio_interface = None
         self._playspec_controller = None
+        self._auto_rewind = False
+        self._auto_rewind_position = 0
         self._on_session_change = None
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get('workspace'))
@@ -66,6 +68,14 @@ class Application():
     def on_session_change(self, callback):
         self._on_session_change = callback
 
+    @property
+    def auto_rewind(self):
+        return self._auto_rewind
+
+    @auto_rewind.setter
+    def auto_rewind(self, value: bool):
+        self._auto_rewind = value
+
     def _on_midi_message(self, message):
         if message is not None:
             message.apply(self)
@@ -97,12 +107,17 @@ class Application():
         self._playspec_controller.session.save()
 
     def play_stop(self):
-        self._amio_interface.set_transport_rolling(
-            not self._amio_interface.is_transport_rolling())
+        was_rolling = self._amio_interface.is_transport_rolling()
+        if not was_rolling:
+            self._auto_rewind_position = self._amio_interface.get_position()
+        self._amio_interface.set_transport_rolling(not was_rolling)
+        if self._auto_rewind and was_rolling:
+            self._amio_interface.set_position(self._auto_rewind_position)
 
     def start_recording(self):
         if self._amio_interface.is_transport_rolling():
             return
+        self._auto_rewind_position = self._amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._amio_interface.set_transport_rolling(True)
 

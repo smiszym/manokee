@@ -125,6 +125,7 @@ def _construct_state_update_json(state_update_id):
         'beat_formatted': format_beat(
             amio_interface, playspec_controller, frame),
         'current_bar': bar,
+        'auto_rewind': application.auto_rewind,
         'session': session_js,
         'capture_meter': application.capture_meter.current_rms_dB,
         'recorded_fragments': recorded_fragments,
@@ -226,6 +227,11 @@ def save_session_as(sid, attr):
 @sio.event
 def toggle_metronome(sid):
     application.playspec_controller.session.toggle_metronome()
+
+
+@sio.event
+def set_auto_rewind(sid, attr):
+    application.auto_rewind = attr['value']
 
 
 @sio.event
