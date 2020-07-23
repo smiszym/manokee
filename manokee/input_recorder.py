@@ -1,5 +1,6 @@
 from amio import AudioClip
 from collections import deque
+from datetime import datetime
 from manokee.meter import Meter
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
@@ -13,6 +14,7 @@ class InputFragment:
         self._is_recording = is_recording
         self._stop_frame = None
         self._length = 0
+        self._last_chunk_append_time = None
 
     def __len__(self):
         return self._length
@@ -52,6 +54,10 @@ class InputFragment:
         self._was_transport_rolling = chunk.was_transport_rolling
         self._stop_frame = chunk.starting_frame + len(chunk)
         self._length += len(chunk)
+        self._last_chunk_append_time = datetime.now()
+
+    def seconds_since_last_append(self):
+        return (datetime.now() - self._last_chunk_append_time).total_seconds()
 
     def as_clip(self):
         return AudioClip.concatenate(self._chunks)
