@@ -3,7 +3,6 @@ from collections import deque
 from manokee.meter import Meter
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
-import soundfile as sf
 
 
 class InputFragment:
@@ -111,13 +110,6 @@ class InputRecorder:
             self._input_fragments.appendleft(InputFragment(
                 len(self._input_fragments), self._is_recording))
         self.last_fragment.append_chunk(input_chunk)
-
-    def dump_whole_input_to_file(self, path):
-        rate = self._io_interface.get_frame_rate()
-        with sf.SoundFile(path, 'w', samplerate=rate, channels=2) as f:
-            for fragment in reversed(self._input_fragments):
-                for chunk in fragment.chunks:
-                    f.write(chunk.array)
 
     def _update_meter(self, input_chunk):
         left_x, left_Y = input_chunk.channel(0).create_metering_data()
