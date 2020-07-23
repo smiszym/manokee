@@ -208,6 +208,11 @@ def save_session(sid):
 
 
 @sio.event
+def save_session_as(sid, attr):
+    application.save_session_as(attr['name'])
+
+
+@sio.event
 def toggle_metronome(sid):
     application.playspec_controller.session.toggle_metronome()
 

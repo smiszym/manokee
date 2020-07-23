@@ -80,6 +80,10 @@ function onSaveSession() {
     socket.emit('save_session');
 }
 
+function onSaveSessionAs(name) {
+    socket.emit('save_session_as', {name: name});
+}
+
 function onToggleMetronome() {
     socket.emit('toggle_metronome');
 }
@@ -223,11 +227,13 @@ class MoreOptions extends Component {
         </TabPanel>
         <TabPanel>
           <SessionManagement
+            session={this.props.session}
             track_edit_mode={this.props.trackEditMode}
             onSetTrackEditMode={this.props.onSetTrackEditMode}
             workspace_sessions={this.props.workspaceSessions}
             onLoadSession={onLoadSession}
-            onSaveSession={onSaveSession} />
+            onSaveSession={onSaveSession}
+            onSaveSessionAs={onSaveSessionAs} />
         </TabPanel>
         <TabPanel>
           <TimingManagement

@@ -35,6 +35,11 @@ class Workspace:
                 path for path in _abslistdir(self._directory)
                 if dir_is_session(path)]
 
+    def session_file_path_for_session_name(self, name):
+        # Verify that name is a filename without path separators
+        assert '\0' not in name and '/' not in name
+        return os.path.join(self._directory, name, "session.mnk")
+
 
 def _abslistdir(path):
     return (os.path.join(path, file) for file in os.listdir(path))

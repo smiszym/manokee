@@ -301,7 +301,7 @@ class Session:
     def name(self):
         # TODO: Store the session name inside the session file
         if self._session_file_path is None:
-            return "(untitled)"
+            return
         return os.path.basename(os.path.dirname(self._session_file_path))
 
     @property
@@ -419,6 +419,8 @@ class Session:
 
     @staticmethod
     def is_suitable_for_overwrite(session_file_path):
+        if session_file_path is None:
+            return True
         session_dir = os.path.dirname(session_file_path)
         if not os.path.exists(session_dir):
             return True
@@ -428,4 +430,6 @@ class Session:
 
     @staticmethod
     def exists_on_disk(session_file_path):
+        if session_file_path is None:
+            return False
         return os.path.isfile(session_file_path)

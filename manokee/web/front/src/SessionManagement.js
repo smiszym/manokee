@@ -1,5 +1,7 @@
 import React, {Component} from "react";
 import Collapsible from "react-collapsible";
+import Popup from "reactjs-popup";
+import {Meter} from "./Meter";
 
 class WorkspaceSessions extends Component {
   render() {
@@ -20,6 +22,36 @@ class WorkspaceSessions extends Component {
   }
 }
 
+class EditSessionNamePopup extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      session_name: '',
+    };
+  }
+
+  render() {
+    return <Popup modal trigger={this.props.trigger}>
+      <div>
+        {this.props.prompt}
+        <input
+          type="text" value={this.state.session_name}
+          onChange={evt => this.updateSessionName(evt)}/>
+        <button
+          onClick={evt => this.props.onSubmit(this.state.session_name)}>
+          {this.props.submit_text}
+        </button>
+      </div>
+    </Popup>
+  }
+
+  updateSessionName(evt) {
+    this.setState({
+      session_name: evt.target.value
+    });
+  }
+}
+
 export class SessionManagement extends Component {
   constructor(props) {
     super(props);
@@ -30,10 +62,18 @@ export class SessionManagement extends Component {
 
   render() {
     return <div>
-      <button
-        onClick={evt => this.props.onSaveSession()}>
-        Save session
-      </button>
+      {
+        this.props.session.name
+          ? <button
+              onClick={evt => this.props.onSaveSession()}>
+              Save session
+            </button>
+          : <EditSessionNamePopup
+              trigger={<button>Save session as...</button>}
+              prompt="Name:"
+              submit_text="Save"
+              onSubmit={name => this.props.onSaveSessionAs(name)} />
+      }
       <Collapsible trigger={<button>Load session...</button>}>
         <h3>Load session from file</h3>
         Path:

@@ -93,6 +93,11 @@ class Application():
         self._amio_interface = None
         self._recent_sessions.write()
 
+    def save_session_as(self, name):
+        path = self._workspace.session_file_path_for_session_name(name)
+        self._playspec_controller.session.session_file_path = path
+        self._playspec_controller.session.save()
+
     def play_stop(self):
         self._amio_interface.set_transport_rolling(
             not self._amio_interface.is_transport_rolling())
