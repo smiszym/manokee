@@ -164,7 +164,6 @@ class Track:
 class Session:
     def __init__(self, frame_rate, session_file_path: str = None):
         if session_file_path is not None and os.path.exists(session_file_path):
-            self._exists_on_disk = True
             if os.path.isdir(session_file_path):
                 self._session_file_path = os.path.join(
                     os.path.curdir, session_file_path, "session.mnk")
@@ -188,7 +187,6 @@ class Session:
             for track in self._tracks:
                 track.on_modify = self._onModified
         else:
-            self._exists_on_disk = False
             if session_file_path is None:
                 self._session_file_path = None
             elif session_file_path.endswith(".mnk"):
@@ -216,6 +214,19 @@ class Session:
 
     def save(self):
         assert self._session_file_path is not None
+
+        session_dir = os.path.dirname(self._session_file_path)
+        try:
+            os.mkdir(session_dir)
+        except FileExistsError:
+            # That's ok, just check if session_dir is indeed a Manokee
+            # session.
+            if not os.path.isdir(session_dir):
+                raise FileExistsError("Session path is not a directory")
+            if (len(os.listdir(session_dir)) > 0
+                and not os.path.isfile(
+                            os.path.join(session_dir, "session.mnk"))):
+                raise FileExistsError("Directory is not a Manokee session")
 
         for track in self._tracks:
             if track.requires_audio_save:
@@ -253,7 +264,6 @@ class Session:
 
         tree = ET.ElementTree(root)
         tree.write(self._session_file_path)
-        self._exists_on_disk = True
         self._are_controls_modified = False
 
     @property
@@ -279,7 +289,11 @@ class Session:
 
     @session_file_path.setter
     def session_file_path(self, value):
-        if self._exists_on_disk:
+        # TODO: Keep path under which Session was previously saved
+        # (can be None) and do this kind of checks in save()
+        if Session.exists_on_disk(self._session_file_path):
+            raise NotImplementedError
+        if not Session.is_suitable_for_overwrite(value):
             raise NotImplementedError
         self._session_file_path = value
 
@@ -402,3 +416,16 @@ class Session:
             'marks': self._marks,
             'tracks': [track.to_js() for track in self._tracks],
         }
+
+    @staticmethod
+    def is_suitable_for_overwrite(session_file_path):
+        session_dir = os.path.dirname(session_file_path)
+        if not os.path.exists(session_dir):
+            return True
+        if os.path.isdir(session_dir) and len(os.listdir(session_dir)) == 0:
+            return True
+        return False
+
+    @staticmethod
+    def exists_on_disk(session_file_path):
+        return os.path.isfile(session_file_path)
