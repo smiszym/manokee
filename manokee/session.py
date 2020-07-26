@@ -10,6 +10,26 @@ import os
 import xml.etree.ElementTree as ET
 
 
+# ET.indent() will be available from Python 3.9; until then, I use
+# the implementation from http://effbot.org/zone/element-lib.htm#prettyprint
+# below.
+# (see https://bugs.python.org/issue14465)
+def _ET_indent(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            _ET_indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+
 class Track:
     def __init__(self, session, frame_rate, element=None, name=None):
         self._session = session
@@ -262,6 +282,7 @@ class Session:
                     'name': track.name,
                     })
 
+        _ET_indent(root)
         tree = ET.ElementTree(root)
         tree.write(self._session_file_path)
         self._are_controls_modified = False
