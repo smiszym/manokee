@@ -14,6 +14,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s: %(message)s')
 logging.getLogger('engineio').setLevel(logging.WARNING)
 logging.getLogger('socketio').setLevel(logging.WARNING)
+logging.getLogger('webserver').setLevel(logging.WARNING)
 
 
 sio = socketio.Server()

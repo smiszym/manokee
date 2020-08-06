@@ -1,5 +1,6 @@
 import eventlet.wsgi
 from ipaddress import ip_address
+import logging
 from manokee.web.app import app
 from netifaces import interfaces, ifaddresses, AF_INET
 
@@ -25,4 +26,5 @@ if __name__ == '__main__':
         print("OPEN MANOKEE IN A BROWSER AT:")
         for address in addresses:
             print(f"http://{address}:{port}/")
-    eventlet.wsgi.server(eventlet.listen(('', port)), app)
+    eventlet.wsgi.server(
+        eventlet.listen(('', port)), app, log=logging.getLogger('webserver'))
