@@ -14,7 +14,6 @@ class InputFragment:
         self._is_recording = is_recording
         self._stop_frame = None
         self._length = 0
-        self._last_chunk_append_time = None
 
     def __len__(self):
         return self._length
@@ -48,17 +47,15 @@ class InputFragment:
         return (self._was_transport_rolling is None
                 or self._was_transport_rolling == chunk.was_transport_rolling)
 
-    def append_chunk(self, chunk, current_time=None):
+    def append_chunk(self, chunk):
         assert self.is_chunk_compatible(chunk)
         self._chunks.append(chunk)
         self._was_transport_rolling = chunk.was_transport_rolling
         self._stop_frame = chunk.starting_frame + len(chunk)
         self._length += len(chunk)
-        self._last_chunk_append_time = current_time or datetime.now()
 
-    def seconds_since_last_append(self, current_time=None):
-        return ((current_time or datetime.now())
-                - self._last_chunk_append_time).total_seconds()
+    def last_chunk_wall_time(self):
+        return self._chunks[-1].wall_time
 
     def cut(self, desired_length):
         # This will cut to a bit longer fragment than desired_length,
@@ -90,6 +87,7 @@ class InputRecorder:
         self._meter = Meter(2)
         self._keepalive_mins = keepalive_mins
         self._keepalive_margin_mins = keepalive_margin_mins
+        self._wall_time_approx = None
 
     @property
     def meter(self):
@@ -116,7 +114,7 @@ class InputRecorder:
     def is_recording(self, value: bool):
         self._is_recording = value
 
-    def append_input_chunk(self, input_chunk, current_time=None):
+    def append_input_chunk(self, input_chunk):
         self._update_meter(input_chunk)
         if (self.last_fragment.transport_state != TransportState.STOPPED
                 and not input_chunk.was_transport_rolling):
@@ -125,11 +123,13 @@ class InputRecorder:
         if not self.last_fragment.is_chunk_compatible(input_chunk):
             self._input_fragments.appendleft(InputFragment(
                 len(self._input_fragments), self._is_recording))
-        self.last_fragment.append_chunk(input_chunk, current_time)
+        self.last_fragment.append_chunk(input_chunk)
+        # Keep track of what the current wall time is (approximately)
+        self._wall_time_approx = input_chunk.wall_time
 
-    def remove_old_fragments(self, amio_interface, current_time=None):
+    def remove_old_fragments(self, amio_interface):
         # Discard old fragments, but keep at least 1 fragment
-        index = self._first_to_discard(60 * self._keepalive_mins, current_time)
+        index = self._first_to_discard(60 * self._keepalive_mins)
         last_recording_fragment = None
         if index is not None and index >= 1:
             while len(self._input_fragments) > index:
@@ -150,10 +150,12 @@ class InputRecorder:
         self._input_fragments[-1].cut(
             total_allowed - (total_length - last_fragment_length))
 
-    def _first_to_discard(self, discard_threshold, current_time=None):
+    def _first_to_discard(self, discard_threshold):
+        if self._wall_time_approx is None:
+            return
         for i, fragment in enumerate(self._input_fragments):
-            if (fragment.seconds_since_last_append(current_time)
-                    >= discard_threshold):
+            if ((self._wall_time_approx - fragment.last_chunk_wall_time())
+                    .total_seconds() >= discard_threshold):
                 return i
 
     def _update_meter(self, input_chunk):
