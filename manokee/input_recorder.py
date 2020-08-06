@@ -159,6 +159,6 @@ class InputRecorder:
                 return i
 
     def _update_meter(self, input_chunk):
-        left_x, left_Y = input_chunk.channel(0).create_metering_data()
-        right_x, right_Y = input_chunk.channel(1).create_metering_data()
+        _, left_Y = input_chunk.channel(0).create_metering_data()
+        _, right_Y = input_chunk.channel(1).create_metering_data()
         self._meter.current_rms_dB = [max(left_Y), max(right_Y)]

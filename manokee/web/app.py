@@ -179,8 +179,8 @@ def _js_metering_data_for_track(track):
     clip = track.get_audio_clip()
     if clip is None:
         return {'track': track.name}
-    x, y = clip.create_metering_data()
-    fragment_length = x[1] - x[0] if len(x) > 1 else len(clip) / clip.frame_rate
+    num_fragments, y = clip.create_metering_data()
+    fragment_length = len(clip) / clip.frame_rate / num_fragments
     return {'track': track.name,
             'fragment_length': fragment_length,
             'values': y}
