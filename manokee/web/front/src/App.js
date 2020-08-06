@@ -304,6 +304,17 @@ class LowerControlPanelRow extends Component {
   }
 }
 
+function calculate_tracks_audibility(tracks, is_transport_rolling) {
+  const soloed = tracks.some(track => track.is_solo);
+  return tracks.reduce((result, track) => {
+    if (is_transport_rolling)
+      result[track.name] = soloed ? track.is_solo : !track.is_mute;
+    else
+      result[track.name] = false;
+    return result;
+  }, {});
+}
+
 export class App extends Component {
   constructor(props) {
     super(props);
@@ -323,14 +334,7 @@ export class App extends Component {
       : NaN;
     const current_index = Math.floor(position_seconds / fragment_length);
 
-    const soloed = tracks.some(track => track.is_solo);
-    const audible = tracks.reduce((result, track) => {
-      if (this.props.is_transport_rolling)
-        result[track.name] = soloed ? track.is_solo : !track.is_mute;
-      else
-        result[track.name] = false;
-      return result;
-    }, {});
+    const audible = calculate_tracks_audibility(tracks, this.props.is_transport_rolling);
     const meter_values = tracks.reduce((result, track) => {
       if (!audible[track.name]) {
         result[track.name] = -200;
