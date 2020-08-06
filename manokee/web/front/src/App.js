@@ -315,6 +315,11 @@ function calculate_tracks_audibility(tracks, is_transport_rolling) {
   }, {});
 }
 
+function gains_for_track(track, meter_value) {
+  const factor = dB_to_factor(meter_value);
+  return [factor * (1.0 - track.pan), factor * (1.0 + track.pan)];
+}
+
 export class App extends Component {
   constructor(props) {
     super(props);
@@ -345,10 +350,7 @@ export class App extends Component {
       result[track.name] = value_prefader + track.vol_dB;
       return result;
     }, {});
-    const gains = tracks.map(track => {
-      const factor = dB_to_factor(meter_values[track.name]);
-      return [factor * (1.0 - track.pan), factor * (1.0 + track.pan)];
-    });
+    const gains = tracks.map(track => gains_for_track(track, meter_values[track.name]));
     const playback_meter_values = gains.reduce((result, gain) => {
       return [result[0] + gain[0], result[1] + gain[1]];
     }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
