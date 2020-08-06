@@ -6,7 +6,7 @@ class SessionHolder:
 
     def __init__(self):
         self._session = None
-        self._on_session_change = None
+        self.on_session_change = None
 
     @property
     def session(self):
@@ -16,13 +16,5 @@ class SessionHolder:
     def session(self, session):
         if self._session is not session:
             self._session = session
-            if self._on_session_change is not None:
-                self._on_session_change()
-
-    @property
-    def on_session_change(self):
-        return self._on_session_change
-
-    @on_session_change.setter
-    def on_session_change(self, callback):
-        self._on_session_change = callback
+            if self.on_session_change is not None:
+                self.on_session_change()
