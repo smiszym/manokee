@@ -11,7 +11,7 @@ class PlayspecController:
         self._amio_interface = amio_interface
         self._metronome = None
         self._first_audacity_track = None
-        self._on_session_change = None
+        self.on_session_change = None
         self._playspec = None
         self._timing = FixedBpmTiming()
         self._is_audacity_timing_on = False
@@ -31,8 +31,8 @@ class PlayspecController:
         self._find_first_audacity_track()
         self._timing = self._session_holder.session.timing
         self._recreate_playspecs()
-        if self._on_session_change is not None:
-            self._on_session_change()
+        if self.on_session_change is not None:
+            self.on_session_change()
 
     @property
     def session(self):
@@ -41,14 +41,6 @@ class PlayspecController:
     @session.setter
     def session(self, session):
         self._session_holder.session = session
-
-    @property
-    def on_session_change(self):
-        return self._on_session_change
-
-    @on_session_change.setter
-    def on_session_change(self, callback):
-        self._on_session_change = callback
 
     def _schedule_playspecs_recreation(self):
         # TODO: Move this to a background thread
