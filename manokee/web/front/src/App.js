@@ -345,13 +345,14 @@ export class App extends Component {
         result[track.name] = -200;
         return result;
       }
-      const { rms=[] } = track_metering_data[track.name] || {};
+      const { rms=[], peak=[] } = track_metering_data[track.name] || {};
       const rms_prefader = rms[current_index] || -200;
-      result[track.name] = rms_prefader + track.vol_dB;
+      const peak_prefader = peak[current_index] || -200;
+      result[track.name] = {rms: rms_prefader + track.vol_dB, peak: peak_prefader + track.vol_dB};
       return result;
     }, {});
     const playback_current_rms = tracks
-      .map(track => gains_for_track(track, meter_values[track.name]))
+      .map(track => gains_for_track(track, meter_values[track.name].rms))
       .reduce((result, gain) => {
         return [result[0] + gain[0], result[1] + gain[1]];
       }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
