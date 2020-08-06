@@ -48,16 +48,17 @@ class InputFragment:
         return (self._was_transport_rolling is None
                 or self._was_transport_rolling == chunk.was_transport_rolling)
 
-    def append_chunk(self, chunk):
+    def append_chunk(self, chunk, current_time=None):
         assert self.is_chunk_compatible(chunk)
         self._chunks.append(chunk)
         self._was_transport_rolling = chunk.was_transport_rolling
         self._stop_frame = chunk.starting_frame + len(chunk)
         self._length += len(chunk)
-        self._last_chunk_append_time = datetime.now()
+        self._last_chunk_append_time = current_time or datetime.now()
 
-    def seconds_since_last_append(self):
-        return (datetime.now() - self._last_chunk_append_time).total_seconds()
+    def seconds_since_last_append(self, current_time=None):
+        return ((current_time or datetime.now())
+                - self._last_chunk_append_time).total_seconds()
 
     def cut(self, desired_length):
         # This will cut to a bit longer fragment than desired_length,
@@ -115,7 +116,7 @@ class InputRecorder:
     def is_recording(self, value: bool):
         self._is_recording = value
 
-    def append_input_chunk(self, input_chunk):
+    def append_input_chunk(self, input_chunk, current_time=None):
         self._update_meter(input_chunk)
         if (self.last_fragment.transport_state != TransportState.STOPPED
                 and not input_chunk.was_transport_rolling):
@@ -124,11 +125,11 @@ class InputRecorder:
         if not self.last_fragment.is_chunk_compatible(input_chunk):
             self._input_fragments.appendleft(InputFragment(
                 len(self._input_fragments), self._is_recording))
-        self.last_fragment.append_chunk(input_chunk)
+        self.last_fragment.append_chunk(input_chunk, current_time)
 
-    def remove_old_fragments(self, amio_interface):
+    def remove_old_fragments(self, amio_interface, current_time=None):
         # Discard old fragments, but keep at least 1 fragment
-        index = self._first_to_discard(60 * self._keepalive_mins)
+        index = self._first_to_discard(60 * self._keepalive_mins, current_time)
         last_recording_fragment = None
         if index is not None and index >= 1:
             while len(self._input_fragments) > index:
@@ -149,9 +150,10 @@ class InputRecorder:
         self._input_fragments[-1].cut(
             total_allowed - (total_length - last_fragment_length))
 
-    def _first_to_discard(self, discard_threshold):
+    def _first_to_discard(self, discard_threshold, current_time=None):
         for i, fragment in enumerate(self._input_fragments):
-            if fragment.seconds_since_last_append() >= discard_threshold:
+            if (fragment.seconds_since_last_append(current_time)
+                    >= discard_threshold):
                 return i
 
     def _update_meter(self, input_chunk):
