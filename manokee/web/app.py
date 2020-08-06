@@ -179,11 +179,12 @@ def _js_metering_data_for_track(track):
     clip = track.get_audio_clip()
     if clip is None:
         return {'track': track.name}
-    num_fragments, y = clip.create_metering_data()
+    num_fragments, rms, peak = clip.create_metering_data()
     fragment_length = len(clip) / clip.frame_rate / num_fragments
     return {'track': track.name,
             'fragment_length': fragment_length,
-            'values': y}
+            'rms': rms,
+            'peak': peak}
 
 
 @sio.event

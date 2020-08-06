@@ -336,8 +336,8 @@ export class App extends Component {
         result[track.name] = -200;
         return result;
       }
-      const { values=[] } = track_metering_data[track.name] || {};
-      const value_prefader = values[current_index] || -200;
+      const { rms=[] } = track_metering_data[track.name] || {};
+      const value_prefader = rms[current_index] || -200;
       result[track.name] = value_prefader + track.vol_dB;
       return result;
     }, {});
