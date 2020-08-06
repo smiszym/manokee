@@ -183,8 +183,8 @@ def _js_metering_data_for_track(track):
     fragment_length = len(clip) / clip.frame_rate / num_fragments
     return {'track': track.name,
             'fragment_length': fragment_length,
-            'rms': rms,
-            'peak': peak}
+            'rms': rms.tolist(),
+            'peak': peak.tolist()}
 
 
 @sio.event
