@@ -346,14 +346,15 @@ export class App extends Component {
         return result;
       }
       const { rms=[] } = track_metering_data[track.name] || {};
-      const value_prefader = rms[current_index] || -200;
-      result[track.name] = value_prefader + track.vol_dB;
+      const rms_prefader = rms[current_index] || -200;
+      result[track.name] = rms_prefader + track.vol_dB;
       return result;
     }, {});
-    const gains = tracks.map(track => gains_for_track(track, meter_values[track.name]));
-    const playback_meter_values = gains.reduce((result, gain) => {
-      return [result[0] + gain[0], result[1] + gain[1]];
-    }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
+    const playback_current_rms = tracks
+      .map(track => gains_for_track(track, meter_values[track.name]))
+      .reduce((result, gain) => {
+        return [result[0] + gain[0], result[1] + gain[1]];
+      }, [0.0, 0.0]).map(factor => factor_to_dB(factor));
 
     return <div className="full-area">
       <SummaryLine
@@ -383,7 +384,7 @@ export class App extends Component {
           onToggleMainViewMode={() => this.toggleMainViewMode()} />
         <PlaybackCaptureMeters
           capture_meter={this.props.capture_meter}
-          playback_meter={playback_meter_values} />
+          playback_meter={playback_current_rms} />
       </div>
       <div className="main-view">
       {

@@ -8,13 +8,13 @@ export class PlaybackCaptureMeters extends Component {
     return <div className="main-meters">
       <div>
         Capture:
-        <Meter value={capture_meter[0]}/>
-        <Meter value={capture_meter[1]}/>
+        <Meter rms={capture_meter[0]}/>
+        <Meter rms={capture_meter[1]}/>
       </div>
       <div>
         Playback:
-        <Meter value={playback_meter[0]}/>
-        <Meter value={playback_meter[1]}/>
+        <Meter rms={playback_meter[0]}/>
+        <Meter rms={playback_meter[1]}/>
       </div>
     </div>;
   }

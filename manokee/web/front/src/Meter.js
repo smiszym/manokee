@@ -2,7 +2,7 @@ import React, {Component} from "react";
 
 export class Meter extends Component {
   componentDidMount() {
-    this.displayedValue = -200;
+    this.displayedRms = -200;
     this.callback = requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
   }
 
@@ -14,8 +14,8 @@ export class Meter extends Component {
   }
 
   componentDidUpdate() {
-    if (this.props.value > this.displayedValue) {
-      this.displayedValue = this.props.value;
+    if (this.props.rms > this.displayedRms) {
+      this.displayedRms = this.props.rms;
     }
   }
 
@@ -28,7 +28,7 @@ export class Meter extends Component {
     const redValue = this.props.red_value || -3;
     const maxValue = this.props.max_value || 6;
     const filledWidth =
-      (this.displayedValue - minValue) * width / (maxValue - minValue);
+      (this.displayedRms - minValue) * width / (maxValue - minValue);
     const gradient = ctx.createLinearGradient(0, 0, width, 0);
     gradient.addColorStop(0, "#006000");
     gradient.addColorStop(1, "#909000");
@@ -67,7 +67,7 @@ export class Meter extends Component {
     let timeElapsed = (timestamp - this.lastTimestamp) / 1000.0;
     this.lastTimestamp = timestamp;
     if (timeElapsed)
-      this.displayedValue -= 30 * timeElapsed;  // 30 dB/s decay
+      this.displayedRms -= 30 * timeElapsed;  // 30 dB/s decay
     this.callback = requestAnimationFrame(timestamp => this.updateCanvas(timestamp));
   }
 

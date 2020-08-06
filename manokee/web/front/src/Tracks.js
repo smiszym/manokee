@@ -124,14 +124,14 @@ class Track extends Component {
           trigger={
             <div className="track-table-col track-name">
               <div>{track.name}</div>
-              <Meter value={this.props.meter_value}/>
+              <Meter rms={this.props.meter_rms}/>
             </div>}
           prompt="New name:"
           submit_text="OK"
           onSubmit={new_name => this.props.onNameChange(new_name)}/>
         : <div className="track-table-col track-name">
           <div>{track.requires_audio_save ? "*" : ""}{track.name}</div>
-          <Meter value={this.props.meter_value}/>
+          <Meter rms={this.props.meter_rms}/>
         </div>
       }
     </div>;
@@ -160,7 +160,7 @@ export class Tracks extends Component {
             return <Track
               key={track.name} track={track}
               edit_mode={this.props.track_edit_mode}
-              meter_value={this.props.meter_values[track.name]}
+              meter_rms={this.props.meter_values[track.name]}
               onRecChange={is_enabled => this.props.onRecChange(
                 track.name, is_enabled)}
               onRecSourceChange={source => this.props.onRecSourceChange(
