@@ -147,8 +147,10 @@ class InputRecorder:
         # Cut the last fragment if too long
         total_allowed = amio_interface.secs_to_frame(
             60 * (self._keepalive_mins + self._keepalive_margin_mins))
-        self._input_fragments[-1].cut(
-            total_allowed - (total_length - last_fragment_length))
+        fragment_to_cut = self._input_fragments[-1]
+        if fragment_to_cut.transport_state != TransportState.RECORDING:
+            fragment_to_cut.cut(
+                total_allowed - (total_length - last_fragment_length))
 
     def _first_to_discard(self, discard_threshold):
         if self._wall_time_approx is None:
