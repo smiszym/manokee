@@ -389,11 +389,21 @@ class Session:
 
     @property
     def bpm(self):
-        return float(self.configuration['bpm'])
+        return float(self._configuration['bpm'])
+
+    @bpm.setter
+    def bpm(self, value):
+        self._configuration['bpm'] = str(value)
+        self._onModified()
 
     @property
     def time_signature(self):
-        return int(self.configuration['time_sig'])
+        return int(self._configuration['time_sig'])
+
+    @time_signature.setter
+    def time_signature(self, value):
+        self._configuration['time_sig'] = str(value)
+        self._onModified()
 
     def beat_to_bar(self, beat):
         return beat / self.time_signature

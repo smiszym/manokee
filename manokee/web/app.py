@@ -356,6 +356,16 @@ def volume_up(sid, attr):
 
 
 @sio.event
+def change_tempo_by(sid, attr):
+    application.playspec_controller.session.bpm += attr['delta']
+
+
+@sio.event
+def set_time_sig(sid, attr):
+    application.playspec_controller.session.time_signature = attr['time_sig']
+
+
+@sio.event
 def rename_track(sid, attr):
     track = application.playspec_controller.session.track_for_name(
         attr['track'])

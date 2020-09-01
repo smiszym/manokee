@@ -169,6 +169,14 @@ function onVolumeUp(track_name) {
     socket.emit('volume_up', {track: track_name});
 }
 
+function onChangeTempoBy(delta) {
+    socket.emit('change_tempo_by', {delta: delta});
+}
+
+function onSetTimeSig(time_sig) {
+    socket.emit('set_time_sig', {time_sig: time_sig});
+}
+
 function onTrackNameChange(old_name, new_name) {
     socket.emit('rename_track', {track: old_name, new_name: new_name});
 }
@@ -255,6 +263,8 @@ class MoreOptions extends Component {
             onToggleMetronome={onToggleMetronome}
             onMetronomeVolDown={onMetronomeVolDown}
             onMetronomeVolUp={onMetronomeVolUp}
+            onChangeTempoBy={onChangeTempoBy}
+            onSetTimeSig={onSetTimeSig}
             onSessionTiming={onSessionTiming}
             onAudacityTiming={onAudacityTiming} />
         </TabPanel>
