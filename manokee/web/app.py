@@ -196,6 +196,17 @@ def new_session(sid):
         else 48000)
 
 
+def emit_track_metering_data():
+    # Due to a message limit in socketio (btw, the message exceeding
+    # the limit is currently silently discarded, which I consider a bug),
+    # we need to send the metering data in parts. I decided to split
+    # the data per track, but for long tracks this will break
+    # (long tracks may not receive any data). TODO: Fix it.
+    for track in application.playspec_controller.session.tracks:
+        sio.emit('track_metering_data',
+                 _js_metering_data_for_track(track))
+
+
 @sio.event
 def load_session(sid, attr):
     path = attr['session']
@@ -206,14 +217,7 @@ def load_session(sid, attr):
         if application.amio_interface is not None
         else 48000,
         path)
-    # Due to a message limit in socketio (btw, the message exceeding
-    # the limit is currently silently discarded, which I consider a bug),
-    # we need to send the metering data in parts. I decided to split
-    # the data per track, but for long tracks this will break
-    # (long tracks may not receive any data). TODO: Fix it.
-    for track in application.playspec_controller.session.tracks:
-        sio.emit('track_metering_data',
-                 _js_metering_data_for_track(track))
+    emit_track_metering_data()
 
 
 @sio.event
@@ -295,6 +299,7 @@ def start_recording(sid):
 @sio.event
 def commit_recording(sid, attr):
     application.commit_recording(attr['fragment'])
+    emit_track_metering_data()
 
 
 @sio.event
