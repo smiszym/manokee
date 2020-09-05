@@ -1,6 +1,6 @@
 from amio import AudioClip
 from collections import deque
-from datetime import datetime
+import itertools
 from manokee.meter import Meter
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
@@ -82,7 +82,9 @@ class InputFragment:
 
 class InputRecorder:
     def __init__(self, keepalive_mins, keepalive_margin_mins):
-        self._input_fragments = deque([InputFragment(0, False)])
+        self._id_generator = itertools.count()
+        self._input_fragments = deque([
+            InputFragment(next(self._id_generator), False)])
         self._is_recording = False
         self._meter = Meter(2)
         self._keepalive_mins = keepalive_mins
@@ -122,7 +124,7 @@ class InputRecorder:
             self._is_recording = False
         if not self.last_fragment.is_chunk_compatible(input_chunk):
             self._input_fragments.appendleft(InputFragment(
-                len(self._input_fragments), self._is_recording))
+                next(self._id_generator), self._is_recording))
         self.last_fragment.append_chunk(input_chunk)
         # Keep track of what the current wall time is (approximately)
         self._wall_time_approx = input_chunk.wall_time
