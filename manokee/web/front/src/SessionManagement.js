@@ -121,13 +121,6 @@ export class SessionManagement extends Component {
             </button>
         }
       </div>
-      <button>Render session</button>
-      <button>Export to Ardour</button>
-      <button>Export to zip-packed wav</button>
-      <div>
-        <button>Import music file:</button>
-        <input id="music-file-path" type="text"/>
-      </div>
     </div>;
   }
 
