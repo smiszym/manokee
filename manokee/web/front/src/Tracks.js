@@ -182,8 +182,13 @@ export class Tracks extends Component {
           })
         }
       </div>
-      {this.props.track_edit_mode &&
-      <AddTrackButton onAddTrack={this.props.onAddTrack}/>
+      { this.props.track_edit_mode &&
+          <div>
+            <AddTrackButton onAddTrack={this.props.onAddTrack}/>
+            <button onClick={evt => this.props.onSetTrackEditMode(false)}>
+              Finish editing
+            </button>
+          </div>
       }
     </div>;
   }

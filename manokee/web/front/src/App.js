@@ -409,6 +409,7 @@ export class App extends Component {
         this.state.main_view_mode === 'mixer'
          ? <Tracks
              track_edit_mode={this.state.track_edit_mode}
+             onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              session={this.props.session}
              meter_values={meter_values}
              onRecChange={onRecChange}
