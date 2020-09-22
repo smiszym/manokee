@@ -445,7 +445,8 @@ export class App extends Component {
   }
   updateTrackEditMode(value) {
     this.setState({
-      track_edit_mode: value
+      track_edit_mode: value,
+      main_view_mode: value ? 'mixer' : 'options',
     });
   }
   toggleMainViewMode() {
