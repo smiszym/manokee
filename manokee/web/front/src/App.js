@@ -51,6 +51,7 @@ export function onLoad() {
                 capture_meter={msg.capture_meter}
                 recorded_fragments={msg.recorded_fragments}
                 onCommit={onCommit}
+                onGoToBeat={onGoToBeat}
                 frame_rate={msg.frame_rate}
               />,
               document.getElementById('app')
