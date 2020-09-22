@@ -140,8 +140,10 @@ class InputRecorder:
                     last_recording_fragment = fragment
             # If no recording fragment remained, append the last removed
             # recording fragment
-            if not any(fragment.transport_state == TransportState.RECORDING
-                       for fragment in self._input_fragments):
+            if (last_recording_fragment is not None
+                    and not any(
+                        fragment.transport_state == TransportState.RECORDING
+                        for fragment in self._input_fragments)):
                 self._input_fragments.append(last_recording_fragment)
 
         total_length = sum(len(fragment) for fragment in self._input_fragments)
