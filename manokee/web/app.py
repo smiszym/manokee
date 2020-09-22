@@ -109,11 +109,14 @@ def _construct_state_update_json(state_update_id):
     recorded_fragments = [fragment.to_js(amio_interface)
                           for fragment in application.recorded_fragments]
     if playspec_controller is not None:
+        # There is a 2-frame margin so that last frames of a bar
+        # are treated as the next bar. Note that these values are only
+        # used in the UI, therefore such a trick is acceptable.
         bar, beat = frame_to_bar_beat(
             amio_interface,
             playspec_controller.session,
             playspec_controller.timing,
-            frame)
+            frame + 2)
     else:
         bar, beat = None, None
     state_update_json = {
@@ -262,6 +265,18 @@ def go_to_beat(sid, attr):
         application.amio_interface,
         application.playspec_controller.timing,
         attr['beat'])
+    application.amio_interface.set_position(frame)
+
+
+@sio.event
+def go_to_bar(sid, attr):
+    session = application.playspec_controller.session
+    if session is None:
+        return
+    frame = beat_number_to_frame(
+        application.amio_interface,
+        application.playspec_controller.timing,
+        session.time_signature * attr['bar'])
     application.amio_interface.set_position(frame)
 
 

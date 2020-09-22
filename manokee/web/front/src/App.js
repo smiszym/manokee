@@ -52,6 +52,7 @@ export function onLoad() {
                 recorded_fragments={msg.recorded_fragments}
                 onCommit={onCommit}
                 onGoToBeat={onGoToBeat}
+                onGoToBar={onGoToBar}
                 frame_rate={msg.frame_rate}
               />,
               document.getElementById('app')
@@ -112,6 +113,10 @@ function onAddTrack(track_name) {
 
 function onGoToBeat(beat_number) {
     socket.emit('go_to_beat', {beat: beat_number});
+}
+
+function onGoToBar(bar_number) {
+    socket.emit('go_to_bar', {bar: bar_number});
 }
 
 function onGoToMark(name) {
@@ -288,7 +293,8 @@ class MoreOptions extends Component {
             current_bar={this.props.currentBar}
             autoRewind={this.props.autoRewind}
             onSetAutoRewind={onSetAutoRewind}
-            onGoToBeat={this.props.onGoToBeat}/>
+            onGoToBeat={this.props.onGoToBeat}
+            onGoToBar={this.props.onGoToBar}/>
         </TabPanel>
       </Tabs>
     </div>;
@@ -430,7 +436,8 @@ export class App extends Component {
              currentBar={this.props.current_bar}
              autoRewind={this.props.autoRewind}
              currentBeat={this.props.current_beat}
-             onGoToBeat={this.props.onGoToBeat} />
+             onGoToBeat={this.props.onGoToBeat}
+             onGoToBar={this.props.onGoToBar} />
       }
       </div>
     </div>;

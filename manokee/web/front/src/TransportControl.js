@@ -42,10 +42,17 @@ export class TransportControl extends Component {
       </Collapsible>
       <div>
         Go to bar:
-        <button>0</button>
-        <button>{this.props.current_bar + 0}</button>
-        <button className="highlighted-button">{this.props.current_bar + 1}</button>
-        <button>{this.props.current_bar + 2}</button>
+        <button onClick={evt => this.props.onGoToBar(0)}>1</button>
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar - 1)}>
+          {this.props.current_bar + 0}
+        </button>
+        <button className="highlighted-button"
+            onClick={evt => this.props.onGoToBar(this.props.current_bar)}>
+          {this.props.current_bar + 1}
+        </button>
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar + 1)}>
+          {this.props.current_bar + 2}
+        </button>
       </div>
     </div>;
   }
