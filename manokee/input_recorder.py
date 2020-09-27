@@ -1,37 +1,39 @@
-from amio import AudioClip
+from amio import AudioClip, InputAudioChunk, Interface
 from collections import deque
 import itertools
+from typing import Optional, List
+
 from manokee.meter import Meter
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
 
 
 class InputFragment:
-    def __init__(self, id, is_recording):
+    def __init__(self, id: int, is_recording: bool):
         self._id = id
-        self._chunks = []
+        self._chunks: List[InputAudioChunk] = []
         self._was_transport_rolling = None
         self._is_recording = is_recording
         self._stop_frame = None
         self._length = 0
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._length
 
     @property
-    def id(self):
+    def id(self) -> int:
         return self._id
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self._chunks) == 0
 
     @property
-    def chunks(self):
+    def chunks(self) -> List[InputAudioChunk]:
         return self._chunks
 
     @property
-    def transport_state(self):
+    def transport_state(self) -> TransportState:
         if self._was_transport_rolling:
             return (TransportState.RECORDING if self._is_recording
                     else TransportState.ROLLING)
@@ -39,15 +41,16 @@ class InputFragment:
             return TransportState.STOPPED
 
     @property
-    def starting_frame(self):
+    def starting_frame(self) -> Optional[int]:
         if len(self._chunks) > 0:
             return self._chunks[0].starting_frame
+        return None
 
-    def is_chunk_compatible(self, chunk):
+    def is_chunk_compatible(self, chunk: InputAudioChunk) -> bool:
         return (self._was_transport_rolling is None
                 or self._was_transport_rolling == chunk.was_transport_rolling)
 
-    def append_chunk(self, chunk):
+    def append_chunk(self, chunk: InputAudioChunk):
         assert self.is_chunk_compatible(chunk)
         self._chunks.append(chunk)
         self._was_transport_rolling = chunk.was_transport_rolling
@@ -57,7 +60,7 @@ class InputFragment:
     def last_chunk_wall_time(self):
         return self._chunks[-1].wall_time
 
-    def cut(self, desired_length):
+    def cut(self, desired_length: int):
         # This will cut to a bit longer fragment than desired_length,
         # because it won't cut individual chunks.
         while (len(self._chunks) > 1
@@ -65,23 +68,22 @@ class InputFragment:
             chunk = self._chunks.pop(0)
             self._length -= len(chunk)
 
-    def as_clip(self):
+    def as_clip(self) -> AudioClip:
         return AudioClip.concatenate(self._chunks)
 
-    def to_js(self, amio_interface):
+    def to_js(self, amio_interface: Interface) -> dict:
         result = {'id': self._id,
                   'transport_state': str(self.transport_state),
                   'length': format_frame(amio_interface, len(self)),
                   }
-        starting_frame = self.starting_frame
-        if starting_frame is not None:
+        if self.starting_frame is not None:
             result['starting_time'] = format_frame(
                 amio_interface, self.starting_frame)
         return result
 
 
 class InputRecorder:
-    def __init__(self, keepalive_mins, keepalive_margin_mins):
+    def __init__(self, keepalive_mins: float, keepalive_margin_mins: float):
         self._id_generator = itertools.count()
         self._input_fragments = deque([
             InputFragment(next(self._id_generator), False)])
@@ -92,31 +94,32 @@ class InputRecorder:
         self._wall_time_approx = None
 
     @property
-    def meter(self):
+    def meter(self) -> Meter:
         return self._meter
 
     @property
-    def fragments(self):
+    def fragments(self) -> List[InputFragment]:
         return list(self._input_fragments)
 
     @property
-    def last_fragment(self):
+    def last_fragment(self) -> InputFragment:
         return self._input_fragments[0]
 
-    def fragment_by_id(self, id):
+    def fragment_by_id(self, id: int) -> Optional[InputFragment]:
         for fragment in self._input_fragments:
             if fragment.id == id:
                 return fragment
+        return None
 
     @property
-    def is_recording(self):
+    def is_recording(self) -> bool:
         return self._is_recording
 
     @is_recording.setter
     def is_recording(self, value: bool):
         self._is_recording = value
 
-    def append_input_chunk(self, input_chunk):
+    def append_input_chunk(self, input_chunk: InputAudioChunk):
         self._update_meter(input_chunk)
         if (self.last_fragment.transport_state != TransportState.STOPPED
                 and not input_chunk.was_transport_rolling):
@@ -129,7 +132,7 @@ class InputRecorder:
         # Keep track of what the current wall time is (approximately)
         self._wall_time_approx = input_chunk.wall_time
 
-    def remove_old_fragments(self, amio_interface):
+    def remove_old_fragments(self, amio_interface: Interface):
         # Discard old fragments, but keep at least 1 fragment
         index = self._first_to_discard(60 * self._keepalive_mins)
         last_recording_fragment = None
@@ -156,15 +159,16 @@ class InputRecorder:
             fragment_to_cut.cut(
                 total_allowed - (total_length - last_fragment_length))
 
-    def _first_to_discard(self, discard_threshold):
+    def _first_to_discard(self, discard_threshold: float) -> Optional[int]:
         if self._wall_time_approx is None:
-            return
+            return None
         for i, fragment in enumerate(self._input_fragments):
             if ((self._wall_time_approx - fragment.last_chunk_wall_time())
                     .total_seconds() >= discard_threshold):
                 return i
+        return None
 
-    def _update_meter(self, input_chunk):
+    def _update_meter(self, input_chunk: InputAudioChunk):
         _, left_rms, left_peak = input_chunk.channel(0).create_metering_data()
         _, right_rms, right_peak = input_chunk.channel(1).create_metering_data()
         self._meter.current_rms_dB = [

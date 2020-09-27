@@ -1,5 +1,7 @@
-from amio import Fader
+from amio import AudioClip, Fader
 from collections import namedtuple
+import manokee.session
+from typing import Iterable
 
 
 class PlayspecEntry(namedtuple(
@@ -29,7 +31,7 @@ class PlayspecSource:
 
 
 class SessionTracksPlayspecSource(PlayspecSource):
-    def __init__(self, tracks):
+    def __init__(self, tracks: Iterable['manokee.session.Track']):
         self._tracks = list(tracks)
         self._is_soloed = any(track.is_solo for track in self._tracks)
         self._additional_data = {track: {"audible":
@@ -43,18 +45,24 @@ class SessionTracksPlayspecSource(PlayspecSource):
     def create_entry(self, entry_number: int) -> PlayspecEntry:
         track = self._tracks[entry_number]
         clip = track.get_audio_clip()
-        if clip is not None:
-            if self._additional_data[track]["audible"]:
-                fader = track.fader
-            else:
-                fader = Fader(float('-inf'))
-            return PlayspecEntry(clip, 0, len(clip), 0, 0,
-                                 fader.left_gain_factor,
-                                 fader.right_gain_factor)
+        if clip is None:
+            # TODO Don't hardcode 48 kHz: a) implement support for entries
+            # with different frame rates; b) add a special AudioClip
+            # instance being "silence", which simply is a no-op when mixed
+            return PlayspecEntry(AudioClip.zeros(1, 1, 48000), 0, 1, 0, 0,
+                                 0.0, 0.0)
+        if self._additional_data[track]["audible"]:
+            fader = track.fader
+        else:
+            fader = Fader(float('-inf'))
+        return PlayspecEntry(clip, 0, len(clip), 0, 0,
+                             fader.left_gain_factor,
+                             fader.right_gain_factor)
 
 
 class MetronomePlayspecSource(PlayspecSource):
-    def __init__(self, session, metronome):
+    def __init__(self, session: 'manokee.session.Session',
+                 metronome: 'manokee.metronome.Metronome'):
         self._metronome = metronome
         self._metronome_enabled = session.configuration['metronome'] == "1"
         self._metronome_fader = Fader(

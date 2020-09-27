@@ -1,12 +1,15 @@
-from amio import AudioClip, Fader, Playspec
-import manokee
+from amio import AudioClip, Fader, Interface, Playspec
+import manokee  # __version__
 import manokee.audacity.project as audacity_project
+import manokee.metronome
 from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, \
     SessionTracksPlayspecSource
 from manokee.timing.audacity_timing import AudacityTiming
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
+from manokee.timing.timing import Timing
 import os
+from typing import Callable, Optional
 import xml.etree.ElementTree as ET
 
 
@@ -31,7 +34,8 @@ def _ET_indent(elem, level=0):
 
 
 class Track:
-    def __init__(self, session, frame_rate, element=None, name=None):
+    def __init__(self, session: 'Session', frame_rate: float,
+            element: ET.Element = None, name: str = None):
         self._session = session
         if element is not None:
             assert name is None
@@ -59,7 +63,7 @@ class Track:
             self._fader = Fader()
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
-        self._on_modify = None
+        self._on_modify: Optional[Callable[[], None]] = None
         self.requires_audio_save = False
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
@@ -75,11 +79,11 @@ class Track:
                 self._audio = AudioClip.zeros(1, 1, frame_rate)
 
     @property
-    def on_modify(self):
+    def on_modify(self) -> Optional[Callable[[], None]]:
         return self._on_modify
 
     @on_modify.setter
-    def on_modify(self, callback):
+    def on_modify(self, callback: Callable[[], None]):
         self._on_modify = callback
 
     def notify_modified(self):
@@ -87,11 +91,11 @@ class Track:
             self._on_modify()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str):
         self._name = value
         self.notify_modified()
 
@@ -106,38 +110,38 @@ class Track:
         return self._audio
 
     @property
-    def is_rec(self):
+    def is_rec(self) -> bool:
         return self._is_rec
 
     @is_rec.setter
-    def is_rec(self, enabled):
+    def is_rec(self, enabled: bool):
         self._is_rec = enabled
         self.notify_modified()
 
     @property
-    def is_mute(self):
+    def is_mute(self) -> bool:
         return self._is_mute
 
     @is_mute.setter
-    def is_mute(self, enabled):
+    def is_mute(self, enabled: bool):
         self._is_mute = enabled
         self.notify_modified()
 
     @property
-    def is_solo(self):
+    def is_solo(self) -> bool:
         return self._is_solo
 
     @is_solo.setter
-    def is_solo(self, enabled):
+    def is_solo(self, enabled: bool):
         self._is_solo = enabled
         self.notify_modified()
 
     @property
-    def rec_source(self):
+    def rec_source(self) -> str:
         return self._rec_source
 
     @rec_source.setter
-    def rec_source(self, value):
+    def rec_source(self, value: str):
         self._rec_source = value
         self.notify_modified()
 
@@ -146,7 +150,7 @@ class Track:
         return self._source
 
     @property
-    def is_audacity_project(self):
+    def is_audacity_project(self) -> bool:
         return self._source == "audacity-project"
 
     @property
@@ -154,21 +158,21 @@ class Track:
         return self._audacity_project
 
     @property
-    def beats_in_audacity_beat(self):
+    def beats_in_audacity_beat(self) -> int:
         return self._beats_in_audacity_beat
 
     @property
-    def timing(self):
+    def timing(self) -> Timing:
         if self.is_audacity_project:
             return AudacityTiming(self._audacity_project)
         else:
             return self._session.timing
 
     @property
-    def fader(self):
+    def fader(self) -> Fader:
         return self._fader
 
-    def to_js(self):
+    def to_js(self) -> dict:
         return {
             'name': self._name,
             'is_rec': self._is_rec,
@@ -182,7 +186,9 @@ class Track:
 
 
 class Session:
-    def __init__(self, frame_rate, session_file_path: str = None):
+    def __init__(self, frame_rate: float,
+                 session_file_path: Optional[str] = None):
+        self._session_file_path: Optional[str] = None
         if session_file_path is not None and os.path.exists(session_file_path):
             if os.path.isdir(session_file_path):
                 self._session_file_path = os.path.join(
@@ -193,17 +199,31 @@ class Session:
             et = ET.parse(self._session_file_path)
             self._session_format_name = et.getroot().attrib['format-name']
             self._session_format_version = et.getroot().attrib['format-version']
-            self._modified_with = et.getroot().find(
-                'program-version').attrib['modified-with']
-            self._configuration = {
-                element.attrib['name']: element.attrib['value']
-                for element
-                in et.getroot().find('configuration').findall('setting')}
-            self._marks = {element.attrib['name']: element.attrib['position']
-                           for element
-                           in et.getroot().find('marks').findall('mark')}
-            self._tracks = [Track(self, frame_rate, element) for element
-                            in et.getroot().find('tracks').findall('track')]
+            modified_with_el = et.getroot().find('program-version')
+            self._modified_with: Optional[str] = None
+            if modified_with_el is not None:
+                self._modified_with = modified_with_el.attrib['modified-with']
+            configuration_el = et.getroot().find('configuration')
+            if configuration_el is not None:
+                self._configuration = {
+                    element.attrib['name']: element.attrib['value']
+                    for element
+                    in configuration_el.findall('setting')}
+            else:
+                self._configuration = {}
+            marks_el = et.getroot().find('marks')
+            if marks_el is not None:
+                self._marks = {
+                    element.attrib['name']: element.attrib['position']
+                    for element in marks_el.findall('mark')}
+            else:
+                self._marks = {}
+            tracks_el = et.getroot().find('tracks')
+            if tracks_el is not None:
+                self._tracks = [Track(self, frame_rate, element) for element
+                                in tracks_el.findall('track')]
+            else:
+                self._tracks = []
             for track in self._tracks:
                 track.on_modify = self._onModified
         else:
@@ -230,7 +250,7 @@ class Session:
             self._marks = {}
             self._tracks = []
         self._are_controls_modified = False
-        self._on_modify = None
+        self._on_modify: Optional[Callable[[], None]] = None
 
     def save(self):
         assert self._session_file_path is not None
@@ -288,15 +308,15 @@ class Session:
         self._are_controls_modified = False
 
     @property
-    def on_modify(self):
+    def on_modify(self) -> Optional[Callable[[], None]]:
         return self._on_modify
 
     @on_modify.setter
-    def on_modify(self, callback):
+    def on_modify(self, callback: Callable[[], None]):
         self._on_modify = callback
 
     @property
-    def are_controls_modified(self):
+    def are_controls_modified(self) -> bool:
         return self._are_controls_modified
 
     def _onModified(self):
@@ -319,53 +339,55 @@ class Session:
         self._session_file_path = value
 
     @property
-    def name(self):
+    def name(self) -> Optional[str]:
         # TODO: Store the session name inside the session file
         if self._session_file_path is None:
-            return
+            return None
         return os.path.basename(os.path.dirname(self._session_file_path))
 
     @property
-    def session_format_name(self):
+    def session_format_name(self) -> str:
         return self._session_format_name
 
     @property
-    def session_format_version(self):
+    def session_format_version(self) -> str:
         return self._session_format_version
 
     @property
-    def modified_with(self):
+    def modified_with(self) -> Optional[str]:
         return self._modified_with
 
     @property
-    def configuration(self):
+    def configuration(self) -> dict:
         return self._configuration
 
     @property
-    def marks(self):
+    def marks(self) -> dict:
         return self._marks
 
     @property
-    def tracks(self):
+    def tracks(self) -> list:
         return self._tracks
 
-    def track_for_name(self, name):
+    def track_for_name(self, name: str) -> Optional[Track]:
         for track in self._tracks:
             if track.name == name:
                 return track
+        return None
 
-    def _index_of_track(self, name):
+    def _index_of_track(self, name: str) -> Optional[int]:
         for i, track in enumerate(self._tracks):
             if track.name == name:
                 return i
+        return None
 
-    def remove_track(self, name):
+    def remove_track(self, name: str):
         i = self._index_of_track(name)
         if i is not None:
             del self._tracks[i]
         self._onModified()
 
-    def move_track_up(self, name):
+    def move_track_up(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == 0:
             return  # can't move the track up
@@ -373,7 +395,7 @@ class Session:
             self._tracks[i], self._tracks[i - 1])
         self._onModified()
 
-    def move_track_down(self, name):
+    def move_track_down(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == len(self._tracks) - 1:
             return  # can't move the track down
@@ -381,42 +403,42 @@ class Session:
             self._tracks[i], self._tracks[i + 1])
         self._onModified()
 
-    def add_track(self, name, frame_rate):
+    def add_track(self, name: str, frame_rate: float):
         track = Track(self, frame_rate, element=None, name=name)
         track.on_modify = self._onModified
         self._tracks.append(track)
         self._onModified()
 
     @property
-    def bpm(self):
+    def bpm(self) -> float:
         return float(self._configuration['bpm'])
 
     @bpm.setter
-    def bpm(self, value):
+    def bpm(self, value: float):
         self._configuration['bpm'] = str(value)
         self._onModified()
 
     @property
-    def time_signature(self):
+    def time_signature(self) -> int:
         return int(self._configuration['time_sig'])
 
     @time_signature.setter
-    def time_signature(self, value):
+    def time_signature(self, value: int):
         self._configuration['time_sig'] = str(value)
         self._onModified()
 
-    def beat_to_bar(self, beat):
+    def beat_to_bar(self, beat: float) -> float:
         return beat / self.time_signature
 
-    def bar_to_beat(self, bar):
+    def bar_to_beat(self, bar: float) -> float:
         return bar * self.time_signature
 
     @property
-    def timing(self):
+    def timing(self) -> Timing:
         return FixedBpmTiming(self.bpm)
 
     @property
-    def track_timings(self):
+    def track_timings(self) -> set:
         return {track.timing for track in self.tracks}
 
     def toggle_metronome(self):
@@ -434,13 +456,14 @@ class Session:
         self._configuration['metronome_vol'] = str(new_value)
         self._onModified()
 
-    def make_playspec_from_tracks(self, amio_interface, metronome, tracks):
+    def make_playspec_from_tracks(self, amio_interface: Interface,
+            metronome: 'manokee.metronome.Metronome', tracks) -> Playspec:
         playspec_generator = PlayspecGenerator(amio_interface)
         playspec_generator.add_source(SessionTracksPlayspecSource(tracks))
         playspec_generator.add_source(MetronomePlayspecSource(self, metronome))
         return playspec_generator.make_playspec()
 
-    def to_js(self):
+    def to_js(self) -> dict:
         """
         Make a JSON-line representation of the session, to be sent
         to the client.
@@ -455,7 +478,7 @@ class Session:
         }
 
     @staticmethod
-    def is_suitable_for_overwrite(session_file_path):
+    def is_suitable_for_overwrite(session_file_path) -> bool:
         if session_file_path is None:
             return True
         session_dir = os.path.dirname(session_file_path)
@@ -466,7 +489,7 @@ class Session:
         return False
 
     @staticmethod
-    def exists_on_disk(session_file_path):
+    def exists_on_disk(session_file_path) -> bool:
         if session_file_path is None:
             return False
         return os.path.isfile(session_file_path)

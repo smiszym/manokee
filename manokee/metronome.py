@@ -1,4 +1,5 @@
-from amio import AudioClip
+from amio import AudioClip, Interface
+import manokee.session
 import numpy as np
 
 
@@ -12,7 +13,8 @@ metronome_beat_clip = AudioClip.stereo_clip_from_mono_clips(
 
 
 class Metronome:
-    def __init__(self, amio_interface, session):
+    def __init__(self, amio_interface: Interface,
+                 session: 'manokee.session.Session'):
         self._amio_interface = amio_interface
         self._session = session
         self._needs_clip_recreation = True
@@ -20,17 +22,17 @@ class Metronome:
         self._repeat_interval = 0
 
     @property
-    def needs_clip_recreation(self):
+    def needs_clip_recreation(self) -> bool:
         return self._needs_clip_recreation
 
     @needs_clip_recreation.setter
-    def needs_clip_recreation(self, value):
+    def needs_clip_recreation(self, value: bool):
         if value == False:
             raise ValueError("Not allowed to set it externally to False")
         self._needs_clip_recreation = value
 
     @property
-    def audio_clip(self):
+    def audio_clip(self) -> AudioClip:
         if self._needs_clip_recreation:
             self.create_audio_clip()
         return self._audio_clip

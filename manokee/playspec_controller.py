@@ -1,19 +1,22 @@
+from amio import Interface, Playspec
 import logging
 from manokee.metronome import Metronome
-from manokee.session import Session
+from manokee.session import Session, Track
 from manokee.session_holder import SessionHolder
+from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
+from typing import Optional
 
 
 class PlayspecController:
-    def __init__(self, amio_interface):
+    def __init__(self, amio_interface: Interface):
         self._amio_interface = amio_interface
         self._metronome = None
-        self._first_audacity_track = None
+        self._first_audacity_track: Optional[Track] = None
         self.on_session_change = None
-        self._playspec = None
-        self._timing = FixedBpmTiming()
+        self._playspec: Optional[Playspec] = None
+        self._timing: Timing = FixedBpmTiming()
         self._is_audacity_timing_on = False
         self._session_holder = SessionHolder()
         self._session_holder.on_session_change = self._on_session_changed
@@ -35,11 +38,11 @@ class PlayspecController:
             self.on_session_change()
 
     @property
-    def session(self):
+    def session(self) -> Session:
         return self._session_holder.session
 
     @session.setter
-    def session(self, session):
+    def session(self, session: Session):
         self._session_holder.session = session
 
     def _schedule_playspecs_recreation(self):
@@ -62,25 +65,29 @@ class PlayspecController:
         self._amio_interface.set_current_playspec(self._playspec)
 
     @property
-    def timing(self):
+    def timing(self) -> Timing:
         return self._timing
 
     @property
-    def is_audacity_timing_on(self):
+    def is_audacity_timing_on(self) -> bool:
         return self._is_audacity_timing_on
 
     @is_audacity_timing_on.setter
-    def is_audacity_timing_on(self, value):
-        if value == True and self._first_audacity_track is None:
-            raise ValueError('Cannot set Audacity timing: no Audacity track')
-        self._is_audacity_timing_on = value
+    def is_audacity_timing_on(self, want_audacity_timing: bool):
         old_timing = self._timing
-        self._timing = (InterpolatedTiming(
-                            self._first_audacity_track.timing,
-                            self._first_audacity_track.beats_in_audacity_beat)
-                        if self._is_audacity_timing_on
-                        else self._session_holder.session.timing)
+        if self._first_audacity_track is None:
+            if want_audacity_timing:
+                raise ValueError(
+                    'Cannot set Audacity timing: no Audacity track')
+            self._timing = self._session_holder.session.timing
+        else:
+            self._timing = (InterpolatedTiming(
+                self._first_audacity_track.timing,
+                self._first_audacity_track.beats_in_audacity_beat)
+                            if want_audacity_timing
+                            else self._session_holder.session.timing)
         new_timing = self._timing
+        self._is_audacity_timing_on = want_audacity_timing
         self._playspec = (self._audacity_playspec
                           if self._is_audacity_timing_on
                           else self._fixed_bpm_playspec)

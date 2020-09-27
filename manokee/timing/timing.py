@@ -1,17 +1,16 @@
 class Timing:
-    def beat_to_seconds(self, beat_number):
+    def beat_to_seconds(self, beat_number: float) -> float:
         """
-        Calculate when the given beat begins.
+        Convert beat number to seconds.
         :param beat_number: Beat number counted from 0.
-        :return: Number of seconds (can be float) since the beat 0 beginning.
+        :return: Time in seconds.
         """
         raise NotImplementedError
 
-    def seconds_to_beat(self, time):
+    def seconds_to_beat(self, time: float) -> float:
         """
-        Calculate which beat is played at a given time.
+        Convert seconds to beat number.
         :param time: Time in seconds.
-        :return: Beat number, possibly float if the given time is not exactly
-        at the beginning of the beat.
+        :return: Beat number counted from 0.
         """
         raise NotImplementedError

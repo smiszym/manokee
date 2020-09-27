@@ -1,9 +1,11 @@
 import amio
 from manokee.global_config import *
-from manokee.input_recorder import InputRecorder
-from manokee.midi_control import MidiInputReceiver, MidiInterpreter
+from manokee.input_recorder import InputFragment, InputRecorder
+from manokee.meter import Meter
+from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
 from manokee.workspace import Workspace
+from typing import List, Optional
 
 
 class Application():
@@ -28,47 +30,48 @@ class Application():
         self._midi_input_receiver.start()
 
     @property
-    def amio_interface(self):
+    def amio_interface(self) -> amio.Interface:
         return self._amio_interface
 
     @property
-    def is_audio_io_running(self):
+    def is_audio_io_running(self) -> bool:
         return self._amio_interface is not None
 
     @property
-    def frame_rate(self):
+    def frame_rate(self) -> Optional[float]:
         if self._amio_interface is not None:
             return self._amio_interface.get_frame_rate()
+        return None
 
     @property
-    def playspec_controller(self):
+    def playspec_controller(self) -> PlayspecController:
         return self._playspec_controller
 
     @property
-    def workspace(self):
+    def workspace(self) -> Workspace:
         return self._workspace
 
     @property
-    def recent_sessions(self):
+    def recent_sessions(self) -> List[str]:
         return self._recent_sessions.get()
 
     @property
-    def recorded_fragments(self):
+    def recorded_fragments(self) -> List[InputFragment]:
         return self._input_recorder.fragments
 
     @property
-    def capture_meter(self):
+    def capture_meter(self) -> Meter:
         return self._input_recorder.meter
 
     @property
-    def auto_rewind(self):
+    def auto_rewind(self) -> bool:
         return self._auto_rewind
 
     @auto_rewind.setter
     def auto_rewind(self, value: bool):
         self._auto_rewind = value
 
-    def _on_midi_message(self, message):
+    def _on_midi_message(self, message: ManokeeMidiMessage):
         if message is not None:
             message.apply(self)
 
@@ -93,7 +96,7 @@ class Application():
         self._amio_interface = None
         self._recent_sessions.write()
 
-    def save_session_as(self, name):
+    def save_session_as(self, name: str):
         path = self._workspace.session_file_path_for_session_name(name)
         self._playspec_controller.session.session_file_path = path
         self._playspec_controller.session.save()
@@ -113,7 +116,7 @@ class Application():
         self._input_recorder.is_recording = True
         self._amio_interface.set_transport_rolling(True)
 
-    def commit_recording(self, fragment_id):
+    def commit_recording(self, fragment_id: int):
         fragment = self._input_recorder.fragment_by_id(fragment_id)
         clip = fragment.as_clip()
         left = clip.channel(0)
@@ -130,6 +133,6 @@ class Application():
                 track.requires_audio_save = True
                 track.notify_modified()
 
-    def _on_input_chunk(self, input_chunk):
+    def _on_input_chunk(self, input_chunk: amio.InputAudioChunk):
         self._input_recorder.append_input_chunk(input_chunk)
         self._input_recorder.remove_old_fragments(self._amio_interface)

@@ -29,6 +29,9 @@ setup(
     license="MIT",
     url="https://github.com/smiszym/manokee",
     packages = ["manokee"],
+    requires = [
+        "mypy",
+    ],
     install_requires = [
         "amio @ https://api.github.com/repos/smiszym/amio/tarball/ecd8555974d8366a317a1061f02da2948d446b6a",
         "eventlet",
