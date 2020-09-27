@@ -30,7 +30,7 @@ setup(
     url="https://github.com/smiszym/manokee",
     packages = ["manokee"],
     install_requires = [
-        "amio",
+        "amio @ https://api.github.com/repos/smiszym/amio/tarball/0c9c34ee222b591abab562881c931e606503c5e2",
         "eventlet",
         "Flask",
         "Flask-SocketIO",
