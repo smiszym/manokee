@@ -21,6 +21,31 @@ var socket;
 var workspace_sessions;
 var track_metering_data = {};
 
+function renderStateUpdate(msg) {
+  ReactDOM.render(
+    <App
+      ping_latency={msg.ping_latency}
+      is_audio_io_running={msg.is_audio_io_running}
+      is_transport_rolling={msg.is_transport_rolling}
+      position_seconds={msg.position_seconds}
+      current_position={msg.frame_formatted}
+      current_beat={msg.beat_formatted}
+      current_bar={msg.current_bar}
+      autoRewind={msg.auto_rewind}
+      session={msg.session}
+      track_metering_data={track_metering_data}
+      workspace_sessions={workspace_sessions}
+      capture_meter={msg.capture_meter}
+      recorded_fragments={msg.recorded_fragments}
+      onCommit={onCommit}
+      onGoToBeat={onGoToBeat}
+      onGoToBar={onGoToBar}
+      frame_rate={msg.frame_rate}
+    />,
+    document.getElementById('app')
+  );
+}
+
 export function onLoad() {
     socket = io();
     socket.on('connect', function (msg) {
@@ -30,28 +55,7 @@ export function onLoad() {
             if (msg.state_update_id) {
                 socket.emit('state_update_ack', {'id': msg.state_update_id});
             }
-            ReactDOM.render(
-              <App
-                ping_latency={msg.ping_latency}
-                is_audio_io_running={msg.is_audio_io_running}
-                is_transport_rolling={msg.is_transport_rolling}
-                position_seconds={msg.position_seconds}
-                current_position={msg.frame_formatted}
-                current_beat={msg.beat_formatted}
-                current_bar={msg.current_bar}
-                autoRewind={msg.auto_rewind}
-                session={msg.session}
-                track_metering_data={track_metering_data}
-                workspace_sessions={workspace_sessions}
-                capture_meter={msg.capture_meter}
-                recorded_fragments={msg.recorded_fragments}
-                onCommit={onCommit}
-                onGoToBeat={onGoToBeat}
-                onGoToBar={onGoToBar}
-                frame_rate={msg.frame_rate}
-              />,
-              document.getElementById('app')
-            );
+            renderStateUpdate(msg);
         });
         socket.on('workspace_sessions', function (msg) {
             workspace_sessions = msg;
