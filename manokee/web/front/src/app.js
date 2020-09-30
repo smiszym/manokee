@@ -37,9 +37,9 @@ function renderStateUpdate(msg) {
       workspace_sessions={workspace_sessions}
       capture_meter={msg.capture_meter}
       recorded_fragments={msg.recorded_fragments}
-      onCommit={onCommit}
-      onGoToBeat={onGoToBeat}
-      onGoToBar={onGoToBar}
+      onCommit={(fragment) => socket.emit('commit_recording', {fragment})}
+      onGoToBeat={(beat) => socket.emit('go_to_beat', {beat})}
+      onGoToBar={(bar) => socket.emit('go_to_bar', {bar})}
       frame_rate={msg.frame_rate}
     />,
     document.getElementById('app')
@@ -64,138 +64,6 @@ export function onLoad() {
             track_metering_data[msg.track] = msg;
         });
     });
-}
-
-function onStartAudio() {
-    socket.emit('start_audio');
-}
-
-function onStopAudio() {
-    socket.emit('stop_audio');
-}
-
-function onNewSession() {
-    socket.emit('new_session');
-}
-
-function onLoadSession(session_path) {
-    socket.emit('load_session', {session: session_path});
-}
-
-function onSaveSession() {
-    socket.emit('save_session');
-}
-
-function onSaveSessionAs(name) {
-    socket.emit('save_session_as', {name: name});
-}
-
-function onToggleMetronome() {
-    socket.emit('toggle_metronome');
-}
-
-function onSetAutoRewind(value) {
-    socket.emit('set_auto_rewind', {value: value});
-}
-
-function onMetronomeVolDown() {
-    socket.emit('metronome_vol_down');
-}
-
-function onMetronomeVolUp() {
-    socket.emit('metronome_vol_up');
-}
-
-function onAddTrack(track_name) {
-    socket.emit('add_track', {name: track_name});
-}
-
-function onGoToBeat(beat_number) {
-    socket.emit('go_to_beat', {beat: beat_number});
-}
-
-function onGoToBar(bar_number) {
-    socket.emit('go_to_bar', {bar: bar_number});
-}
-
-function onGoToMark(name) {
-    socket.emit('go_to_mark', {mark: name});
-}
-
-function onSetMarkAtBar(name, bar) {
-    socket.emit('set_mark_at_bar', {name: name, bar: bar});
-}
-
-function onPlayStop() {
-    socket.emit('play_stop');
-}
-
-function onStartRecording() {
-    socket.emit('start_recording');
-}
-
-function onCommit(fragment_id) {
-    socket.emit('commit_recording', {fragment: fragment_id});
-}
-
-function onSessionTiming() {
-    socket.emit('audacity_timing', false);
-}
-
-function onAudacityTiming() {
-    socket.emit('audacity_timing', true);
-}
-
-function onRecChange(track_name, enabled) {
-    socket.emit('set_rec', {track: track_name, enabled: enabled});
-}
-
-function onRecSourceChange(track_name, source) {
-    socket.emit('set_rec_source', {track: track_name, source: source});
-}
-
-function onMuteChange(track_name, enabled) {
-    socket.emit('set_mute', {track: track_name, enabled: enabled});
-}
-
-function onSoloChange(track_name, enabled) {
-    socket.emit('set_solo', {track: track_name, enabled: enabled});
-}
-
-function onPanChange(track_name, pan) {
-    socket.emit('set_pan', {track: track_name, pan: pan});
-}
-
-function onVolumeDown(track_name) {
-    socket.emit('volume_down', {track: track_name});
-}
-
-function onVolumeUp(track_name) {
-    socket.emit('volume_up', {track: track_name});
-}
-
-function onChangeTempoBy(delta) {
-    socket.emit('change_tempo_by', {delta: delta});
-}
-
-function onSetTimeSig(time_sig) {
-    socket.emit('set_time_sig', {time_sig: time_sig});
-}
-
-function onTrackNameChange(old_name, new_name) {
-    socket.emit('rename_track', {track: old_name, new_name: new_name});
-}
-
-function onRemoveTrack(track_name) {
-    socket.emit('remove_track', {track: track_name});
-}
-
-function onMoveTrackUp(track_name) {
-    socket.emit('move_track_up', {track: track_name});
-}
-
-function onMoveTrackDown(track_name) {
-    socket.emit('move_track_down', {track: track_name});
 }
 
 class UpperControlPanelRow extends Component {
@@ -248,8 +116,8 @@ class MoreOptions extends Component {
           <Status
             pingLatency={this.props.pingLatency}
             audioIoRunning={this.props.audioIoRunning}
-            onStartAudio={onStartAudio}
-            onStopAudio={onStopAudio}/>
+            onStartAudio={() => socket.emit('start_audio')}
+            onStopAudio={() => socket.emit('stop_audio')} />
         </TabPanel>
         <TabPanel>
           <SessionManagement
@@ -257,27 +125,28 @@ class MoreOptions extends Component {
             track_edit_mode={this.props.trackEditMode}
             onSetTrackEditMode={this.props.onSetTrackEditMode}
             workspace_sessions={this.props.workspaceSessions}
-            onNewSession={onNewSession}
-            onLoadSession={onLoadSession}
-            onSaveSession={onSaveSession}
-            onSaveSessionAs={onSaveSessionAs} />
+            onNewSession={() => socket.emit('new_session')}
+            onLoadSession={(session) => socket.emit('load_session', {session})}
+            onSaveSession={() => socket.emit('save_session')}
+            onSaveSessionAs={(name) => socket.emit('save_session_as', {name})}/>
         </TabPanel>
         <TabPanel>
           <TimingManagement
             session={this.props.session}
-            onToggleMetronome={onToggleMetronome}
-            onMetronomeVolDown={onMetronomeVolDown}
-            onMetronomeVolUp={onMetronomeVolUp}
-            onChangeTempoBy={onChangeTempoBy}
-            onSetTimeSig={onSetTimeSig}
-            onSessionTiming={onSessionTiming}
-            onAudacityTiming={onAudacityTiming} />
+            onToggleMetronome={() => socket.emit('toggle_metronome')}
+            onMetronomeVolDown={() => socket.emit('metronome_vol_down')}
+            onMetronomeVolUp={() => socket.emit('metronome_vol_up')}
+            onChangeTempoBy={(delta) => socket.emit('change_tempo_by', {delta})}
+            onSetTimeSig={(time_sig) => socket.emit('set_time_sig', {time_sig})}
+            onSessionTiming={() => socket.emit('audacity_timing', false)}
+            onAudacityTiming={() => socket.emit('audacity_timing', true)} />
         </TabPanel>
         <TabPanel>
           <Marks
             session={this.props.session}
             current_bar={this.props.currentBar}
-            onSetMarkAtBar={onSetMarkAtBar} />
+            onSetMarkAtBar={
+              (name, bar) => socket.emit('set_mark_at_bar', {name, bar})} />
         </TabPanel>
         <TabPanel>
           <RecordedFragments
@@ -291,7 +160,7 @@ class MoreOptions extends Component {
             current_beat={this.props.currentBeat}
             current_bar={this.props.currentBar}
             autoRewind={this.props.autoRewind}
-            onSetAutoRewind={onSetAutoRewind}
+            onSetAutoRewind={() => socket.emit('set_auto_rewind', {value})}
             onGoToBeat={this.props.onGoToBeat}
             onGoToBar={this.props.onGoToBar}/>
         </TabPanel>
@@ -365,8 +234,8 @@ export class App extends Component {
           current_beat={this.props.current_beat} />
       <div className="control-panel">
         <UpperControlPanelRow
-          onPlayStop={onPlayStop}
-          onStartRecording={onStartRecording} />
+          onPlayStop={() => socket.emit('play_stop')}
+          onStartRecording={() => socket.emit('start_recording')} />
         <LowerControlPanelRow
           ping_latency={this.props.ping_latency}
           track_edit_mode={this.state.track_edit_mode}
@@ -375,9 +244,9 @@ export class App extends Component {
           is_audio_io_running={this.props.is_audio_io_running}
           workspace_sessions={this.props.workspace_sessions}
           recorded_fragments={this.props.recorded_fragments}
-          onCommit={onCommit}
-          onGoToBeat={onGoToBeat}
-          onGoToMark={onGoToMark}
+          onCommit={this.props.onCommit}
+          onGoToBeat={this.props.onGoToBeat}
+          onGoToMark={(mark) => socket.emit('go_to_mark', {mark})}
           current_position={this.props.current_position}
           current_beat={this.props.current_beat}
           current_bar={this.props.current_bar}
@@ -395,18 +264,26 @@ export class App extends Component {
              onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              session={this.props.session}
              meter_values={meter_values}
-             onRecChange={onRecChange}
-             onRecSourceChange={onRecSourceChange}
-             onMuteChange={onMuteChange}
-             onSoloChange={onSoloChange}
-             onPanChange={onPanChange}
-             onVolumeDown={onVolumeDown}
-             onVolumeUp={onVolumeUp}
-             onAddTrack={onAddTrack}
-             onNameChange={onTrackNameChange}
-             onRemove={onRemoveTrack}
-             onMoveUp={onMoveTrackUp}
-             onMoveDown={onMoveTrackDown} />
+             onRecChange={
+               (track, enabled) => socket.emit('set_rec', {track, enabled})}
+             onRecSourceChange={
+               (track, source) =>
+                socket.emit('set_rec_source', {track, source})}
+             onMuteChange={
+               (track, enabled) => socket.emit('set_mute', {track, enabled})}
+             onSoloChange={
+               (track, enabled) => socket.emit('set_solo', {track, enabled})}
+             onPanChange={
+               (track, enabled) => socket.emit('set_pan', {track, enabled})}
+             onVolumeDown={(track) => socket.emit('volume_down', {track})}
+             onVolumeUp={(track) => socket.emit('volume_up', {track})}
+             onAddTrack={(name) => socket.emit('add_track', {name})}
+             onNameChange={
+               (track, new_name) =>
+                socket.emit('rename_track', {track, new_name})}
+             onRemove={(track) => socket.emit('remove_track', {track})}
+             onMoveUp={(track) => socket.emit('move_track_up', {track})}
+             onMoveDown={(track) => socket.emit('move_track_down', {track})} />
          : <MoreOptions
              pingLatency={this.props.ping_latency}
              audioIoRunning={this.props.is_audio_io_running}
