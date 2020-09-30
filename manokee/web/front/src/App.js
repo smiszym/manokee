@@ -13,14 +13,9 @@ import {TimingManagement} from "./TimingManagement";
 import {Tracks} from "./Tracks";
 import {SessionManagement} from "./SessionManagement";
 import {Status} from "./Status";
-
-function factor_to_dB(factor) {
-  return 20.0 * Math.log10(factor);
-}
-
-function dB_to_factor(dB) {
-  return Math.pow(10, dB / 20.0);
-}
+import {
+  factor_to_dB, calculate_tracks_audibility, gains_for_track
+} from './meter-utils';
 
 var socket;
 var workspace_sessions;
@@ -319,22 +314,6 @@ class LowerControlPanelRow extends Component {
       }
     </div>;
   }
-}
-
-function calculate_tracks_audibility(tracks, is_transport_rolling) {
-  const soloed = tracks.some(track => track.is_solo);
-  return tracks.reduce((result, track) => {
-    if (is_transport_rolling)
-      result[track.name] = soloed ? track.is_solo : !track.is_mute;
-    else
-      result[track.name] = false;
-    return result;
-  }, {});
-}
-
-function gains_for_track(track, meter_value) {
-  const factor = dB_to_factor(meter_value);
-  return [factor * (1.0 - track.pan), factor * (1.0 + track.pan)];
 }
 
 export class App extends Component {
