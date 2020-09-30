@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {AudioIoControl} from "./AudioIoControl";
+import {AudioIoControl} from "./audio-io-control";
 
 export class Status extends Component {
   render() {

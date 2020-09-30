@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Meter} from "./Meter";
+import {Meter} from "./meter";
 
 export class PlaybackCaptureMeters extends Component {
   render() {

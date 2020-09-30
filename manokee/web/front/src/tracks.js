@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Popup from "reactjs-popup";
-import {Meter} from "./Meter";
+import {Meter} from "./meter";
 
 class EditTrackNamePopup extends Component {
   constructor(props) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {App, onLoad} from './App';
+import {App, onLoad} from './app';
 
 window.onload = onLoad;
 

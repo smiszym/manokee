@@ -4,15 +4,15 @@ import Popup from 'reactjs-popup';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import io from 'socket.io-client';
 
-import {SummaryLine} from "./SummaryLine";
-import {PlaybackCaptureMeters} from "./PlaybackCaptureMeters";
-import {Marks} from "./Marks";
-import {TransportControl} from "./TransportControl";
-import {RecordedFragments} from "./RecordedFragments";
-import {TimingManagement} from "./TimingManagement";
-import {Tracks} from "./Tracks";
-import {SessionManagement} from "./SessionManagement";
-import {Status} from "./Status";
+import {SummaryLine} from "./summary-line";
+import {PlaybackCaptureMeters} from "./playback-capture-meters";
+import {Marks} from "./marks";
+import {TransportControl} from "./transport-control";
+import {RecordedFragments} from "./recorded-fragments";
+import {TimingManagement} from "./timing-management";
+import {Tracks} from "./tracks";
+import {SessionManagement} from "./session-management";
+import {Status} from "./status";
 import {
   factor_to_dB, calculate_tracks_audibility, gains_for_track
 } from './meter-utils';

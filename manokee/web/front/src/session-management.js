@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import Collapsible from "react-collapsible";
 import Popup from "reactjs-popup";
-import {Meter} from "./Meter";
+import {Meter} from "./meter";
 
 class WorkspaceSessions extends Component {
   render() {
