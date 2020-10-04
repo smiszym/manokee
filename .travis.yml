@@ -4,7 +4,9 @@ python:
   - "3.8"
   - "3.8-dev"
 before_install:
-  - sudo apt-get -y install libjack-jackd2-dev swig
+  # libasound2-dev for building python-rtmidi package
+  # libjack-jackd2-dev, swig for building amio package
+  - sudo apt-get -y install libasound2-dev libjack-jackd2-dev swig
 install:
   - pip install -e .
   - pip install mypy
