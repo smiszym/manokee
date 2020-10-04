@@ -1,0 +1,15 @@
+language: python
+python:
+  - "3.7"
+  - "3.8"
+  - "3.8-dev"
+before_install:
+  - sudo apt-get -y install libjack-jackd2-dev swig
+install:
+  - pip install -e .
+  - pip install mypy
+script:
+  - python setup.py sdist
+  - python setup.py bdist_wheel
+  - pytest
+  - mypy manokee/
