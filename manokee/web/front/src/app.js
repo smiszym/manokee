@@ -59,6 +59,7 @@ function renderStateUpdate(msg) {
       onGoToMark={(mark) => socket.emit('go_to_mark', {mark})}
       onGoToBeat={(beat) => socket.emit('go_to_beat', {beat})}
       onGoToBar={(bar) => socket.emit('go_to_bar', {bar})}
+      onUnsetRecAll={() => socket.emit('unset_rec_all')}
       onRecChange={(track, enabled) => socket.emit('set_rec', {track, enabled})}
       onRecSourceChange={
         (track, source) => socket.emit('set_rec_source', {track, source})}
@@ -109,7 +110,9 @@ class UpperControlPanelRow extends Component {
              onClick={this.props.onStartRecording} />
       <input className="image-button" type="image" src="/play-pause.svg"
              onClick={this.props.onPlayStop} />
-      <input className="image-button" type="image" src="/remove-arm-for-recording.svg" />
+      <input className="image-button" type="image"
+             src="/remove-arm-for-recording.svg"
+             onClick={this.props.onUnsetRecAll} />
     </div>;
   }
 }
@@ -269,7 +272,8 @@ export class App extends Component {
       <div className="control-panel">
         <UpperControlPanelRow
           onPlayStop={this.props.onPlayStop}
-          onStartRecording={this.props.onStartRecording} />
+          onStartRecording={this.props.onStartRecording}
+          onUnsetRecAll={this.props.onUnsetRecAll} />
         <LowerControlPanelRow
           ping_latency={this.props.ping_latency}
           track_edit_mode={this.state.track_edit_mode}

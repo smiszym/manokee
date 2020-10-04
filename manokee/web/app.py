@@ -324,6 +324,12 @@ def audacity_timing(sid, value):
 
 
 @sio.event
+def unset_rec_all(sid):
+    for track in application.playspec_controller.session.tracks:
+        track.is_rec = False
+
+
+@sio.event
 def set_rec(sid, attr):
     track = application.playspec_controller.session.track_for_name(
         attr['track'])
