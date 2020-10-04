@@ -313,15 +313,30 @@ export class App extends Component {
          : <MoreOptions
              pingLatency={this.props.ping_latency}
              audioIoRunning={this.props.is_audio_io_running}
+             onStartAudio={this.props.onStartAudio}
+             onStopAudio={this.props.onStopAudio}
              trackEditMode={this.state.track_edit_mode}
              onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
+             onNewSession={this.props.onNewSession}
+             onLoadSession={this.props.onLoadSession}
+             onSaveSession={this.props.onSaveSession}
+             onSaveSessionAs={this.props.onSaveSessionAs}
+             onToggleMetronome={this.props.onToggleMetronome}
+             onMetronomeVolDown={this.props.onMetronomeVolDown}
+             onMetronomeVolUp={this.props.onMetronomeVolUp}
+             onChangeTempoBy={this.props.onChangeTempoBy}
+             onSetTimeSig={this.props.onSetTimeSig}
+             onSessionTiming={this.props.onSessionTiming}
+             onAudacityTiming={this.props.onAudacityTiming}
              recordedFragments={this.props.recorded_fragments}
              onCommit={this.props.onCommit}
              currentPosition={this.props.current_position}
              currentBar={this.props.current_bar}
+             onSetMarkAtBar={this.props.onSetMarkAtBar}
              autoRewind={this.props.autoRewind}
+             onSetAutoRewind={this.props.onSetAutoRewind}
              currentBeat={this.props.current_beat}
              onGoToBeat={this.props.onGoToBeat}
              onGoToBar={this.props.onGoToBar} />
