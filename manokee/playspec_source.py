@@ -1,6 +1,8 @@
 from amio import AudioClip, Fader
 from collections import namedtuple
+import manokee.metronome
 import manokee.session
+import manokee.track
 from typing import Iterable
 
 
@@ -31,7 +33,7 @@ class PlayspecSource:
 
 
 class SessionTracksPlayspecSource(PlayspecSource):
-    def __init__(self, tracks: Iterable['manokee.session.Track']):
+    def __init__(self, tracks: Iterable['manokee.track.Track']):
         self._tracks = list(tracks)
         self._is_soloed = any(track.is_solo for track in self._tracks)
         self._additional_data = {track: {"audible":

@@ -1,7 +1,8 @@
 from amio import Interface, Playspec
 import logging
 from manokee.metronome import Metronome
-from manokee.session import Session, Track
+from manokee.session import Session
+from manokee.track import Track
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
