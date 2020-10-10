@@ -262,6 +262,15 @@ class Session:
                            if track.is_audacity_project]
         return [""] + audacity_groups
 
+    def tracks_in_group(self, track_group_name: str):
+        if track_group_name == "":
+            # The main track group
+            return [track for track in self._tracks
+                    if not track.is_audacity_project]
+        else:
+            # Audacity track group
+            return [self.track_for_name(track_group_name)]
+
     @property
     def bpm(self) -> float:
         return float(self._configuration['bpm'])
@@ -309,8 +318,10 @@ class Session:
         self._configuration['metronome_vol'] = str(new_value)
         self._onModified()
 
-    def make_playspec_from_tracks(self, amio_interface: Interface,
-            metronome: 'manokee.metronome.Metronome', tracks) -> Playspec:
+    def make_playspec_for_track_group(self, amio_interface: Interface,
+            metronome: 'manokee.metronome.Metronome',
+            track_group_name: str) -> Playspec:
+        tracks = self.tracks_in_group(track_group_name)
         playspec_generator = PlayspecGenerator(amio_interface)
         playspec_generator.add_source(SessionTracksPlayspecSource(tracks))
         playspec_generator.add_source(MetronomePlayspecSource(self, metronome))

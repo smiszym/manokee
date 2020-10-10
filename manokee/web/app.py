@@ -321,8 +321,7 @@ def commit_recording(sid, attr):
 def set_active_track_group(sid, attr):
     name = attr['group_name']
     logging.info(f"Setting active track group to: {name}")
-    # TODO: Support more than one Audacity track group
-    application.playspec_controller.is_audacity_timing_on = (name != "")
+    application.playspec_controller.active_track_group_name = name
 
 
 @sio.event
