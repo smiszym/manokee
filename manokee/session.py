@@ -137,17 +137,22 @@ class Session:
 
         tracks = ET.SubElement(root, 'tracks')
         for track in self._tracks:
-            ET.SubElement(
-                tracks, 'track',
-                attrib={
-                    'rec': "1" if track.is_rec else "0",
-                    'rec-source': track.rec_source,
-                    'mute': "1" if track.is_mute else "0",
-                    'solo': "1" if track.is_solo else "0",
-                    'vol': str(track.fader.vol_dB),
-                    'pan': str(track.fader.pan),
-                    'name': track.name,
-                    })
+            attrib = {
+                'rec': "1" if track.is_rec else "0",
+                'rec-source': track.rec_source,
+                'mute': "1" if track.is_mute else "0",
+                'solo': "1" if track.is_solo else "0",
+                'vol': str(track.fader.vol_dB),
+                'pan': str(track.fader.pan),
+                'name': track.name,
+                'source': track.source,
+            }
+            if track.is_audacity_project:
+                attrib['audacity-project'] = (
+                    track.audacity_project.aup_file_path)
+                attrib['beats-in-audacity-beat'] = (
+                    str(track.beats_in_audacity_beat))
+            ET.SubElement(tracks, 'track', attrib=attrib)
 
         _ET_indent(root)
         tree = ET.ElementTree(root)
