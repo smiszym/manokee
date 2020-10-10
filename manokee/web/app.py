@@ -91,7 +91,6 @@ _should_stop_updating_clients = threading.Event()
 
 
 def _construct_state_update_json(state_update_id):
-    global _ping
     amio_interface = application.amio_interface
     if amio_interface is not None:
         playspec_controller = application.playspec_controller
@@ -140,7 +139,6 @@ def _construct_state_update_json(state_update_id):
 
 
 def _update_task():
-    global _ping
     while not _should_stop_updating_clients.wait(0.1):
         sio.emit('state_update', _construct_state_update_json(
             _ping.ping_id_to_send()))
@@ -162,8 +160,7 @@ def connected(sid):
 
 @sio.event
 def state_update_ack(sid, attr):
-    global _ping
-    latency = _ping.pong_received(attr['id'])
+    _ping.pong_received(attr['id'])
 
 
 @sio.event
