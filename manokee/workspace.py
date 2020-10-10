@@ -31,9 +31,9 @@ class Workspace:
             self._sessions = []
             return
         else:
-            self._sessions = [
+            self._sessions = sorted([
                 path for path in _abslistdir(self._directory)
-                if dir_is_session(path)]
+                if dir_is_session(path)])
 
     def session_file_path_for_session_name(self, name):
         # Verify that name is a filename without path separators

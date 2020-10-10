@@ -13,7 +13,7 @@ class WorkspaceSessions extends Component {
           return <div key={session}>
             <button
               onClick={evt => this.props.onLoadSession(session)}>
-              {session}
+              {session.substr(session.lastIndexOf('/')+1)}
             </button>
           </div>
         })
