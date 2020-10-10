@@ -48,8 +48,16 @@ export class TimingManagement extends Component {
         <div>Metronome {metronome ? "on" : "off"}</div>
         <div>Metronome volume: {metronome_vol}</div>
         <div>Metronome pan: {metronome_pan}</div>
-        <button onClick={this.props.onSessionTiming}>Session timing</button>
-        <button onClick={this.props.onAudacityTiming}>Audacity timing</button>
+        <div>
+          {
+            this.props.session.track_group_names.map((group_name, i) => {
+              return <button key={group_name} onClick={evt =>
+                  this.props.onSetActiveTrackGroup(group_name)}>
+                {group_name ? group_name : "Main group"}
+              </button>
+            })
+          }
+        </div>
       </div>
     </div>;
   }

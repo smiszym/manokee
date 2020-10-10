@@ -48,8 +48,8 @@ function renderStateUpdate(msg) {
       onMetronomeVolUp={() => socket.emit('metronome_vol_up')}
       onChangeTempoBy={(delta) => socket.emit('change_tempo_by', {delta})}
       onSetTimeSig={(time_sig) => socket.emit('set_time_sig', {time_sig})}
-      onSessionTiming={() => socket.emit('audacity_timing', false)}
-      onAudacityTiming={() => socket.emit('audacity_timing', true)}
+      onSetActiveTrackGroup={
+        (group_name) => socket.emit('set_active_track_group', {group_name})}
       onSetMarkAtBar={
         (name, bar) => socket.emit('set_mark_at_bar', {name, bar})}
       onSetAutoRewind={() => socket.emit('set_auto_rewind', {value})}
@@ -176,8 +176,7 @@ class MoreOptions extends Component {
             onMetronomeVolUp={this.props.onMetronomeVolUp}
             onChangeTempoBy={this.props.onChangeTempoBy}
             onSetTimeSig={this.props.onSetTimeSig}
-            onSessionTiming={this.props.onSessionTiming}
-            onAudacityTiming={this.props.onAudacityTiming} />
+            onSetActiveTrackGroup={this.props.onSetActiveTrackGroup} />
         </TabPanel>
         <TabPanel>
           <Marks
@@ -332,8 +331,7 @@ export class App extends Component {
              onMetronomeVolUp={this.props.onMetronomeVolUp}
              onChangeTempoBy={this.props.onChangeTempoBy}
              onSetTimeSig={this.props.onSetTimeSig}
-             onSessionTiming={this.props.onSessionTiming}
-             onAudacityTiming={this.props.onAudacityTiming}
+             onSetActiveTrackGroup={this.props.onSetActiveTrackGroup}
              recordedFragments={this.props.recorded_fragments}
              onCommit={this.props.onCommit}
              currentPosition={this.props.current_position}
