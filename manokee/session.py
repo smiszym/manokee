@@ -8,7 +8,7 @@ from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.timing import Timing
 import os
-from typing import Callable, Optional
+from typing import Callable, Optional, List
 import xml.etree.ElementTree as ET
 
 
@@ -257,6 +257,12 @@ class Session:
         self._onModified()
 
     @property
+    def track_group_names(self) -> List[str]:
+        audacity_groups = [track.name for track in self._tracks
+                           if track.is_audacity_project]
+        return [""] + audacity_groups
+
+    @property
     def bpm(self) -> float:
         return float(self._configuration['bpm'])
 
@@ -322,6 +328,7 @@ class Session:
             'configuration': self._configuration,
             'marks': self._marks,
             'tracks': [track.to_js() for track in self._tracks],
+            'track_group_names': self.track_group_names,
         }
 
     @staticmethod
