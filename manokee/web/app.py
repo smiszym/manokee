@@ -214,7 +214,7 @@ def _js_metering_data_for_track(track):
 @sio.event
 def new_session(sid):
     # TODO Make it possible to open a session without specifying frame rate
-    application.playspec_controller.session = Session(
+    application.session = Session(
         application.amio_interface.get_frame_rate()
         if application.amio_interface is not None
         else 48000
@@ -227,7 +227,7 @@ def emit_track_metering_data():
     # we need to send the metering data in parts. I decided to split
     # the data per track, but for long tracks this will break
     # (long tracks may not receive any data). TODO: Fix it.
-    for track in application.playspec_controller.session.tracks:
+    for track in application.session.tracks:
         sio.emit("track_metering_data", _js_metering_data_for_track(track))
 
 
@@ -236,7 +236,7 @@ def load_session(sid, attr):
     path = attr["session"]
     logging.info("Loading session: " + path)
     # TODO Make it possible to open a session without specifying frame rate
-    application.playspec_controller.session = Session(
+    application.session = Session(
         application.amio_interface.get_frame_rate()
         if application.amio_interface is not None
         else 48000,
@@ -247,7 +247,7 @@ def load_session(sid, attr):
 
 @sio.event
 def save_session(sid):
-    application.playspec_controller.session.save()
+    application.session.save()
 
 
 @sio.event
@@ -257,7 +257,7 @@ def save_session_as(sid, attr):
 
 @sio.event
 def toggle_metronome(sid):
-    application.playspec_controller.session.toggle_metronome()
+    application.session.toggle_metronome()
 
 
 @sio.event
@@ -267,17 +267,17 @@ def set_auto_rewind(sid, attr):
 
 @sio.event
 def metronome_vol_down(sid):
-    application.playspec_controller.session.metronome_vol_down()
+    application.session.metronome_vol_down()
 
 
 @sio.event
 def metronome_vol_up(sid):
-    application.playspec_controller.session.metronome_vol_up()
+    application.session.metronome_vol_up()
 
 
 @sio.event
 def add_track(sid, attr):
-    application.playspec_controller.session.add_track(
+    application.session.add_track(
         attr["name"], application.amio_interface.get_frame_rate()
     )
 
@@ -292,7 +292,7 @@ def go_to_beat(sid, attr):
 
 @sio.event
 def go_to_bar(sid, attr):
-    session = application.playspec_controller.session
+    session = application.session
     if session is None:
         return
     frame = beat_number_to_frame(
@@ -306,7 +306,7 @@ def go_to_bar(sid, attr):
 @sio.event
 def go_to_mark(sid, attr):
     try:
-        position = application.playspec_controller.session.marks[attr["mark"]]
+        position = application.session.marks[attr["mark"]]
         frame = parse_frame(application.amio_interface, position)
         application.amio_interface.set_position(frame)
     except KeyError:
@@ -349,82 +349,82 @@ def set_active_track_group(sid, attr):
 
 @sio.event
 def unset_rec_all(sid):
-    for track in application.playspec_controller.session.tracks:
+    for track in application.session.tracks:
         track.is_rec = False
 
 
 @sio.event
 def set_rec(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.is_rec = attr["enabled"]
 
 
 @sio.event
 def set_rec_source(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.rec_source = attr["source"]
 
 
 @sio.event
 def set_mute(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.is_mute = attr["enabled"]
 
 
 @sio.event
 def set_solo(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.is_solo = attr["enabled"]
 
 
 @sio.event
 def set_pan(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.fader.pan = attr["pan"]
     track.notify_modified()
 
 
 @sio.event
 def volume_down(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.fader.vol_dB = track.fader.vol_dB - 1
     track.notify_modified()
 
 
 @sio.event
 def volume_up(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     track.fader.vol_dB = track.fader.vol_dB + 1
     track.notify_modified()
 
 
 @sio.event
 def change_tempo_by(sid, attr):
-    application.playspec_controller.session.bpm += attr["delta"]
+    application.session.bpm += attr["delta"]
 
 
 @sio.event
 def set_time_sig(sid, attr):
-    application.playspec_controller.session.time_signature = attr["time_sig"]
+    application.session.time_signature = attr["time_sig"]
 
 
 @sio.event
 def rename_track(sid, attr):
-    track = application.playspec_controller.session.track_for_name(attr["track"])
+    track = application.session.track_for_name(attr["track"])
     if track is not None:
         track.name = attr["new_name"]
 
 
 @sio.event
 def remove_track(sid, attr):
-    application.playspec_controller.session.remove_track(attr["track"])
+    application.session.remove_track(attr["track"])
 
 
 @sio.event
 def move_track_up(sid, attr):
-    application.playspec_controller.session.move_track_up(attr["track"])
+    application.session.move_track_up(attr["track"])
 
 
 @sio.event
 def move_track_down(sid, attr):
-    application.playspec_controller.session.move_track_down(attr["track"])
+    application.session.move_track_down(attr["track"])

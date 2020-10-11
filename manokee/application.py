@@ -4,6 +4,7 @@ from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
 from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
+from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.workspace import Workspace
 from typing import List, Optional
@@ -38,6 +39,14 @@ class Application:
             )
         )
         self._midi_input_receiver.start()
+
+    @property
+    def session(self) -> Session:
+        return self._session_holder.session
+
+    @session.setter
+    def session(self, session: Session):
+        self._session_holder.session = session
 
     @property
     def amio_interface(self) -> amio.Interface:
@@ -86,9 +95,7 @@ class Application:
             message.apply(self)
 
     def _onSessionChanged(self):
-        self._recent_sessions.append(
-            self._playspec_controller.session.session_file_path
-        )
+        self._recent_sessions.append(self._session_holder.session.session_file_path)
 
     def start_audio_io(self):
         assert self._amio_interface is None
@@ -109,8 +116,8 @@ class Application:
 
     def save_session_as(self, name: str):
         path = self._workspace.session_file_path_for_session_name(name)
-        self._playspec_controller.session.session_file_path = path
-        self._playspec_controller.session.save()
+        self._session_holder.session.session_file_path = path
+        self._session_holder.session.save()
 
     def play_stop(self):
         was_rolling = self._amio_interface.is_transport_rolling()
@@ -132,7 +139,7 @@ class Application:
         clip = fragment.as_clip()
         left = clip.channel(0)
         right = clip.channel(1)
-        session = self._playspec_controller.session
+        session = self._session_holder.session
         for track in session.tracks:
             if track.is_rec:
                 clip_to_commit = left if track.rec_source == "L" else right

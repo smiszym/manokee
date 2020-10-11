@@ -41,13 +41,11 @@ class VolumeChangeMessage(ManokeeMidiMessage):
         self.new_value = new_value
 
     def apply(self, application: "manokee.application.Application"):
-        playspec_controller = application.playspec_controller
-        if playspec_controller is not None:
-            session = playspec_controller.session
-            if session is not None:
-                track = session.tracks[self.track_number]
-                track.fader.vol_dB = self.new_value
-                track.notify_modified()
+        session = application.session
+        if session is not None:
+            track = session.tracks[self.track_number]
+            track.fader.vol_dB = self.new_value
+            track.notify_modified()
 
 
 class ButtonMessage(ManokeeMidiMessage):
@@ -56,17 +54,15 @@ class ButtonMessage(ManokeeMidiMessage):
         self.action = action
 
     def apply(self, application: "manokee.application.Application"):
-        playspec_controller = application.playspec_controller
-        if playspec_controller is not None:
-            session = playspec_controller.session
-            if session is not None:
-                track = session.tracks[self.track_number]
-                if self.action == 0:
-                    track.is_rec = not track.is_rec
-                elif self.action == 1:
-                    track.is_mute = not track.is_mute
-                elif self.action == 2:
-                    track.is_solo = not track.is_solo
+        session = application.session
+        if session is not None:
+            track = session.tracks[self.track_number]
+            if self.action == 0:
+                track.is_rec = not track.is_rec
+            elif self.action == 1:
+                track.is_mute = not track.is_mute
+            elif self.action == 2:
+                track.is_solo = not track.is_solo
 
 
 class StartRecordingMessage(ManokeeMidiMessage):
