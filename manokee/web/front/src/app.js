@@ -36,6 +36,7 @@ function renderStateUpdate(msg) {
       workspace_sessions={workspace_sessions}
       capture_meter={msg.capture_meter}
       recorded_fragments={msg.recorded_fragments}
+      fragment_being_revised_id={msg.fragment_being_revised_id}
       onStartAudio={() => socket.emit('start_audio')}
       onStopAudio={() => socket.emit('stop_audio')}
       onNewSession={() => socket.emit('new_session')}
@@ -58,6 +59,8 @@ function renderStateUpdate(msg) {
       onPlayStop={() => socket.emit('play_stop')}
       onStartRecording={() => socket.emit('start_recording')}
       onCommit={(fragment) => socket.emit('commit_recording', {fragment})}
+      onCommitRevisedFragment={() => socket.emit('commit_revised_fragment')}
+      onDiscardRevisedFragment={() => socket.emit('stop_revising')}
       onGoToMark={(mark) => socket.emit('go_to_mark', {mark})}
       onGoToBeat={(beat) => socket.emit('go_to_beat', {beat})}
       onGoToBar={(bar) => socket.emit('go_to_bar', {bar})}
@@ -108,20 +111,29 @@ class UpperControlPanelRow extends Component {
     const edit_mode_on = this.props.track_edit_mode;
 
     return <div className="upper-control-panel-row">
-      <input className="image-button" type="image" src="/record.svg"
+      {
+        this.props.fragment_being_revised_id !== null
+          ? <input className="image-button" type="image" src="/commit.svg"
+             onClick={this.props.onCommitRevisedFragment} />
+          : <input className="image-button" type="image" src="/record.svg"
              id="start-recording"
              onClick={this.props.onStartRecording} />
+      }
       <input className="image-button" type="image" src="/play-pause.svg"
              onClick={this.props.onPlayStop} />
       {
-        this.props.display_track_edit_button
-          ? <input className={`image-button ${
-                edit_mode_on ? "highlighted-button" : ""}`}
-              type="image" src="/track-edit-mode.svg"
-              onClick={evt => this.props.onSetTrackEditMode(!edit_mode_on)} />
-          : <input className="image-button"
-              type="image" src="/remove-arm-for-recording.svg"
-              onClick={this.props.onUnsetRecAll} />
+        this.props.fragment_being_revised_id !== null
+          ? <input className="image-button"
+                  type="image" src="/discard.svg"
+                  onClick={this.props.onDiscardRevisedFragment} />
+          : this.props.display_track_edit_button
+              ? <input className={`image-button ${
+                    edit_mode_on ? "highlighted-button" : ""}`}
+                  type="image" src="/track-edit-mode.svg"
+                  onClick={evt => this.props.onSetTrackEditMode(!edit_mode_on)} />
+              : <input className="image-button"
+                  type="image" src="/remove-arm-for-recording.svg"
+                  onClick={this.props.onUnsetRecAll} />
       }
     </div>;
   }
@@ -278,7 +290,8 @@ export class App extends Component {
           is_audio_io_running={this.props.is_audio_io_running}
           session={this.props.session}
           current_position={this.props.current_position}
-          current_beat={this.props.current_beat} />
+          current_beat={this.props.current_beat}
+          fragment_being_revised_id={this.props.fragment_being_revised_id} />
       <div className="control-panel">
         <UpperControlPanelRow
           onPlayStop={this.props.onPlayStop}
@@ -286,7 +299,10 @@ export class App extends Component {
           onUnsetRecAll={this.props.onUnsetRecAll}
           display_track_edit_button={tracks.every(track => !track.is_rec)}
           track_edit_mode={this.state.track_edit_mode}
-          onSetTrackEditMode={(value) => this.updateTrackEditMode(value)} />
+          onSetTrackEditMode={(value) => this.updateTrackEditMode(value)}
+          fragment_being_revised_id={this.props.fragment_being_revised_id}
+          onCommitRevisedFragment={this.props.onCommitRevisedFragment}
+          onDiscardRevisedFragment={this.props.onDiscardRevisedFragment} />
         <LowerControlPanelRow
           ping_latency={this.props.ping_latency}
           track_edit_mode={this.state.track_edit_mode}

@@ -4,6 +4,7 @@ from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
 from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
+from manokee.revising import Reviser
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing_utils import beat_number_to_frame
@@ -27,6 +28,7 @@ class Application:
         self._workspace = Workspace(self._global_config.get("workspace"))
         self._recent_sessions = RecentSessions()
         self._input_recorder = InputRecorder(4, 2)
+        self._reviser = Reviser(self._session_holder, self._input_recorder)
         self._midi_interpreter = MidiInterpreter()
         self._midi_input_receiver = MidiInputReceiver(
             lambda raw_message: self._on_midi_message(
@@ -101,7 +103,7 @@ class Application:
         self._amio_interface.input_chunk_callback = self._on_input_chunk
         self._session_holder.session = Session(self._amio_interface.get_frame_rate())
         self._playspec_controller = PlayspecController(
-            self.amio_interface, self._session_holder
+            self.amio_interface, self._session_holder, self._reviser
         )
         self._session_holder.add_observer(self._onSessionChanged)
         self._recent_sessions.read()
@@ -132,10 +134,32 @@ class Application:
             return
         if not self._playspec_controller.plays_main_track_group():
             return
+        if self._input_recorder.fragment_being_revised is not None:
+            return
         self._auto_rewind_position = self._amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._playspec_controller.is_recording = True
         self._amio_interface.set_transport_rolling(True)
+
+    @property
+    def is_revising(self) -> bool:
+        return self._input_recorder.fragment_being_revised is not None
+
+    @property
+    def fragment_being_revised_id(self) -> Optional[int]:
+        if self.is_revising:
+            return self._input_recorder.fragment_being_revised.id
+        else:
+            return None
+
+    def commit_revised_fragment(self):
+        if not self.is_revising:
+            return
+        self.commit_recording(self._input_recorder.fragment_being_revised.id)
+        self._input_recorder.fragment_being_revised = None
+
+    def stop_revising(self):
+        self._input_recorder.fragment_being_revised = None
 
     def commit_recording(self, fragment_id: int):
         fragment = self._input_recorder.fragment_by_id(fragment_id)

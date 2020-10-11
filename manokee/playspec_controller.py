@@ -1,6 +1,7 @@
 from amio import Interface, Playspec
 from itertools import cycle
 from manokee.looping import LoopFragment
+import manokee.revising
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
@@ -11,7 +12,12 @@ LoopSpec = List[LoopFragment]
 
 
 class PlayspecController:
-    def __init__(self, amio_interface: Interface, session_holder: SessionHolder):
+    def __init__(
+        self,
+        amio_interface: Interface,
+        session_holder: SessionHolder,
+        reviser: manokee.revising.Reviser,
+    ):
         self._amio_interface = amio_interface
         self._playspecs_for_groups: Dict[str, Playspec] = {}
         self._timing: Timing = FixedBpmTiming()
@@ -22,6 +28,7 @@ class PlayspecController:
         self._current_loop_fragment: Optional[LoopFragment] = None
         self._session_holder = session_holder
         self._session_holder.add_observer(self._on_session_changed)
+        self._reviser = reviser
         self._is_recording = False
 
     def _on_session_changed(self):
@@ -39,7 +46,7 @@ class PlayspecController:
         session = self._session_holder.session
         self._playspecs_for_groups = {
             group_name: session.make_playspec_for_track_group(
-                group_name, self._is_recording
+                group_name, self._is_recording, self._reviser
             )
             for group_name in session.track_group_names
         }

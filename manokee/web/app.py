@@ -57,6 +57,14 @@ app = socketio.WSGIApp(
             "content_type": "image/svg+xml",
             "filename": "manokee/web/front/dist/record.svg",
         },
+        "/commit.svg": {
+            "content_type": "image/svg+xml",
+            "filename": "manokee/web/front/dist/commit.svg",
+        },
+        "/discard.svg": {
+            "content_type": "image/svg+xml",
+            "filename": "manokee/web/front/dist/discard.svg",
+        },
         "/remove-arm-for-recording.svg": {
             "content_type": "image/svg+xml",
             "filename": "manokee/web/front/dist/remove-arm-for-recording.svg",
@@ -155,6 +163,7 @@ def _construct_state_update_json(state_update_id):
         "session": session_js,
         "capture_meter": application.capture_meter.current_rms_dB,
         "recorded_fragments": recorded_fragments,
+        "fragment_being_revised_id": application.fragment_being_revised_id,
     }
     if state_update_id is not None:
         state_update_json["state_update_id"] = state_update_id
@@ -332,6 +341,16 @@ def start_recording(sid):
 def commit_recording(sid, attr):
     application.commit_recording(attr["fragment"])
     emit_track_metering_data()
+
+
+@sio.event
+def commit_revised_fragment(sid):
+    application.commit_revised_fragment()
+
+
+@sio.event
+def stop_revising(sid):
+    application.stop_revising()
 
 
 @sio.event

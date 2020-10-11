@@ -8,6 +8,7 @@ from manokee.playspec_generators import (
     track_playspec_entries,
     metronome_playspec_entries,
 )
+import manokee.revising
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
@@ -351,7 +352,10 @@ class Session(ObservableMixin):
         self._notify_observers()
 
     def make_playspec_for_track_group(
-        self, track_group_name: str, is_recording: bool = False
+        self,
+        track_group_name: str,
+        is_recording: bool,
+        reviser: "manokee.revising.Reviser",
     ) -> Playspec:
         # First, calculate basic audibility of tracks from solo and mute values
         is_soloed = any(track.is_solo for track in self._tracks)
@@ -371,7 +375,8 @@ class Session(ObservableMixin):
                         track
                         for track in self.tracks_in_group(track_group_name)
                         if audibility[track]
-                    )
+                    ),
+                    reviser.audio_substitutes,
                 ),
                 metronome_playspec_entries(
                     self, self.create_metronome_for_track_group(track_group_name)

@@ -4,6 +4,7 @@ import itertools
 from typing import Optional, List
 
 from manokee.meter import Meter
+from manokee.observable import ObservableMixin
 from manokee.time_formatting import format_frame
 from manokee.transport_state import TransportState
 
@@ -88,11 +89,13 @@ class InputFragment:
         return result
 
 
-class InputRecorder:
+class InputRecorder(ObservableMixin):
     def __init__(self, keepalive_mins: float, keepalive_margin_mins: float):
+        super().__init__()
         self._id_generator = itertools.count()
         self._input_fragments = deque([InputFragment(next(self._id_generator), False)])
         self._is_recording = False
+        self._fragment_being_revised: Optional[InputFragment] = None
         self._meter = Meter(2)
         self._keepalive_mins = keepalive_mins
         self._keepalive_margin_mins = keepalive_margin_mins
@@ -109,6 +112,15 @@ class InputRecorder:
     @property
     def last_fragment(self) -> InputFragment:
         return self._input_fragments[0]
+
+    @property
+    def fragment_being_revised(self) -> Optional[InputFragment]:
+        return self._fragment_being_revised
+
+    @fragment_being_revised.setter
+    def fragment_being_revised(self, fragment: Optional[InputFragment]):
+        self._fragment_being_revised = fragment
+        self._notify_observers()
 
     def fragment_by_id(self, id: int) -> Optional[InputFragment]:
         for fragment in self._input_fragments:
@@ -130,7 +142,11 @@ class InputRecorder:
             self.last_fragment.transport_state != TransportState.STOPPED
             and not input_chunk.was_transport_rolling
         ):
-            # Stop recording when AMIO transport stops rolling
+            # Set the last fragment as being revised and stop recording
+            # when AMIO transport stops rolling
+            if self._is_recording:
+                self._fragment_being_revised = self.last_fragment
+                self._notify_observers()
             self._is_recording = False
         if not self.last_fragment.is_chunk_compatible(input_chunk):
             self._input_fragments.appendleft(

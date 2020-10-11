@@ -11,7 +11,12 @@ export class SummaryLine extends Component {
         </div>
         : <div className="no-audio">NO AUDIO</div>}
       <div>{this.props.current_position} ({this.props.current_beat})</div>
-      <div>recording info</div>
+      <div>
+        {
+          this.props.fragment_being_revised_id !== null
+            && "revising " + this.props.fragment_being_revised_id
+        }
+      </div>
     </div>;
   }
 }

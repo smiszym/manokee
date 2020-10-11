@@ -1,6 +1,6 @@
 import gc
 from manokee.observable import ObservableMixin
-from manokee.session import Session
+import manokee.session
 
 
 class SessionHolder(ObservableMixin):
@@ -14,11 +14,11 @@ class SessionHolder(ObservableMixin):
         self._session = None
 
     @property
-    def session(self) -> Session:
+    def session(self) -> "manokee.session.Session":
         return self._session
 
     @session.setter
-    def session(self, session: Session):
+    def session(self, session: "manokee.session.Session"):
         if self._session is not session:
             self._session = session
             self._notify_observers()
