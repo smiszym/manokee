@@ -27,7 +27,6 @@ class Application:
         self._playspec_controller = None
         self._auto_rewind = False
         self._auto_rewind_position = 0
-        self.on_session_change = None
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get("workspace"))
         self._recent_sessions = RecentSessions()
@@ -90,8 +89,6 @@ class Application:
         self._recent_sessions.append(
             self._playspec_controller.session.session_file_path
         )
-        if self.on_session_change is not None:
-            self.on_session_change()
 
     def start_audio_io(self):
         assert self._amio_interface is None
