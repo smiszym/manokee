@@ -213,12 +213,8 @@ def _js_metering_data_for_track(track):
 
 @sio.event
 def new_session(sid):
-    # TODO Make it possible to open a session without specifying frame rate
-    application.session = Session(
-        application.amio_interface.get_frame_rate()
-        if application.amio_interface is not None
-        else 48000
-    )
+    if application.amio_interface is not None:
+        application.session = Session(application.amio_interface.get_frame_rate())
 
 
 def emit_track_metering_data():
@@ -233,16 +229,11 @@ def emit_track_metering_data():
 
 @sio.event
 def load_session(sid, attr):
-    path = attr["session"]
-    logging.info("Loading session: " + path)
-    # TODO Make it possible to open a session without specifying frame rate
-    application.session = Session(
-        application.amio_interface.get_frame_rate()
-        if application.amio_interface is not None
-        else 48000,
-        path,
-    )
-    emit_track_metering_data()
+    if application.amio_interface is not None:
+        path = attr["session"]
+        logging.info("Loading session: " + path)
+        application.session = Session(application.amio_interface.get_frame_rate(), path)
+        emit_track_metering_data()
 
 
 @sio.event

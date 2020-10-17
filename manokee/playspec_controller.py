@@ -21,10 +21,16 @@ class PlayspecController:
         self._session_holder.on_session_change = self._on_session_changed
 
     def _on_session_changed(self):
-        self._session_holder.session.on_modify = self._schedule_playspecs_recreation
-        self._metronome = Metronome(self._amio_interface, self._session_holder.session)
-        self._timing = self._session_holder.session.timing
-        self._recreate_playspecs()
+        session = self._session_holder.session
+        if session is not None:
+            session.on_modify = self._schedule_playspecs_recreation
+            self._metronome = Metronome(self._amio_interface, session)
+            self._timing = session.timing
+            self._recreate_playspecs()
+        else:
+            self._metronome = None
+            self._timing = FixedBpmTiming()
+            self._playspecs_for_groups = {}
         if self.on_session_change is not None:
             self.on_session_change()
 

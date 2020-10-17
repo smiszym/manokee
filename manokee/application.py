@@ -19,12 +19,6 @@ class Application:
     def __init__(self):
         self._session_holder = SessionHolder()
         self._amio_interface = None
-        # TODO Make it possible to open a session without specifying frame rate
-        self._session_holder.session = Session(
-            self._amio_interface.get_frame_rate()
-            if self._amio_interface is not None
-            else 48000
-        )
         self._playspec_controller = None
         self._auto_rewind = False
         self._auto_rewind_position = 0
@@ -95,13 +89,16 @@ class Application:
             message.apply(self)
 
     def _onSessionChanged(self):
-        self._recent_sessions.append(self._session_holder.session.session_file_path)
+        session = self._session_holder.session
+        if session is not None:
+            self._recent_sessions.append(session.session_file_path)
 
     def start_audio_io(self):
         assert self._amio_interface is None
         self._amio_interface = amio.create_io_interface()
         self._amio_interface.init("manokee")
         self._amio_interface.input_chunk_callback = self._on_input_chunk
+        self._session_holder.session = Session(self._amio_interface.get_frame_rate())
         self._playspec_controller = PlayspecController(
             self.amio_interface, self._session_holder
         )
@@ -110,6 +107,7 @@ class Application:
 
     def stop_audio_io(self):
         assert self._amio_interface is not None
+        self._session_holder.session = None
         self._amio_interface.close()
         self._amio_interface = None
         self._recent_sessions.write()
