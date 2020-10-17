@@ -2,12 +2,11 @@ from amio import Interface, Playspec
 import logging
 from manokee.metronome import Metronome
 from manokee.session import Session
-from manokee.track import Track
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
-from typing import Optional
+from typing import Dict
 
 
 class PlayspecController:
@@ -15,7 +14,7 @@ class PlayspecController:
         self._amio_interface = amio_interface
         self._metronome = None
         self.on_session_change = None
-        self._playspec: Optional[Playspec] = None
+        self._playspecs_for_groups: Dict[str, Playspec] = {}
         self._timing: Timing = FixedBpmTiming()
         self._active_track_group_name = ""
         self._session_holder = session_holder
@@ -49,8 +48,9 @@ class PlayspecController:
             )
             for group_name in self._session_holder.session.track_group_names
         }
-        self._playspec = self._playspecs_for_groups[""]
-        self._amio_interface.set_current_playspec(self._playspec)
+        self._amio_interface.set_current_playspec(
+            self._playspecs_for_groups[self._active_track_group_name]
+        )
 
     @property
     def timing(self) -> Timing:
@@ -74,7 +74,7 @@ class PlayspecController:
             )
         new_timing = self._timing
         self._active_track_group_name = group_name
-        self._playspec = self._playspecs_for_groups[group_name]
+        playspec = self._playspecs_for_groups[group_name]
         current_frame = self._amio_interface.get_position()
         current_second = self._amio_interface.frame_to_secs(current_frame)
         beat = int(old_timing.seconds_to_beat(current_second))
@@ -90,5 +90,5 @@ class PlayspecController:
             f"beat {new_timing.seconds_to_beat(new_second)}."
         )
         logging.info(f"Insert frame = {insert_frame}; new frame = {new_frame}")
-        self._playspec.set_insertion_points(insert_frame, new_frame)
-        self._amio_interface.set_current_playspec(self._playspec)
+        playspec.set_insertion_points(insert_frame, new_frame)
+        self._amio_interface.set_current_playspec(playspec)
