@@ -26,7 +26,7 @@ class PlayspecController:
             session.on_modify = self._schedule_playspecs_recreation
             self._metronome = Metronome(self._amio_interface, session)
             self._timing = session.timing
-            self._recreate_playspecs()
+            self._schedule_playspecs_recreation()
         else:
             self._metronome = None
             self._timing = FixedBpmTiming()
