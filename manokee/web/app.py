@@ -178,6 +178,10 @@ def stop_updating_clients():
 @sio.event
 def connected(sid):
     logging.info("A client connected.")
+    if not application.is_audio_io_running:
+        application.start_audio_io()
+        sio.emit("recent_sessions", application.recent_sessions)
+        sio.emit("workspace_sessions", application.workspace.sessions)
 
 
 @sio.event
