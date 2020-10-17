@@ -1,3 +1,4 @@
+import gc
 from manokee.session import Session
 
 
@@ -21,3 +22,7 @@ class SessionHolder:
             self._session = session
             if self.on_session_change is not None:
                 self.on_session_change()
+            # Sessions are huge objects, typically a few hundred MB.
+            # Run the garbage collector after loading new sessions,
+            # in order to free the memory as soon as possible.
+            gc.collect()
