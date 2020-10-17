@@ -1,5 +1,6 @@
 import logging
 from manokee.application import Application
+from manokee.looping import LoopFragment
 from manokee.ping import Ping
 from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame
@@ -326,6 +327,25 @@ def set_active_track_group(sid, attr):
     name = attr["group_name"]
     logging.info(f"Setting active track group to: {name}")
     application.playspec_controller.set_active_track_group_name(name)
+
+
+@sio.event
+def set_loop_spec(sid, attr):
+    def bar_of(mark_or_bar):
+        if isinstance(mark_or_bar, (int, float)):
+            return mark_or_bar
+        elif isinstance(mark_or_bar, str):
+            return application.session.marks[mark_or_bar].beat
+
+    spec = [
+        LoopFragment(
+            bar_of(fragment["bar_a"]),
+            bar_of(fragment["bar_b"]),
+            fragment["track_group_name"],
+        )
+        for fragment in attr["loop_spec"]
+    ]
+    application.playspec_controller.set_loop_spec(spec)
 
 
 @sio.event

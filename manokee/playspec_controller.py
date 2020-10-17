@@ -1,9 +1,13 @@
 from amio import Interface, Playspec
+from itertools import cycle
+from manokee.looping import LoopFragment
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing_utils import calculate_insertion_points
-from typing import Dict
+from typing import Dict, Iterator, List, Optional
+
+LoopSpec = List[LoopFragment]
 
 
 class PlayspecController:
@@ -11,7 +15,11 @@ class PlayspecController:
         self._amio_interface = amio_interface
         self._playspecs_for_groups: Dict[str, Playspec] = {}
         self._timing: Timing = FixedBpmTiming()
-        self._active_track_group_name = ""
+        # One of _active_track_group_name and _loop_spec is not None
+        self._active_track_group_name: Optional[str] = ""
+        self._loop_spec: Optional[LoopSpec] = None
+        self._loop_iterator: Optional[Iterator[LoopFragment]] = None
+        self._current_loop_fragment: Optional[LoopFragment] = None
         self._session_holder = session_holder
         self._session_holder.add_observer(self._on_session_changed)
 
@@ -44,6 +52,9 @@ class PlayspecController:
         self._timing = self._session_holder.session.group_timing(group_name)
         new_timing = self._timing
         self._active_track_group_name = group_name
+        self._loop_spec = None
+        self._loop_iterator = None
+        self._current_loop_fragment = None
         insertion_points = calculate_insertion_points(
             self._amio_interface,
             self._amio_interface.get_position(),
@@ -57,3 +68,38 @@ class PlayspecController:
             insertion_points.start_from,
             None,
         )
+
+    def set_loop_spec(self, loop_spec: LoopSpec):
+        self._loop_spec = loop_spec
+        self._loop_iterator = cycle(loop_spec)
+        self._active_track_group_name = None
+        self._schedule_next_fragment()
+
+    def _schedule_next_fragment(self):
+        if self._loop_spec is None:
+            # The loop has been canceled in the meantime and we just have a regular
+            # active track group now; nothing to do
+            return
+        old_fragment = self._current_loop_fragment
+        self._current_loop_fragment = next(self._loop_iterator)
+        new_fragment = self._current_loop_fragment
+        old_timing = self._timing
+        self._timing = self._session_holder.session.group_timing(
+            new_fragment.track_group_name
+        )
+        new_timing = self._timing
+        if old_fragment is not None:
+            insert_at_frame = old_timing.beat_to_seconds(old_fragment.bar_b)
+        else:
+            insert_at_frame = 0
+        start_from_frame = new_timing.beat_to_seconds(new_fragment.bar_a)
+        insert_frame = self._amio_interface.secs_to_frame(insert_at_frame)
+        new_frame = self._amio_interface.secs_to_frame(start_from_frame)
+        current_playspec = self._playspecs_for_groups[new_fragment.track_group_name]
+        self._amio_interface.schedule_playspec_change(
+            current_playspec, insert_frame, new_frame, self._on_playspec_set
+        )
+
+    def _on_playspec_set(self, successfully):
+        if successfully:
+            self._schedule_next_fragment()

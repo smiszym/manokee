@@ -51,6 +51,8 @@ function renderStateUpdate(msg) {
       onSetTimeSig={(time_sig) => socket.emit('set_time_sig', {time_sig})}
       onSetActiveTrackGroup={
         (group_name) => socket.emit('set_active_track_group', {group_name})}
+      onSetLoopSpec={
+        (loop_spec) => socket.emit('set_loop_spec', {loop_spec})}
       onSetMarkAtBar={
         (name, bar) => socket.emit('set_mark_at_bar', {name, bar})}
       onSetAutoRewind={() => socket.emit('set_auto_rewind', {value})}
@@ -177,7 +179,8 @@ class MoreOptions extends Component {
             onMetronomePanChange={this.props.onMetronomePanChange}
             onChangeTempoBy={this.props.onChangeTempoBy}
             onSetTimeSig={this.props.onSetTimeSig}
-            onSetActiveTrackGroup={this.props.onSetActiveTrackGroup} />
+            onSetActiveTrackGroup={this.props.onSetActiveTrackGroup}
+            onSetLoopSpec={this.props.onSetLoopSpec} />
         </TabPanel>
         <TabPanel>
           <Marks
@@ -334,6 +337,7 @@ export class App extends Component {
              onChangeTempoBy={this.props.onChangeTempoBy}
              onSetTimeSig={this.props.onSetTimeSig}
              onSetActiveTrackGroup={this.props.onSetActiveTrackGroup}
+             onSetLoopSpec={this.props.onSetLoopSpec}
              recordedFragments={this.props.recorded_fragments}
              onCommit={this.props.onCommit}
              currentPosition={this.props.current_position}

@@ -65,6 +65,32 @@ export class TimingManagement extends Component {
             })
           }
         </div>
+        {
+          this.props.session.track_group_names.length >= 2
+            && <div>
+                 <button onClick={evt => this.props.onSetLoopSpec([
+                     {bar_a: 'a', bar_b: 'b', track_group_name: ""},
+                     {bar_a: 'a', bar_b: 'b', track_group_name:
+                       this.props.session.track_group_names[1]},
+                   ]
+                 )}>
+                   Loop A-B main / {this.props.session.track_group_names[1]}
+                 </button>
+                 <button onClick={evt => this.props.onSetLoopSpec([
+                     {bar_a: 'a', bar_b: 'b', track_group_name: ""},
+                   ]
+                 )}>
+                   Loop A-B main
+                 </button>
+                 <button onClick={evt => this.props.onSetLoopSpec([
+                     {bar_a: 'a', bar_b: 'b', track_group_name:
+                       this.props.session.track_group_names[1]},
+                   ]
+                 )}>
+                   Loop A-B {this.props.session.track_group_names[1]}
+                 </button>
+               </div>
+        }
       </div>
     </div>;
   }
