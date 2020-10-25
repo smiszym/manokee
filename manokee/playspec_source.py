@@ -1,18 +1,8 @@
-from amio import AudioClip, Fader
-from collections import namedtuple
+from amio import AudioClip, Fader, PlayspecEntry
 import manokee.metronome
 import manokee.session
 import manokee.track
 from typing import Iterable
-
-
-class PlayspecEntry(
-    namedtuple(
-        "PlayspecEntry",
-        "clip frame_a frame_b play_at_frame repeat_interval gain_l gain_r",
-    )
-):
-    pass
 
 
 class PlayspecSource:

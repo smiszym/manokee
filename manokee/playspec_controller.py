@@ -46,8 +46,11 @@ class PlayspecController:
         self._playspecs_for_groups = session.make_playspecs_for_track_groups(
             self._amio_interface
         )
-        self._amio_interface.set_current_playspec(
-            self._playspecs_for_groups[self._active_track_group_name]
+        self._amio_interface.schedule_playspec_change(
+            self._playspecs_for_groups[self._active_track_group_name],
+            0,
+            0,
+            None,
         )
 
     @property
@@ -80,5 +83,6 @@ class PlayspecController:
             f"beat {new_timing.seconds_to_beat(new_second)}."
         )
         logging.info(f"Insert frame = {insert_frame}; new frame = {new_frame}")
-        playspec.set_insertion_points(insert_frame, new_frame)
-        self._amio_interface.set_current_playspec(playspec)
+        self._amio_interface.schedule_playspec_change(
+            playspec, insert_frame, new_frame, None
+        )

@@ -34,7 +34,7 @@ setup(
         "mypy",
     ],
     install_requires=[
-        "amio @ https://api.github.com/repos/smiszym/amio/tarball/ecd8555974d8366a317a1061f02da2948d446b6a",
+        "amio @ https://api.github.com/repos/smiszym/amio/tarball/5cd4bc4415ccae430508a2bbe6905fa86bebe51a",
         "eventlet",
         "Flask",
         "Flask-SocketIO",
