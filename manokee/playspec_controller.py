@@ -1,6 +1,5 @@
 from amio import Interface, Playspec
 import logging
-from manokee.metronome import Metronome
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
@@ -11,7 +10,6 @@ from typing import Dict
 class PlayspecController:
     def __init__(self, amio_interface: Interface, session_holder: SessionHolder):
         self._amio_interface = amio_interface
-        self._metronome = None
         self.on_session_change = None
         self._playspecs_for_groups: Dict[str, Playspec] = {}
         self._timing: Timing = FixedBpmTiming()
@@ -23,11 +21,9 @@ class PlayspecController:
         session = self._session_holder.session
         if session is not None:
             session.on_modify = self._schedule_playspecs_recreation
-            self._metronome = Metronome(session)
             self._timing = session.timing
             self._schedule_playspecs_recreation()
         else:
-            self._metronome = None
             self._timing = FixedBpmTiming()
             self._playspecs_for_groups = {}
         if self.on_session_change is not None:
@@ -48,7 +44,7 @@ class PlayspecController:
     def _recreate_playspecs(self):
         session = self._session_holder.session
         self._playspecs_for_groups = session.make_playspecs_for_track_groups(
-            self._amio_interface, self._metronome
+            self._amio_interface
         )
         self._amio_interface.set_current_playspec(
             self._playspecs_for_groups[self._active_track_group_name]

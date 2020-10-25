@@ -1,6 +1,6 @@
 from amio import Interface, Playspec
 import manokee  # __version__
-import manokee.metronome
+from manokee.metronome import Metronome
 from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, SessionTracksPlayspecSource
 from manokee.track import Track
@@ -283,6 +283,14 @@ class Session:
             # Audacity track group
             return [self.track_for_name(track_group_name)]
 
+    def create_metronome_for_track_group(
+        self, track_group_name: str
+    ) -> Optional["Metronome"]:
+        if track_group_name == "":
+            return Metronome(self)  # TODO: Support variable-bpm metronome
+        else:
+            return None
+
     @property
     def bpm(self) -> float:
         return float(self._configuration["bpm"])
@@ -340,24 +348,21 @@ class Session:
         self._onModified()
 
     def make_playspec_for_track_group(
-        self,
-        amio_interface: Interface,
-        metronome: "manokee.metronome.Metronome",
-        track_group_name: str,
+        self, amio_interface: Interface, track_group_name: str
     ) -> Playspec:
         tracks = self.tracks_in_group(track_group_name)
         playspec_generator = PlayspecGenerator(amio_interface)
         playspec_generator.add_source(SessionTracksPlayspecSource(tracks))
-        playspec_generator.add_source(MetronomePlayspecSource(self, metronome))
+        metronome = self.create_metronome_for_track_group(track_group_name)
+        if metronome:
+            playspec_generator.add_source(MetronomePlayspecSource(self, metronome))
         return playspec_generator.make_playspec()
 
     def make_playspecs_for_track_groups(
-        self, amio_interface: Interface, metronome: "manokee.metronome.Metronome"
+        self, amio_interface: Interface
     ) -> Dict[str, Playspec]:
         return {
-            group_name: self.make_playspec_for_track_group(
-                amio_interface, metronome, group_name
-            )
+            group_name: self.make_playspec_for_track_group(amio_interface, group_name)
             for group_name in self.track_group_names
         }
 
