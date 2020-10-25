@@ -343,7 +343,7 @@ def commit_recording(sid, attr):
 def set_active_track_group(sid, attr):
     name = attr["group_name"]
     logging.info(f"Setting active track group to: {name}")
-    application.playspec_controller.active_track_group_name = name
+    application.playspec_controller.set_active_track_group_name(name)
 
 
 @sio.event

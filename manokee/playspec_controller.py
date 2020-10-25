@@ -39,12 +39,7 @@ class PlayspecController:
     def timing(self) -> Timing:
         return self._timing
 
-    @property
-    def active_track_group_name(self) -> str:
-        return self._active_track_group_name
-
-    @active_track_group_name.setter
-    def active_track_group_name(self, group_name: str):
+    def set_active_track_group_name(self, group_name: str):
         old_timing = self._timing
         self._timing = self._session_holder.session.group_timing(group_name)
         new_timing = self._timing
