@@ -34,6 +34,7 @@ def _ET_indent(elem, level=0):
 
 class Session:
     def __init__(self, frame_rate: float, session_file_path: Optional[str] = None):
+        self._frame_rate = frame_rate
         self._session_file_path: Optional[str] = None
         if session_file_path is not None and os.path.exists(session_file_path):
             if os.path.isdir(session_file_path):
@@ -216,6 +217,10 @@ class Session:
     @property
     def configuration(self) -> dict:
         return self._configuration
+
+    @property
+    def frame_rate(self) -> float:
+        return self._frame_rate
 
     @property
     def marks(self) -> dict:
