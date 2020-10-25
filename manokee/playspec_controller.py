@@ -47,12 +47,9 @@ class PlayspecController:
 
     def _recreate_playspecs(self):
         session = self._session_holder.session
-        self._playspecs_for_groups = {
-            group_name: session.make_playspec_for_track_group(
-                self._amio_interface, self._metronome, group_name
-            )
-            for group_name in self._session_holder.session.track_group_names
-        }
+        self._playspecs_for_groups = session.make_playspecs_for_track_groups(
+            self._amio_interface, self._metronome
+        )
         self._amio_interface.set_current_playspec(
             self._playspecs_for_groups[self._active_track_group_name]
         )

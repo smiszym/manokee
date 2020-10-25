@@ -8,7 +8,7 @@ from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.timing.timing import Timing
 import os
-from typing import Callable, Optional, List
+from typing import Callable, Dict, Optional, List
 import xml.etree.ElementTree as ET
 
 
@@ -345,6 +345,16 @@ class Session:
         playspec_generator.add_source(SessionTracksPlayspecSource(tracks))
         playspec_generator.add_source(MetronomePlayspecSource(self, metronome))
         return playspec_generator.make_playspec()
+
+    def make_playspecs_for_track_groups(
+        self, amio_interface: Interface, metronome: "manokee.metronome.Metronome"
+    ) -> Dict[str, Playspec]:
+        return {
+            group_name: self.make_playspec_for_track_group(
+                amio_interface, metronome, group_name
+            )
+            for group_name in self.track_group_names
+        }
 
     def to_js(self) -> dict:
         """
