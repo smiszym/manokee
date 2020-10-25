@@ -1,4 +1,4 @@
-from amio import AudioClip, Interface
+from amio import AudioClip
 import manokee.session
 import numpy as np
 
@@ -15,8 +15,7 @@ metronome_beat_clip = AudioClip.stereo_clip_from_mono_clips(
 
 
 class Metronome:
-    def __init__(self, amio_interface: Interface, session: "manokee.session.Session"):
-        self._amio_interface = amio_interface
+    def __init__(self, session: "manokee.session.Session"):
         self._session = session
         self._needs_clip_recreation = True
         self._audio_clip = None
@@ -39,7 +38,7 @@ class Metronome:
         return self._audio_clip
 
     def create_audio_clip(self):
-        frame_rate = self._amio_interface.get_frame_rate()
+        frame_rate = self._session.frame_rate
         beat_length_seconds = 60 / self._session.bpm
         bar_length_seconds = beat_length_seconds * self._session.time_signature
         self._repeat_interval = int(bar_length_seconds * frame_rate)

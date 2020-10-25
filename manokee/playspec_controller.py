@@ -23,7 +23,7 @@ class PlayspecController:
         session = self._session_holder.session
         if session is not None:
             session.on_modify = self._schedule_playspecs_recreation
-            self._metronome = Metronome(self._amio_interface, session)
+            self._metronome = Metronome(session)
             self._timing = session.timing
             self._schedule_playspecs_recreation()
         else:
