@@ -5,6 +5,7 @@ from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, SessionTracksPlayspecSource
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
+from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.timing.timing import Timing
 import os
 from typing import Callable, Optional, List
@@ -308,6 +309,15 @@ class Session:
     @property
     def track_timings(self) -> set:
         return {track.timing for track in self.tracks}
+
+    def group_timing(self, track_group_name: str) -> Timing:
+        if track_group_name == "":
+            return self.timing
+        else:
+            track = self.track_for_name(track_group_name)
+            if track is None:
+                raise ValueError(f"No such track: {track_group_name}")
+            return track.timing
 
     def toggle_metronome(self):
         new_value = not (self._configuration["metronome"] == "1")

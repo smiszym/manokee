@@ -3,6 +3,7 @@ import manokee.audacity.project as audacity_project
 import manokee.session
 from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
+from manokee.timing.interpolated_timing import InterpolatedTiming
 import os
 from typing import Callable, Optional
 import xml.etree.ElementTree as ET
@@ -148,7 +149,9 @@ class Track:
     @property
     def timing(self) -> Timing:
         if self.is_audacity_project:
-            return AudacityTiming(self._audacity_project)
+            return InterpolatedTiming(
+                AudacityTiming(self._audacity_project), self._beats_in_audacity_beat
+            )
         else:
             return self._session.timing
 

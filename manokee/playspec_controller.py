@@ -5,7 +5,6 @@ from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
-from manokee.timing.interpolated_timing import InterpolatedTiming
 from typing import Dict
 
 
@@ -69,15 +68,7 @@ class PlayspecController:
     @active_track_group_name.setter
     def active_track_group_name(self, group_name: str):
         old_timing = self._timing
-        if group_name == "":
-            self._timing = self._session_holder.session.timing
-        else:
-            track = self._session_holder.session.track_for_name(group_name)
-            if track is None:
-                raise ValueError(f"No such track: {group_name}")
-            self._timing = InterpolatedTiming(
-                track.timing, track.beats_in_audacity_beat
-            )
+        self._timing = self._session_holder.session.group_timing(group_name)
         new_timing = self._timing
         self._active_track_group_name = group_name
         playspec = self._playspecs_for_groups[group_name]
