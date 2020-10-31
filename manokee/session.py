@@ -1,5 +1,6 @@
 from amio import Interface, Playspec
 import manokee  # __version__
+from manokee.mark import Mark
 from manokee.metronome import Metronome
 from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, SessionTracksPlayspecSource
@@ -63,7 +64,7 @@ class Session:
             marks_el = et.getroot().find("marks")
             if marks_el is not None:
                 self._marks = {
-                    element.attrib["name"]: element.attrib["position"]
+                    element.attrib["name"]: Mark.from_str(element.attrib["position"])
                     for element in marks_el.findall("mark")
                 }
             else:
@@ -139,8 +140,8 @@ class Session:
             ET.SubElement(configuration, "setting", name=key, value=value)
 
         marks = ET.SubElement(root, "marks")
-        for key, value in self._marks.items():
-            ET.SubElement(marks, "mark", name=key, position=value)
+        for key, mark in self._marks.items():
+            ET.SubElement(marks, "mark", name=key, position=str(mark))
 
         tracks = ET.SubElement(root, "tracks")
         for track in self._tracks:
@@ -221,6 +222,15 @@ class Session:
     @property
     def frame_rate(self) -> float:
         return self._frame_rate
+
+    def mark_position_seconds(self, name: str, timing: Timing) -> Optional[float]:
+        mark = self._marks[name]
+        if mark is None:
+            return None
+        return mark.to_seconds(timing.beat_to_seconds)
+
+    def set_mark_at_beat(self, name, beat):
+        self._marks[name] = Mark(beat=beat)
 
     @property
     def marks(self) -> dict:
@@ -376,7 +386,7 @@ class Session:
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
             "configuration": self._configuration,
-            "marks": self._marks,
+            "marks": {name: str(mark) for name, mark in enumerate(self._marks)},
             "tracks": [track.to_js() for track in self._tracks],
             "track_group_names": self.track_group_names,
         }

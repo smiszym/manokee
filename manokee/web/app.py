@@ -309,8 +309,10 @@ def go_to_bar(sid, attr):
 @sio.event
 def go_to_mark(sid, attr):
     try:
-        position = application.session.marks[attr["mark"]]
-        frame = parse_frame(application.amio_interface, position)
+        seconds = application.session.mark_position_seconds(
+            attr["mark"], application.playspec_controller.timing
+        )
+        frame = application.amio_interface.secs_to_frame(seconds)
         application.amio_interface.set_position(frame)
     except KeyError:
         pass
@@ -318,13 +320,8 @@ def go_to_mark(sid, attr):
 
 @sio.event
 def set_mark_at_bar(sid, attr):
-    amio_interface = application.amio_interface
-    playspec_controller = application.playspec_controller
-    beat = playspec_controller.session.bar_to_beat(attr["bar"])
-    position = playspec_controller.timing.beat_to_seconds(beat)
-    frame = amio_interface.secs_to_frame(position)
-    frame_formatted = format_frame(amio_interface, frame)
-    playspec_controller.session.marks[attr["name"]] = frame_formatted
+    beat = application.playspec_controller.session.bar_to_beat(attr["bar"])
+    application.session.set_mark_at_beat(attr["name"], beat)
 
 
 @sio.event
