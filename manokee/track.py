@@ -62,7 +62,7 @@ class Track:
                 self._audio = AudioClip.zeros(1, 1, frame_rate)
 
     def notify_modified(self):
-        self._session._notify_modified()
+        self._session._notify_observers()
 
     @property
     def name(self) -> str:

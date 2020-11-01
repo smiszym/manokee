@@ -20,7 +20,7 @@ class PlayspecController:
     def _on_session_changed(self):
         session = self._session_holder.session
         if session is not None:
-            session.on_modify = self._schedule_playspecs_recreation
+            session.add_observer(self._schedule_playspecs_recreation)
             self._timing = session.timing
             self._schedule_playspecs_recreation()
         else:

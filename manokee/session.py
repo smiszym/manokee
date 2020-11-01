@@ -2,6 +2,7 @@ from amio import Interface, Playspec
 import manokee  # __version__
 from manokee.mark import Mark
 from manokee.metronome import Metronome
+from manokee.observable import ObservableMixin
 from manokee.playspec_generator import PlayspecGenerator
 from manokee.playspec_source import MetronomePlayspecSource, SessionTracksPlayspecSource
 from manokee.track import Track
@@ -33,8 +34,9 @@ def _ET_indent(elem, level=0):
             elem.tail = i
 
 
-class Session:
+class Session(ObservableMixin):
     def __init__(self, frame_rate: float, session_file_path: Optional[str] = None):
+        super().__init__()
         self._frame_rate = frame_rate
         self._session_file_path: Optional[str] = None
         if session_file_path is not None and os.path.exists(session_file_path):
@@ -102,7 +104,6 @@ class Session:
             self._marks = {}
             self._tracks = []
         self._are_controls_modified = False
-        self._on_modify: Optional[Callable[[], None]] = None
 
     def save(self):
         assert self._session_file_path is not None
@@ -164,21 +165,8 @@ class Session:
         self._are_controls_modified = False
 
     @property
-    def on_modify(self) -> Optional[Callable[[], None]]:
-        return self._on_modify
-
-    @on_modify.setter
-    def on_modify(self, callback: Callable[[], None]):
-        self._on_modify = callback
-
-    @property
     def are_controls_modified(self) -> bool:
         return self._are_controls_modified
-
-    def _notify_modified(self):
-        self._are_controls_modified = True
-        if self._on_modify is not None:
-            self._on_modify()
 
     @property
     def session_file_path(self):
@@ -254,26 +242,26 @@ class Session:
         i = self._index_of_track(name)
         if i is not None:
             del self._tracks[i]
-        self._notify_modified()
+        self._notify_observers()
 
     def move_track_up(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == 0:
             return  # can't move the track up
         self._tracks[i - 1], self._tracks[i] = (self._tracks[i], self._tracks[i - 1])
-        self._notify_modified()
+        self._notify_observers()
 
     def move_track_down(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == len(self._tracks) - 1:
             return  # can't move the track down
         self._tracks[i + 1], self._tracks[i] = (self._tracks[i], self._tracks[i + 1])
-        self._notify_modified()
+        self._notify_observers()
 
     def add_track(self, name: str, frame_rate: float):
         track = Track(self, frame_rate, element=None, name=name)
         self._tracks.append(track)
-        self._notify_modified()
+        self._notify_observers()
 
     @property
     def track_group_names(self) -> List[str]:
@@ -305,7 +293,7 @@ class Session:
     @bpm.setter
     def bpm(self, value: float):
         self._configuration["bpm"] = str(value)
-        self._notify_modified()
+        self._notify_observers()
 
     @property
     def time_signature(self) -> int:
@@ -314,7 +302,7 @@ class Session:
     @time_signature.setter
     def time_signature(self, value: int):
         self._configuration["time_sig"] = str(value)
-        self._notify_modified()
+        self._notify_observers()
 
     def beat_to_bar(self, beat: float) -> float:
         return beat / self.time_signature
@@ -342,17 +330,17 @@ class Session:
     def toggle_metronome(self):
         new_value = not (self._configuration["metronome"] == "1")
         self._configuration["metronome"] = "1" if new_value == True else "0"
-        self._notify_modified()
+        self._notify_observers()
 
     def metronome_vol_down(self):
         new_value = float(self._configuration["metronome_vol"]) - 1
         self._configuration["metronome_vol"] = str(new_value)
-        self._notify_modified()
+        self._notify_observers()
 
     def metronome_vol_up(self):
         new_value = float(self._configuration["metronome_vol"]) + 1
         self._configuration["metronome_vol"] = str(new_value)
-        self._notify_modified()
+        self._notify_observers()
 
     def make_playspec_for_track_group(
         self, amio_interface: Interface, track_group_name: str
