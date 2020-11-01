@@ -9,7 +9,6 @@ from typing import Dict
 class PlayspecController:
     def __init__(self, amio_interface: Interface, session_holder: SessionHolder):
         self._amio_interface = amio_interface
-        self.on_session_change = None
         self._playspecs_for_groups: Dict[str, Playspec] = {}
         self._timing: Timing = FixedBpmTiming()
         self._active_track_group_name = ""
@@ -25,8 +24,6 @@ class PlayspecController:
         else:
             self._timing = FixedBpmTiming()
             self._playspecs_for_groups = {}
-        if self.on_session_change is not None:
-            self.on_session_change()
 
     def _schedule_playspecs_recreation(self):
         # TODO: Move this to a background thread

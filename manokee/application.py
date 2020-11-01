@@ -102,7 +102,7 @@ class Application:
         self._playspec_controller = PlayspecController(
             self.amio_interface, self._session_holder
         )
-        self._playspec_controller.on_session_change = self._onSessionChanged
+        self._session_holder.add_observer(self._onSessionChanged)
         self._recent_sessions.read()
 
     def stop_audio_io(self):
