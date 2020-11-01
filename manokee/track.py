@@ -47,7 +47,6 @@ class Track:
             self._fader = Fader()
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
-        self._on_modify: Optional[Callable[[], None]] = None
         self.requires_audio_save = False
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
@@ -62,17 +61,8 @@ class Track:
             else:
                 self._audio = AudioClip.zeros(1, 1, frame_rate)
 
-    @property
-    def on_modify(self) -> Optional[Callable[[], None]]:
-        return self._on_modify
-
-    @on_modify.setter
-    def on_modify(self, callback: Callable[[], None]):
-        self._on_modify = callback
-
     def notify_modified(self):
-        if self._on_modify is not None:
-            self._on_modify()
+        self._session._notify_modified()
 
     @property
     def name(self) -> str:

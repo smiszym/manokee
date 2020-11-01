@@ -77,8 +77,6 @@ class Session:
                 ]
             else:
                 self._tracks = []
-            for track in self._tracks:
-                track.on_modify = self._onModified
         else:
             if session_file_path is None:
                 self._session_file_path = None
@@ -177,7 +175,7 @@ class Session:
     def are_controls_modified(self) -> bool:
         return self._are_controls_modified
 
-    def _onModified(self):
+    def _notify_modified(self):
         self._are_controls_modified = True
         if self._on_modify is not None:
             self._on_modify()
@@ -256,27 +254,26 @@ class Session:
         i = self._index_of_track(name)
         if i is not None:
             del self._tracks[i]
-        self._onModified()
+        self._notify_modified()
 
     def move_track_up(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == 0:
             return  # can't move the track up
         self._tracks[i - 1], self._tracks[i] = (self._tracks[i], self._tracks[i - 1])
-        self._onModified()
+        self._notify_modified()
 
     def move_track_down(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == len(self._tracks) - 1:
             return  # can't move the track down
         self._tracks[i + 1], self._tracks[i] = (self._tracks[i], self._tracks[i + 1])
-        self._onModified()
+        self._notify_modified()
 
     def add_track(self, name: str, frame_rate: float):
         track = Track(self, frame_rate, element=None, name=name)
-        track.on_modify = self._onModified
         self._tracks.append(track)
-        self._onModified()
+        self._notify_modified()
 
     @property
     def track_group_names(self) -> List[str]:
@@ -308,7 +305,7 @@ class Session:
     @bpm.setter
     def bpm(self, value: float):
         self._configuration["bpm"] = str(value)
-        self._onModified()
+        self._notify_modified()
 
     @property
     def time_signature(self) -> int:
@@ -317,7 +314,7 @@ class Session:
     @time_signature.setter
     def time_signature(self, value: int):
         self._configuration["time_sig"] = str(value)
-        self._onModified()
+        self._notify_modified()
 
     def beat_to_bar(self, beat: float) -> float:
         return beat / self.time_signature
@@ -345,17 +342,17 @@ class Session:
     def toggle_metronome(self):
         new_value = not (self._configuration["metronome"] == "1")
         self._configuration["metronome"] = "1" if new_value == True else "0"
-        self._onModified()
+        self._notify_modified()
 
     def metronome_vol_down(self):
         new_value = float(self._configuration["metronome_vol"]) - 1
         self._configuration["metronome_vol"] = str(new_value)
-        self._onModified()
+        self._notify_modified()
 
     def metronome_vol_up(self):
         new_value = float(self._configuration["metronome_vol"]) + 1
         self._configuration["metronome_vol"] = str(new_value)
-        self._onModified()
+        self._notify_modified()
 
     def make_playspec_for_track_group(
         self, amio_interface: Interface, track_group_name: str
