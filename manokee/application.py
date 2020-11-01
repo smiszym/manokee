@@ -7,7 +7,7 @@ from manokee.playspec_controller import PlayspecController
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.workspace import Workspace
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class Application:
@@ -149,6 +149,17 @@ class Application:
                 clip.writeable = False
                 track.requires_audio_save = True
                 track.notify_modified()
+
+    def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
+        session = self._session_holder.session
+        timing = self._playspec_controller.timing
+        if session is None:
+            return None, None
+        absolute_beat = int(
+            timing.seconds_to_beat(self._amio_interface.frame_to_secs(frame))
+        )
+        sig = session.time_signature
+        return absolute_beat // sig, absolute_beat % sig
 
     def _on_input_chunk(self, input_chunk: amio.InputAudioChunk):
         self._input_recorder.append_input_chunk(input_chunk)

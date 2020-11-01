@@ -1,8 +1,6 @@
 from amio import Interface
 from collections import namedtuple
-from manokee.session import Session
 from manokee.timing.timing import Timing
-from typing import Tuple
 
 
 class InsertionPoints(
@@ -21,16 +19,6 @@ def beat_number_to_frame(
     amio_interface: Interface, timing: Timing, beat_number: float
 ) -> int:
     return amio_interface.secs_to_frame(timing.beat_to_seconds(beat_number))
-
-
-def frame_to_bar_beat(
-    amio_interface: Interface, session: Session, timing: Timing, frame: int
-) -> Tuple[int, int]:
-    if session is None:
-        return None, None
-    absolute_beat = int(timing.seconds_to_beat(amio_interface.frame_to_secs(frame)))
-    sig = session.time_signature
-    return absolute_beat // sig, absolute_beat % sig
 
 
 def calculate_insertion_points(amio_interface, old_frame, old_timing, new_timing):

@@ -1,5 +1,4 @@
 from amio import Interface, Playspec
-from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
@@ -28,14 +27,6 @@ class PlayspecController:
             self._playspecs_for_groups = {}
         if self.on_session_change is not None:
             self.on_session_change()
-
-    @property
-    def session(self) -> Session:
-        return self._session_holder.session
-
-    @session.setter
-    def session(self, session: Session):
-        self._session_holder.session = session
 
     def _schedule_playspecs_recreation(self):
         # TODO: Move this to a background thread

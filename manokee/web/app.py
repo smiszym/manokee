@@ -2,11 +2,10 @@ import logging
 from manokee.application import Application
 from manokee.ping import Ping
 from manokee.session import Session
-from manokee.time_formatting import format_beat, format_frame, parse_frame
-from manokee.timing_utils import beat_number_to_frame, frame_to_bar_beat
+from manokee.time_formatting import format_beat, format_frame
+from manokee.timing_utils import beat_number_to_frame
 import socketio
 import threading
-import time
 
 
 logging.basicConfig(
@@ -120,7 +119,7 @@ def _construct_state_update_json(state_update_id):
         frame = amio_interface.get_position()
         is_transport_rolling = amio_interface.is_transport_rolling()
         position_seconds = amio_interface.frame_to_secs(frame)
-        session = playspec_controller.session
+        session = application.session
         session_js = session.to_js() if session is not None else {}
     else:
         frame = 0
@@ -135,12 +134,7 @@ def _construct_state_update_json(state_update_id):
         # There is a 2-frame margin so that last frames of a bar
         # are treated as the next bar. Note that these values are only
         # used in the UI, therefore such a trick is acceptable.
-        bar, beat = frame_to_bar_beat(
-            amio_interface,
-            playspec_controller.session,
-            playspec_controller.timing,
-            frame + 2,
-        )
+        bar, beat = application.frame_to_bar_beat(frame + 2)
     else:
         bar, beat = None, None
     state_update_json = {
@@ -150,7 +144,7 @@ def _construct_state_update_json(state_update_id):
         "is_transport_rolling": is_transport_rolling,
         "position_seconds": position_seconds,
         "frame_formatted": format_frame(amio_interface, frame),
-        "beat_formatted": format_beat(amio_interface, playspec_controller, frame),
+        "beat_formatted": format_beat(bar, beat),
         "current_bar": bar,
         "auto_rewind": application.auto_rewind,
         "session": session_js,
@@ -320,7 +314,7 @@ def go_to_mark(sid, attr):
 
 @sio.event
 def set_mark_at_bar(sid, attr):
-    beat = application.playspec_controller.session.bar_to_beat(attr["bar"])
+    beat = application.session.bar_to_beat(attr["bar"])
     application.session.set_mark_at_beat(attr["name"], beat)
 
 

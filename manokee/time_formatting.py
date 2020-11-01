@@ -1,6 +1,4 @@
 from amio import Interface
-from manokee.playspec_controller import PlayspecController
-from manokee.timing_utils import frame_to_bar_beat
 import re
 from typing import Optional
 
@@ -38,19 +36,8 @@ def parse_frame(amio_interface: Interface, formatted: str) -> Optional[int]:
     return amio_interface.secs_to_frame(parse_seconds(formatted))
 
 
-def format_beat(
-    amio_interface: Interface, playspec_controller: PlayspecController, frame: int
-) -> str:
-    if amio_interface is None:
+def format_beat(bar: int, beat: int) -> str:
+    if bar is None or beat is None:
         return "??+??"
-    if playspec_controller.session is None:
-        return "--"
-    # frame + 1, because we want to include the frame just before
-    # the one that starts a beat
-    bar, beat = frame_to_bar_beat(
-        amio_interface,
-        playspec_controller.session,
-        playspec_controller.timing,
-        frame + 1,
-    )
-    return f"{bar + 1}+{beat + 1}"
+    else:
+        return f"{bar + 1}+{beat + 1}"
