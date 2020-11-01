@@ -1,16 +1,17 @@
 import gc
+from manokee.observable import ObservableMixin
 from manokee.session import Session
 
 
-class SessionHolder:
+class SessionHolder(ObservableMixin):
     """
     Holds a reference to a session (in Application the current session)
     and notifies all observers whenever the current session changes.
     """
 
     def __init__(self):
+        super().__init__()
         self._session = None
-        self.on_session_change = None
 
     @property
     def session(self) -> Session:
@@ -20,8 +21,7 @@ class SessionHolder:
     def session(self, session: Session):
         if self._session is not session:
             self._session = session
-            if self.on_session_change is not None:
-                self.on_session_change()
+            self._notify_observers()
             # Sessions are huge objects, typically a few hundred MB.
             # Run the garbage collector after loading new sessions,
             # in order to free the memory as soon as possible.

@@ -14,7 +14,7 @@ class PlayspecController:
         self._timing: Timing = FixedBpmTiming()
         self._active_track_group_name = ""
         self._session_holder = session_holder
-        self._session_holder.on_session_change = self._on_session_changed
+        self._session_holder.add_observer(self._on_session_changed)
 
     def _on_session_changed(self):
         session = self._session_holder.session
