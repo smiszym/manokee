@@ -47,6 +47,9 @@ class PlayspecController:
     def timing(self) -> Timing:
         return self._timing
 
+    def plays_main_track_group(self) -> bool:
+        return self._active_track_group_name == ""
+
     def set_active_track_group_name(self, group_name: str):
         old_timing = self._timing
         self._timing = self._session_holder.session.group_timing(group_name)

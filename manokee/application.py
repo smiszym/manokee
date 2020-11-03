@@ -129,6 +129,8 @@ class Application:
     def start_recording(self):
         if self._amio_interface.is_transport_rolling():
             return
+        if not self._playspec_controller.plays_main_track_group():
+            return
         self._auto_rewind_position = self._amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._amio_interface.set_transport_rolling(True)
