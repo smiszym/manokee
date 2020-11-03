@@ -149,6 +149,13 @@ class Track:
     def fader(self) -> Fader:
         return self._fader
 
+    def commit_recording(self, recorded_clip: AudioClip, starting_frame: int):
+        self._audio.writeable = True
+        self._audio.overwrite(recorded_clip, starting_frame, extend_to_fit=True)
+        self._audio.writeable = False
+        self.requires_audio_save = True
+        self.notify_modified()
+
     def to_js(self) -> dict:
         return {
             "name": self._name,

@@ -140,15 +140,9 @@ class Application:
         session = self._session_holder.session
         for track in session.tracks:
             if track.is_rec:
-                clip_to_commit = left if track.rec_source == "L" else right
-                clip = track.get_audio_clip()
-                clip.writeable = True
-                clip.overwrite(
-                    clip_to_commit, fragment.starting_frame, extend_to_fit=True
+                track.commit_recording(
+                    left if track.rec_source == "L" else right, fragment.starting_frame
                 )
-                clip.writeable = False
-                track.requires_audio_save = True
-                track.notify_modified()
 
     def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
         session = self._session_holder.session
