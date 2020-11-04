@@ -6,6 +6,7 @@ from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInte
 from manokee.playspec_controller import PlayspecController
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
+from manokee.timing_utils import beat_number_to_frame
 from manokee.workspace import Workspace
 from typing import List, Optional, Tuple
 
@@ -143,6 +144,37 @@ class Application:
                 track.commit_recording(
                     left if track.rec_source == "L" else right, fragment.starting_frame
                 )
+
+    def go_to_beat(self, beat: int):
+        self.go_to_frame_if_possible(
+            beat_number_to_frame(
+                self._amio_interface, self._playspec_controller.timing, beat
+            )
+        )
+
+    def go_to_bar(self, bar: int):
+        session = self._session_holder.session
+        if session is None:
+            return
+        self.go_to_frame_if_possible(
+            beat_number_to_frame(
+                self._amio_interface,
+                self._playspec_controller.timing,
+                session.time_signature * bar,
+            )
+        )
+
+    def go_to_mark(self, mark_name: str):
+        try:
+            seconds = self._session_holder.session.mark_position_seconds(
+                mark_name, self._playspec_controller.timing
+            )
+        except KeyError:
+            return
+        self.go_to_frame_if_possible(self._amio_interface.secs_to_frame(seconds))
+
+    def go_to_frame_if_possible(self, frame: int):
+        self._amio_interface.set_position(frame)
 
     def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
         session = self._session_holder.session

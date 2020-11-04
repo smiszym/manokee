@@ -286,35 +286,17 @@ def add_track(sid, attr):
 
 @sio.event
 def go_to_beat(sid, attr):
-    frame = beat_number_to_frame(
-        application.amio_interface, application.playspec_controller.timing, attr["beat"]
-    )
-    application.amio_interface.set_position(frame)
+    application.go_to_beat(attr["beat"])
 
 
 @sio.event
 def go_to_bar(sid, attr):
-    session = application.session
-    if session is None:
-        return
-    frame = beat_number_to_frame(
-        application.amio_interface,
-        application.playspec_controller.timing,
-        session.time_signature * attr["bar"],
-    )
-    application.amio_interface.set_position(frame)
+    application.go_to_bar(attr["bar"])
 
 
 @sio.event
 def go_to_mark(sid, attr):
-    try:
-        seconds = application.session.mark_position_seconds(
-            attr["mark"], application.playspec_controller.timing
-        )
-        frame = application.amio_interface.secs_to_frame(seconds)
-        application.amio_interface.set_position(frame)
-    except KeyError:
-        pass
+    application.go_to_mark(attr["mark"])
 
 
 @sio.event
