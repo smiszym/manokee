@@ -326,7 +326,7 @@ def commit_recording(sid, attr):
 def set_active_track_group(sid, attr):
     name = attr["group_name"]
     logging.info(f"Setting active track group to: {name}")
-    application.playspec_controller.set_active_track_group_name(name)
+    application.set_active_track_group_name(name)
 
 
 @sio.event
@@ -345,7 +345,7 @@ def set_loop_spec(sid, attr):
         )
         for fragment in attr["loop_spec"]
     ]
-    application.playspec_controller.set_loop_spec(spec)
+    application.set_loop_spec(spec)
 
 
 @sio.event

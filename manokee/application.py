@@ -179,6 +179,14 @@ class Application:
         if not self._input_recorder.is_recording:
             self._amio_interface.set_position(frame)
 
+    def set_active_track_group_name(self, name: str):
+        if not self._input_recorder.is_recording:
+            self._playspec_controller.set_active_track_group_name(name)
+
+    def set_loop_spec(self, loop_spec):
+        if not self._input_recorder.is_recording:
+            self._playspec_controller.set_loop_spec(loop_spec)
+
     def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
         session = self._session_holder.session
         timing = self._playspec_controller.timing
