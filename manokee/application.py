@@ -176,7 +176,8 @@ class Application:
         self.go_to_frame_if_possible(self._amio_interface.secs_to_frame(seconds))
 
     def go_to_frame_if_possible(self, frame: int):
-        self._amio_interface.set_position(frame)
+        if not self._input_recorder.is_recording:
+            self._amio_interface.set_position(frame)
 
     def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
         session = self._session_holder.session
