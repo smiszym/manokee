@@ -110,17 +110,6 @@ export class SessionManagement extends Component {
           workspace_sessions={this.props.workspace_sessions}
           onLoadSession={this.props.onLoadSession}/>
       </Collapsible>
-      <div>
-        {
-          this.props.track_edit_mode
-            ? <button onClick={evt => this.props.onSetTrackEditMode(false)}>
-              Leave track edit mode
-            </button>
-            : <button onClick={evt => this.props.onSetTrackEditMode(true)}>
-              Enter track edit mode
-            </button>
-        }
-      </div>
     </div>;
   }
 

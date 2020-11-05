@@ -106,15 +106,24 @@ export function onLoad() {
 
 class UpperControlPanelRow extends Component {
   render() {
+    const edit_mode_on = this.props.track_edit_mode;
+
     return <div className="upper-control-panel-row">
       <input className="image-button" type="image" src="/record.svg"
              id="start-recording"
              onClick={this.props.onStartRecording} />
       <input className="image-button" type="image" src="/play-pause.svg"
              onClick={this.props.onPlayStop} />
-      <input className="image-button" type="image"
-             src="/remove-arm-for-recording.svg"
-             onClick={this.props.onUnsetRecAll} />
+      {
+        this.props.display_track_edit_button
+          ? <input className={`image-button ${
+                edit_mode_on ? "highlighted-button" : ""}`}
+              type="image" src="/track-edit-mode.svg"
+              onClick={evt => this.props.onSetTrackEditMode(!edit_mode_on)} />
+          : <input className="image-button"
+              type="image" src="/remove-arm-for-recording.svg"
+              onClick={this.props.onUnsetRecAll} />
+      }
     </div>;
   }
 }
@@ -163,7 +172,6 @@ class MoreOptions extends Component {
           <SessionManagement
             session={this.props.session}
             track_edit_mode={this.props.trackEditMode}
-            onSetTrackEditMode={this.props.onSetTrackEditMode}
             workspace_sessions={this.props.workspaceSessions}
             onNewSession={this.props.onNewSession}
             onLoadSession={this.props.onLoadSession}
@@ -276,11 +284,13 @@ export class App extends Component {
         <UpperControlPanelRow
           onPlayStop={this.props.onPlayStop}
           onStartRecording={this.props.onStartRecording}
-          onUnsetRecAll={this.props.onUnsetRecAll} />
+          onUnsetRecAll={this.props.onUnsetRecAll}
+          display_track_edit_button={tracks.every(track => !track.is_rec)}
+          track_edit_mode={this.state.track_edit_mode}
+          onSetTrackEditMode={(value) => this.updateTrackEditMode(value)} />
         <LowerControlPanelRow
           ping_latency={this.props.ping_latency}
           track_edit_mode={this.state.track_edit_mode}
-          onSetTrackEditMode={(value) => this.updateTrackEditMode(value)}
           session={this.props.session}
           is_audio_io_running={this.props.is_audio_io_running}
           workspace_sessions={this.props.workspace_sessions}
@@ -302,7 +312,6 @@ export class App extends Component {
         this.state.main_view_mode === 'mixer'
          ? <Tracks
              track_edit_mode={this.state.track_edit_mode}
-             onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              session={this.props.session}
              meter_values={meter_values}
              onRecChange={this.props.onRecChange}
@@ -323,7 +332,6 @@ export class App extends Component {
              onStartAudio={this.props.onStartAudio}
              onStopAudio={this.props.onStopAudio}
              trackEditMode={this.state.track_edit_mode}
-             onSetTrackEditMode={value => this.updateTrackEditMode(value)}
              workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
              onNewSession={this.props.onNewSession}
@@ -353,10 +361,7 @@ export class App extends Component {
     </div>;
   }
   updateTrackEditMode(value) {
-    this.setState({
-      track_edit_mode: value,
-      main_view_mode: value ? 'mixer' : 'options',
-    });
+    this.setState({ track_edit_mode: value });
   }
   toggleMainViewMode() {
     this.setState({
