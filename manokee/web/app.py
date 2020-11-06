@@ -244,7 +244,15 @@ def load_session(sid, attr):
         path = attr["session"]
         logging.info("Loading session: " + path)
         application.session = Session(application.amio_interface.get_frame_rate(), path)
-        emit_track_metering_data()
+
+        def load_all_tracks():
+            while not all(track.is_loaded for track in application.session.tracks):
+                for track in application.session.tracks:
+                    track.continue_loading()
+                    sio.sleep()
+            emit_track_metering_data()
+
+        sio.start_background_task(target=load_all_tracks)
 
 
 @sio.event

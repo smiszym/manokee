@@ -107,6 +107,7 @@ class Session(ObservableMixin):
 
     def save(self):
         assert self._session_file_path is not None
+        assert all(track.is_loaded for track in self._tracks)
 
         session_dir = os.path.dirname(self._session_file_path)
         try:

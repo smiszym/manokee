@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import Popup from "reactjs-popup";
+import { Line } from 'rc-progress';
 import PanKnob from './pan-knob';
 import {Meter} from "./meter";
 
@@ -130,7 +131,18 @@ class Track extends Component {
           onSubmit={new_name => this.props.onNameChange(new_name)}/>
         : <div className="track-table-col track-name">
           <div>{track.requires_audio_save ? "*" : ""}{track.name}</div>
-          <Meter rms={this.props.meter_rms} peak={this.props.meter_peak} />
+          {
+            track.is_loaded
+              ? <Meter
+                  rms={this.props.meter_rms}
+                  peak={this.props.meter_peak} />
+              : <Line
+                  style={{width: "100%", height: "8px", display: "block"}}
+                  percent={track.percent_loaded}
+                  strokeWidth={4}
+                  strokeColor="#39671f"
+                  trailColor="#c0e8a8" />
+          }
         </div>
       }
     </div>;

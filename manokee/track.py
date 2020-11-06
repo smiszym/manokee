@@ -4,6 +4,7 @@ import manokee.session
 from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
+from manokee.track_loader import track_loader
 import os
 from typing import Callable, Optional
 import xml.etree.ElementTree as ET
@@ -18,6 +19,8 @@ class Track:
         name: str = None,
     ):
         self._session = session
+        self._loader = None
+        self.percent_loaded = 100
         if element is not None:
             assert name is None
             self._name = element.attrib["name"]
@@ -54,12 +57,28 @@ class Track:
         else:
             if self.filename is not None:
                 try:
-                    self._audio = AudioClip.from_soundfile(self.filename)
-                    self._audio.writeable = False
+                    self._audio, self._loader = track_loader(self.filename)
+                    self.percent_loaded = 0
+                    if self._audio is None:
+                        self._audio = AudioClip.zeros(1, 1, frame_rate)
                 except FileNotFoundError:
                     self._audio = AudioClip.zeros(1, 1, frame_rate)
             else:
                 self._audio = AudioClip.zeros(1, 1, frame_rate)
+
+    @property
+    def is_loaded(self):
+        return self._loader is None
+
+    def continue_loading(self):
+        if self.is_loaded:
+            return
+        try:
+            self.percent_loaded = next(self._loader)
+        except StopIteration:
+            self.percent_loaded = 100
+            self._loader = None
+            self.notify_modified()
 
     def notify_modified(self):
         self._session._notify_observers()
@@ -150,6 +169,8 @@ class Track:
         return self._fader
 
     def commit_recording(self, recorded_clip: AudioClip, starting_frame: int):
+        if not self.is_loaded:
+            raise RuntimeError("Track not fully loaded yet")
         self._audio.writeable = True
         self._audio.overwrite(recorded_clip, starting_frame, extend_to_fit=True)
         self._audio.writeable = False
@@ -166,4 +187,6 @@ class Track:
             "vol_dB": self._fader.vol_dB,
             "pan": self._fader.pan,
             "requires_audio_save": self.requires_audio_save,
+            "is_loaded": self.is_loaded,
+            "percent_loaded": self.percent_loaded,
         }
