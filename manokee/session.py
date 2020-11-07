@@ -1,10 +1,13 @@
 from amio import Interface, Playspec
+from itertools import chain
 import manokee  # __version__
 from manokee.mark import Mark
 from manokee.metronome import Metronome
 from manokee.observable import ObservableMixin
-from manokee.playspec_generator import PlayspecGenerator
-from manokee.playspec_source import MetronomePlayspecSource, SessionTracksPlayspecSource
+from manokee.playspec_generators import (
+    track_playspec_entries,
+    metronome_playspec_entries,
+)
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
@@ -347,22 +350,19 @@ class Session(ObservableMixin):
         self._configuration["metronome_pan"] = str(new_pan)
         self._notify_observers()
 
-    def make_playspec_for_track_group(
-        self, amio_interface: Interface, track_group_name: str
-    ) -> Playspec:
-        tracks = self.tracks_in_group(track_group_name)
-        playspec_generator = PlayspecGenerator(amio_interface)
-        playspec_generator.add_source(SessionTracksPlayspecSource(tracks))
-        metronome = self.create_metronome_for_track_group(track_group_name)
-        if metronome:
-            playspec_generator.add_source(MetronomePlayspecSource(self, metronome))
-        return playspec_generator.make_playspec()
+    def make_playspec_for_track_group(self, track_group_name: str) -> Playspec:
+        return list(
+            chain(
+                track_playspec_entries(self.tracks_in_group(track_group_name)),
+                metronome_playspec_entries(
+                    self, self.create_metronome_for_track_group(track_group_name)
+                ),
+            )
+        )
 
-    def make_playspecs_for_track_groups(
-        self, amio_interface: Interface
-    ) -> Dict[str, Playspec]:
+    def make_playspecs_for_track_groups(self) -> Dict[str, Playspec]:
         return {
-            group_name: self.make_playspec_for_track_group(amio_interface, group_name)
+            group_name: self.make_playspec_for_track_group(group_name)
             for group_name in self.track_group_names
         }
 
