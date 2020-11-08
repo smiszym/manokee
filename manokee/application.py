@@ -139,15 +139,9 @@ class Application:
 
     def commit_recording(self, fragment_id: int):
         fragment = self._input_recorder.fragment_by_id(fragment_id)
-        clip = fragment.as_clip()
-        left = clip.channel(0)
-        right = clip.channel(1)
-        session = self._session_holder.session
-        for track in session.tracks:
+        for track in self._session_holder.session.tracks:
             if track.is_rec:
-                track.commit_recording(
-                    left if track.rec_source == "L" else right, fragment.starting_frame
-                )
+                track.commit_input_fragment_if_needed(fragment)
 
     def go_to_beat(self, beat: int):
         self.go_to_frame_if_possible(

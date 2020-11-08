@@ -1,6 +1,7 @@
 from amio import AudioClip, Fader
 import manokee.audacity.project as audacity_project
 import manokee.session
+from manokee.input_recorder import InputFragment
 from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
@@ -168,9 +169,21 @@ class Track:
     def fader(self) -> Fader:
         return self._fader
 
-    def commit_recording(self, recorded_clip: AudioClip, starting_frame: int):
+    def commit_input_fragment_if_needed(self, fragment: InputFragment):
+        if not self._is_rec:
+            return
+        self._commit_recording(
+            fragment.as_clip().channel(0 if self._rec_source == "L" else 1),
+            fragment.starting_frame,
+        )
+
+    def _commit_recording(
+        self, recorded_clip: AudioClip, starting_frame: Optional[int]
+    ):
         if not self.is_loaded:
             raise RuntimeError("Track not fully loaded yet")
+        if starting_frame is None:
+            return
         self._audio.writeable = True
         self._audio.overwrite(recorded_clip, starting_frame, extend_to_fit=True)
         self._audio.writeable = False
