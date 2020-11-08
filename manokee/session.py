@@ -350,10 +350,29 @@ class Session(ObservableMixin):
         self._configuration["metronome_pan"] = str(new_pan)
         self._notify_observers()
 
-    def make_playspec_for_track_group(self, track_group_name: str) -> Playspec:
+    def make_playspec_for_track_group(
+        self, track_group_name: str, is_recording: bool = False
+    ) -> Playspec:
+        # First, calculate basic audibility of tracks from solo and mute values
+        is_soloed = any(track.is_solo for track in self._tracks)
+        audibility = {
+            track: track.is_solo if is_soloed else not track.is_mute
+            for track in self._tracks
+        }
+        # Then, exclude tracks currently being recorded
+        if is_recording:
+            for track in self._tracks:
+                if track.is_rec:
+                    audibility[track] = False
         return list(
             chain(
-                track_playspec_entries(self.tracks_in_group(track_group_name)),
+                track_playspec_entries(
+                    (
+                        track
+                        for track in self.tracks_in_group(track_group_name)
+                        if audibility[track]
+                    )
+                ),
                 metronome_playspec_entries(
                     self, self.create_metronome_for_track_group(track_group_name)
                 ),

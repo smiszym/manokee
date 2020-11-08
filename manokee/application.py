@@ -125,6 +125,7 @@ class Application:
         self._amio_interface.set_transport_rolling(not was_rolling)
         if self._auto_rewind and was_rolling:
             self._amio_interface.set_position(self._auto_rewind_position)
+        self._playspec_controller.is_recording = False
 
     def start_recording(self):
         if self._amio_interface.is_transport_rolling():
@@ -133,6 +134,7 @@ class Application:
             return
         self._auto_rewind_position = self._amio_interface.get_position()
         self._input_recorder.is_recording = True
+        self._playspec_controller.is_recording = True
         self._amio_interface.set_transport_rolling(True)
 
     def commit_recording(self, fragment_id: int):
