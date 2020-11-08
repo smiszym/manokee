@@ -31,6 +31,9 @@ class PlayspecController:
         self._reviser = reviser
         self._is_recording = False
 
+    def close(self):
+        self._session_holder.remove_observer(self._on_session_changed)
+
     def _on_session_changed(self):
         session = self._session_holder.session
         if session is not None:

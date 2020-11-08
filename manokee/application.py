@@ -110,6 +110,8 @@ class Application:
 
     def stop_audio_io(self):
         assert self._amio_interface is not None
+        self._playspec_controller.close()
+        self._playspec_controller = None
         self._session_holder.session = None
         self._amio_interface.close()
         self._amio_interface = None

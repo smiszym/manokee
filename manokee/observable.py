@@ -9,6 +9,9 @@ class ObservableMixin:
     def add_observer(self, callback):
         self._observers.add(WeakMethod(callback))
 
+    def remove_observer(self, callback):
+        self._observers.remove(WeakMethod(callback))
+
     def _notify_observers(self):
         for ref in self._observers:
             callback = ref()
