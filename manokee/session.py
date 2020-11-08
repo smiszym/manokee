@@ -360,12 +360,6 @@ class Session(ObservableMixin):
             )
         )
 
-    def make_playspecs_for_track_groups(self) -> Dict[str, Playspec]:
-        return {
-            group_name: self.make_playspec_for_track_group(group_name)
-            for group_name in self.track_group_names
-        }
-
     def to_js(self) -> dict:
         """
         Make a JSON-line representation of the session, to be sent

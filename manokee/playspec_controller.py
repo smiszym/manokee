@@ -35,9 +35,11 @@ class PlayspecController:
 
     def _schedule_playspecs_recreation(self):
         # TODO: Move this to a background thread
-        self._playspecs_for_groups = (
-            self._session_holder.session.make_playspecs_for_track_groups()
-        )
+        session = self._session_holder.session
+        self._playspecs_for_groups = {
+            group_name: session.make_playspec_for_track_group(group_name)
+            for group_name in session.track_group_names
+        }
         current_playspec = self._playspecs_for_groups[self._active_track_group_name]
         self._amio_interface.schedule_playspec_change(current_playspec, 0, 0, None)
 
