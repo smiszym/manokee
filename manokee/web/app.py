@@ -139,10 +139,10 @@ def _construct_state_update_json(state_update_id):
 
 
 def _update_task():
-    while not _should_stop_updating_clients.wait(0.1):
+    while not _should_stop_updating_clients.is_set():
         sio.emit('state_update', _construct_state_update_json(
             _ping.ping_id_to_send()))
-        sio.sleep()
+        sio.sleep(0.05)
 
 
 _update_thread = sio.start_background_task(target=_update_task)
