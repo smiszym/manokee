@@ -67,7 +67,7 @@ function renderStateUpdate(msg) {
         (track, enabled) => socket.emit('set_mute', {track, enabled})}
       onSoloChange={
         (track, enabled) => socket.emit('set_solo', {track, enabled})}
-      onPanChange={(track, enabled) => socket.emit('set_pan', {track, enabled})}
+      onPanChange={(track, pan) => socket.emit('set_pan', {track, pan})}
       onVolumeDown={(track) => socket.emit('volume_down', {track})}
       onVolumeUp={(track) => socket.emit('volume_up', {track})}
       onAddTrack={(name) => socket.emit('add_track', {name})}
