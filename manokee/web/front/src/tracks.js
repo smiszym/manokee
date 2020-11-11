@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import Popup from "reactjs-popup";
+import PanKnob from './pan-knob';
 import {Meter} from "./meter";
 
 class EditTrackNamePopup extends Component {
@@ -72,11 +73,9 @@ class Track extends Component {
       }
       {!this.props.edit_mode &&
       <div className="track-table-col pan-ctrl">
-        <input type="range" min="-1.0" max="1.0" step="0.05"
-               value={track.pan}
-               className="slider"
-               onChange={evt => this.props.onPanChange(
-                 parseFloat(evt.target.value))}/>
+        <PanKnob
+          pan={track.pan}
+          onPanChange={value => this.props.onPanChange(value)} />
       </div>
       }
       {!this.props.edit_mode &&
