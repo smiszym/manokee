@@ -220,7 +220,7 @@ button {
 }
 
 .track-table-col.small-button {
-  width: 20px;
+  width: 32px;
 }
 .track-table-col.pan-ctrl {
   width: 44px;
@@ -259,21 +259,27 @@ input.solo-toggle {
   outline: none;
   user-select: none;
   padding: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
 }
 
 input.rec-toggle:before {
   content: 'R';
+  font-size: 15pt;
+  margin-left: 5px;
 }
 
 input.mute-toggle:before {
   content: 'M';
+  font-size: 15pt;
+  margin-left: 5px;
 }
 
 input.solo-toggle:before {
   content: 'S';
+  font-size: 15pt;
+  margin-left: 5px;
 }
 
 input.rec-toggle {
@@ -291,9 +297,13 @@ input.rec-source {
 }
 input.rec-source:before {  /* left */
   content: 'L';
+  font-size: 15pt;
+  margin-left: 5px;
 }
 input.rec-source:checked:before {  /* right */
   content: 'R';
+  font-size: 15pt;
+  margin-left: 5px;
 }
 
 input.mute-toggle {
