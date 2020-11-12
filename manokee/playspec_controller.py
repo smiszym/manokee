@@ -74,8 +74,9 @@ class PlayspecController:
 
     @is_recording.setter
     def is_recording(self, value: bool):
-        self._is_recording = value
-        self._recreate_playspecs()
+        if self._is_recording != value:
+            self._is_recording = value
+            self._recreate_playspecs()
 
     @property
     def timing(self) -> Timing:
