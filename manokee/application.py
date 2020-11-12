@@ -100,11 +100,11 @@ class Application:
         assert self._amio_interface is None
         self._amio_interface = amio.create_io_interface()
         self._amio_interface.init("manokee")
-        self._amio_interface.input_chunk_callback = self._on_input_chunk
-        self._session_holder.session = Session(self._amio_interface.get_frame_rate())
         self._playspec_controller = PlayspecController(
             self.amio_interface, self._session_holder, self._reviser
         )
+        self._amio_interface.input_chunk_callback = self._on_input_chunk
+        self._session_holder.session = Session(self._amio_interface.get_frame_rate())
         self._session_holder.add_observer(self._onSessionChanged)
         self._recent_sessions.read()
 
