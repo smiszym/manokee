@@ -30,22 +30,34 @@ class PlayspecController:
         self._session_holder.add_observer(self._on_session_changed)
         self._reviser = reviser
         self._is_recording = False
+        self._requires_playspec_recreation = False
+        self._input_chunks_until_recreation = 0
 
     def close(self):
         self._session_holder.remove_observer(self._on_session_changed)
 
+    def on_input_chunk(self):
+        if self._input_chunks_until_recreation > 0:
+            self._input_chunks_until_recreation -= 1
+        if self._requires_playspec_recreation:
+            self._recreate_playspecs()
+
     def _on_session_changed(self):
         session = self._session_holder.session
         if session is not None:
-            session.add_observer(self._schedule_playspecs_recreation)
+            session.add_observer(self._recreate_playspecs)
             self._timing = session.timing
-            self._schedule_playspecs_recreation()
+            self._recreate_playspecs()
         else:
             self._timing = FixedBpmTiming()
             self._playspecs_for_groups = {}
 
-    def _schedule_playspecs_recreation(self):
-        # TODO: Move this to a background thread
+    def _recreate_playspecs(self):
+        if self._input_chunks_until_recreation > 0:
+            self._requires_playspec_recreation = True
+            return
+        self._input_chunks_until_recreation = 19  # @48kHz, it's ~0.05 s, or ~20 times/s
+        self._requires_playspec_recreation = False
         session = self._session_holder.session
         self._playspecs_for_groups = {
             group_name: session.make_playspec_for_track_group(
@@ -63,7 +75,7 @@ class PlayspecController:
     @is_recording.setter
     def is_recording(self, value: bool):
         self._is_recording = value
-        self._schedule_playspecs_recreation()
+        self._recreate_playspecs()
 
     @property
     def timing(self) -> Timing:

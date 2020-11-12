@@ -223,3 +223,4 @@ class Application:
     def _on_input_chunk(self, input_chunk: amio.InputAudioChunk):
         self._input_recorder.append_input_chunk(input_chunk)
         self._input_recorder.remove_old_fragments(self._amio_interface)
+        self._playspec_controller.on_input_chunk()
