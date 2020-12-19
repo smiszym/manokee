@@ -69,13 +69,6 @@ class EditSessionNamePopup extends Component {
 }
 
 export class SessionManagement extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      session_path: '',
-    };
-  }
-
   render() {
     return <div>
       <ConfirmNewSessionPopup
@@ -95,27 +88,10 @@ export class SessionManagement extends Component {
               submit_text="Save"
               onSubmit={name => this.props.onSaveSessionAs(name)} />
       }
-      <Collapsible trigger={<button>Load session...</button>}>
-        <h3>Load session from file</h3>
-        Path:
-        <input
-          id="session-path" type="text" value={this.state.session_path}
-          onChange={evt => this.updateSessionPath(evt)}/>
-        <button
-          onClick={evt => this.props.onLoadSession(this.state.session_path)}>
-          Load
-        </button>
-        <h3>Workspace</h3>
-        <WorkspaceSessions
-          workspace_sessions={this.props.workspace_sessions}
-          onLoadSession={this.props.onLoadSession}/>
-      </Collapsible>
+      <h3>Load session</h3>
+      <WorkspaceSessions
+        workspace_sessions={this.props.workspace_sessions}
+        onLoadSession={this.props.onLoadSession}/>
     </div>;
-  }
-
-  updateSessionPath(evt) {
-    this.setState({
-      session_path: evt.target.value
-    });
   }
 }
