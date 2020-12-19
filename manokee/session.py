@@ -394,7 +394,7 @@ class Session(ObservableMixin):
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
             "configuration": self._configuration,
-            "marks": {name: str(mark) for name, mark in enumerate(self._marks)},
+            "marks": {name: str(mark) for name, mark in self._marks.items()},
             "tracks": [track.to_js() for track in self._tracks],
             "track_group_names": self.track_group_names,
         }
