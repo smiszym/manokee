@@ -205,7 +205,8 @@ class MoreOptions extends Component {
           <Marks
             session={this.props.session}
             current_bar={this.props.currentBar}
-            onSetMarkAtBar={this.props.onSetMarkAtBar} />
+            onSetMarkAtBar={this.props.onSetMarkAtBar}
+            onGoToMark={this.props.onGoToMark} />
         </TabPanel>
         <TabPanel>
           <RecordedFragments
@@ -366,6 +367,7 @@ export class App extends Component {
              currentPosition={this.props.current_position}
              currentBar={this.props.current_bar}
              onSetMarkAtBar={this.props.onSetMarkAtBar}
+             onGoToMark={this.props.onGoToMark}
              autoRewind={this.props.autoRewind}
              onSetAutoRewind={this.props.onSetAutoRewind}
              currentBeat={this.props.current_beat}

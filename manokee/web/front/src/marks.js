@@ -14,19 +14,18 @@ export class Marks extends Component {
         </button>
       </div>
       <div><b>Currently set marks:</b></div>
-      <div className="mark-table">
-        <div className="mark-table-row">
-          <div className="mark-table-col"><b>name</b></div>
-          <div className="mark-table-col"><b>position</b></div>
-        </div>
+      <div>
         {
-          Object.keys(marks).map((name, i) => {
-            const position = marks[name];
-            return <div key={name} className="mark-table-row">
-              <div className="mark-table-col">{name}</div>
-              <div className="mark-table-col">{position}</div>
-            </div>;
-          })
+          Object.entries(marks).sort((a, b) => a[1].localeCompare(b[1])).map(
+            (mark) => {
+              const name = mark[0];
+              const position = mark[1];
+              return <div key={name}>
+                <button onClick={evt => this.props.onGoToMark(name)}>
+                  {name} ({position})
+                </button>
+              </div>;
+            })
         }
       </div>
     </div>;

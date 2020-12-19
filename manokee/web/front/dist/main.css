@@ -165,24 +165,6 @@ button {
   overflow-y: scroll;
 }
 
-.mark-table {
-  display: table;
-  width: 100%;
-  border-spacing: 0.1em 1.6em;
-}
-
-.mark-table-row {
-  display: table-row;
-  width: auto;
-  clear: both;
-}
-
-.mark-table-col {
-  float: left;  /* fix for buggy browsers */
-  display: table-column;
-  width: 33%;
-}
-
 .fragment-table {
   display: table;
   width: 100%;
