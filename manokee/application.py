@@ -1,4 +1,5 @@
 import amio
+import logging
 from manokee.global_config import *
 from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
@@ -10,6 +11,9 @@ from manokee.session_holder import SessionHolder
 from manokee.timing_utils import beat_number_to_frame
 from manokee.workspace import Workspace
 from typing import List, Optional, Tuple
+
+
+logger = logging.getLogger("manokee.application")
 
 
 class Application:
@@ -98,6 +102,7 @@ class Application:
 
     def start_audio_io(self):
         assert self._amio_interface is None
+        logger.info("Starting audio I/O")
         self._amio_interface = amio.create_io_interface()
         self._amio_interface.init("manokee")
         self._playspec_controller = PlayspecController(
@@ -110,6 +115,7 @@ class Application:
 
     def stop_audio_io(self):
         assert self._amio_interface is not None
+        logger.info("Stopping audio I/O")
         self._playspec_controller.close()
         self._playspec_controller = None
         self._session_holder.session = None
@@ -121,11 +127,13 @@ class Application:
         path = self._workspace.session_file_path_for_session_name(name)
         self._session_holder.session.session_file_path = path
         self._session_holder.session.save()
+        logger.info(f"Saved session as {name}")
 
     def play_stop(self):
         was_rolling = self._amio_interface.is_transport_rolling()
         if not was_rolling:
             self._auto_rewind_position = self._amio_interface.get_position()
+        logger.info(f"{'Stopping' if was_rolling else 'Starting'} playback")
         self._amio_interface.set_transport_rolling(not was_rolling)
         if self._auto_rewind and was_rolling:
             self._amio_interface.set_position(self._auto_rewind_position)
@@ -138,6 +146,7 @@ class Application:
             return
         if self._input_recorder.fragment_being_revised is not None:
             return
+        logger.info("Starting recording")
         self._auto_rewind_position = self._amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._playspec_controller.is_recording = True
@@ -155,12 +164,14 @@ class Application:
             return None
 
     def commit_revised_fragment(self):
+        logger.info("Commiting fragment being revised")
         if not self.is_revising:
             return
         self.commit_recording(self._input_recorder.fragment_being_revised.id)
         self._input_recorder.fragment_being_revised = None
 
     def stop_revising(self):
+        logger.info("Discarding fragment being revised")
         self._input_recorder.fragment_being_revised = None
 
     def commit_recording(self, fragment_id: int):
@@ -177,6 +188,7 @@ class Application:
         )
 
     def go_to_bar(self, bar: int):
+        logger.info(f"Going to bar {bar}")
         session = self._session_holder.session
         if session is None:
             return
@@ -189,6 +201,7 @@ class Application:
         )
 
     def go_to_mark(self, mark_name: str):
+        logger.info(f"Going to mark {mark_name}")
         try:
             seconds = self._session_holder.session.mark_position_seconds(
                 mark_name, self._playspec_controller.timing

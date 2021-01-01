@@ -1,5 +1,6 @@
 from amio import Interface, Playspec
 from itertools import cycle
+import logging
 from manokee.looping import LoopFragment
 import manokee.revising
 from manokee.session_holder import SessionHolder
@@ -59,6 +60,7 @@ class PlayspecController:
         self._input_chunks_until_recreation = 19  # @48kHz, it's ~0.05 s, or ~20 times/s
         self._requires_playspec_recreation = False
         session = self._session_holder.session
+        logging.debug(f"Recreating playspecs for groups: {session.track_group_names}")
         self._playspecs_for_groups = {
             group_name: session.make_playspec_for_track_group(
                 group_name, self._is_recording, self._reviser
