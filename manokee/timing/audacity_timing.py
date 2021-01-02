@@ -13,13 +13,14 @@ class AudacityTiming(Timing):
         if m:
             offset = int(m.group(1))
         self.b = [pos - offset / 1000 for pos in label_track.get_label_positions()]
+        self.average_beat_length = (self.b[-1] - self.b[0]) / (len(self.b) - 1)
 
     def beat_to_seconds(self, beat_number: float) -> float:
         beat_a = int(beat_number)
         beat_b = beat_a + 1
         remainder = beat_number - beat_a
-        sec_a = self.b[beat_a]
-        sec_b = self.b[beat_b]
+        sec_a = self._label_position_extrapolated(beat_a)
+        sec_b = self._label_position_extrapolated(beat_b)
         return sec_a + (sec_b - sec_a) * remainder
 
     def seconds_to_beat(self, time: float) -> float:
@@ -28,6 +29,14 @@ class AudacityTiming(Timing):
         sec_a = self.beat_to_seconds(beat_a)
         sec_b = self.beat_to_seconds(beat_b)
         return beat_a + (time - sec_a) / (sec_b - sec_a)
+
+    def _label_position_extrapolated(self, beat: int) -> float:
+        if beat < 0:
+            return self.b[0] + beat * self.average_beat_length
+        elif beat >= len(self.b):
+            return self.b[-1] + (beat - len(self.b) + 1) * self.average_beat_length
+        else:
+            return self.b[beat]
 
     def _seconds_to_beat_integer(self, time: float) -> int:
         i = 0
