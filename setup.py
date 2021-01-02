@@ -41,6 +41,7 @@ setup(
         "mido",
         "netifaces",
         "python-rtmidi",
+        "qrcode",
         "soundfile",
     ],
 )
