@@ -1,4 +1,7 @@
 import logging
+
+import psutil
+
 from manokee.application import Application
 from manokee.looping import LoopFragment
 from manokee.ping import Ping
@@ -123,6 +126,7 @@ application = Application()
 _client_sids = set()
 _ping = Ping()
 _should_stop_updating_clients = threading.Event()
+_process = psutil.Process()
 
 
 def _construct_state_update_json(state_update_id):
@@ -166,6 +170,8 @@ def _construct_state_update_json(state_update_id):
         "capture_meter": application.capture_meter.current_rms_dB,
         "recorded_fragments": recorded_fragments,
         "fragment_being_revised_id": application.fragment_being_revised_id,
+        "process_rss": _process.memory_info().rss,
+        "available_ram": psutil.virtual_memory().available,
     }
     if state_update_id is not None:
         state_update_json["state_update_id"] = state_update_id

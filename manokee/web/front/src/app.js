@@ -39,6 +39,8 @@ function renderStateUpdate(msg) {
       fragment_being_revised_id={msg.fragment_being_revised_id}
       active_track_group_name={msg.active_track_group_name}
       is_looped={msg.is_looped}
+      process_rss={msg.process_rss}
+      available_ram={msg.available_ram}
       onStartAudio={() => socket.emit('start_audio')}
       onStopAudio={() => socket.emit('stop_audio')}
       onNewSession={() => socket.emit('new_session')}
@@ -177,6 +179,8 @@ class MoreOptions extends Component {
         <TabPanel>
           <Status
             pingLatency={this.props.pingLatency}
+            process_rss={this.props.process_rss}
+            available_ram={this.props.available_ram}
             audioIoRunning={this.props.audioIoRunning}
             onStartAudio={this.props.onStartAudio}
             onStopAudio={this.props.onStopAudio} />
@@ -348,6 +352,8 @@ export class App extends Component {
              onMoveDown={this.props.onMoveDown} />
          : <MoreOptions
              pingLatency={this.props.ping_latency}
+             process_rss={this.props.process_rss}
+             available_ram={this.props.available_ram}
              audioIoRunning={this.props.is_audio_io_running}
              onStartAudio={this.props.onStartAudio}
              onStopAudio={this.props.onStopAudio}
