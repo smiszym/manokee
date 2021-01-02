@@ -41,6 +41,7 @@ setup(
         "mido==1.2.9",
         "netifaces==0.10.9",
         "psutil==5.8.0",
+        "pygit2==1.5.0",
         "python-rtmidi==1.4.7",
         "qrcode==6.1",
         "SoundFile==0.10.3.post1",

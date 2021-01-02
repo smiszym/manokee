@@ -88,6 +88,26 @@ export class SessionManagement extends Component {
               submit_text="Save"
               onSubmit={name => this.props.onSaveSessionAs(name)} />
       }
+      <h3>Session state</h3>
+      {
+        this.props.session.history.status
+          ? "modified: "
+              + Object.entries(this.props.session.history.status)
+                  .map((entry, i) => entry[0])
+                  .join(", ")
+          : "unknown"
+      }
+      <h3>Session history</h3>
+      <ul>
+      {
+        this.props.session.history.log
+          && this.props.session.history.log.map((entry, i) => {
+               return <li key={entry}>
+                 {entry[1]}
+               </li>
+             })
+      }
+      </ul>
       <h3>Load session</h3>
       <WorkspaceSessions
         workspace_sessions={this.props.workspace_sessions}

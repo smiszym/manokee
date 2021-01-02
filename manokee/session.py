@@ -9,6 +9,7 @@ from manokee.playspec_generators import (
     metronome_playspec_entries,
 )
 import manokee.revising
+from manokee.session_history import SessionHistory
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
@@ -52,6 +53,7 @@ class Session(ObservableMixin):
                 self._session_file_path = os.path.join(
                     os.path.curdir, session_file_path
                 )
+            self.history = SessionHistory(os.path.dirname(self._session_file_path))
             et = ET.parse(self._session_file_path)
             self._session_format_name = et.getroot().attrib["format-name"]
             self._session_format_version = et.getroot().attrib["format-version"]
@@ -84,6 +86,7 @@ class Session(ObservableMixin):
             else:
                 self._tracks = []
         else:
+            self.history = SessionHistory(None)
             if session_file_path is None:
                 self._session_file_path = None
             elif session_file_path.endswith(".mnk"):
@@ -397,6 +400,7 @@ class Session(ObservableMixin):
             "marks": {name: str(mark) for name, mark in self._marks.items()},
             "tracks": [track.to_js() for track in self._tracks],
             "track_group_names": self.track_group_names,
+            "history": self.history.to_js(),
         }
 
     @staticmethod
