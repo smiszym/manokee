@@ -3,15 +3,8 @@ import manokee.session
 import numpy as np
 
 
-metronome_bar_clip_mono = AudioClip.from_soundfile("res/metbar.flac")
-metronome_beat_clip_mono = AudioClip.from_soundfile("res/metbeat.flac")
-
-metronome_bar_clip = AudioClip.stereo_clip_from_mono_clips(
-    metronome_bar_clip_mono, metronome_bar_clip_mono
-)
-metronome_beat_clip = AudioClip.stereo_clip_from_mono_clips(
-    metronome_beat_clip_mono, metronome_beat_clip_mono
-)
+metronome_bar_clip = AudioClip.from_soundfile("res/metbar.flac")
+metronome_beat_clip = AudioClip.from_soundfile("res/metbeat.flac")
 
 
 class Metronome:
@@ -42,7 +35,7 @@ class Metronome:
         beat_length_seconds = 60 / self._session.bpm
         bar_length_seconds = beat_length_seconds * self._session.time_signature
         self._repeat_interval = int(bar_length_seconds * frame_rate)
-        self._audio_clip = AudioClip(np.zeros((self._repeat_interval, 2)), frame_rate)
+        self._audio_clip = AudioClip.zeros(self._repeat_interval, 1, frame_rate)
         self._audio_clip.overwrite(metronome_bar_clip, 0)
         for i in range(1, self._session.time_signature):
             self._audio_clip.overwrite(
