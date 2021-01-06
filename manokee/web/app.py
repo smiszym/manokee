@@ -172,6 +172,16 @@ def _construct_state_update_json(state_update_id):
         "fragment_being_revised_id": application.fragment_being_revised_id,
         "process_rss": _process.memory_info().rss,
         "available_ram": psutil.virtual_memory().available,
+        "track_memory_usage_mb": {
+            # 3 because there are 3 copies of the audio data currently:
+            # - NumPy array
+            # - immutable bytes object with audio data
+            # - block of memory used by the native I/O thread
+            track.name: int(3 * track.get_audio_clip().memory_usage_mb)
+            for track in application.session.tracks
+        }
+        if application.session is not None
+        else {},
     }
     if state_update_id is not None:
         state_update_json["state_update_id"] = state_update_id

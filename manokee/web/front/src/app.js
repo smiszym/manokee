@@ -41,6 +41,7 @@ function renderStateUpdate(msg) {
       is_looped={msg.is_looped}
       process_rss={msg.process_rss}
       available_ram={msg.available_ram}
+      track_memory_usage_mb={msg.track_memory_usage_mb}
       onStartAudio={() => socket.emit('start_audio')}
       onStopAudio={() => socket.emit('stop_audio')}
       onNewSession={() => socket.emit('new_session')}
@@ -181,6 +182,7 @@ class MoreOptions extends Component {
             pingLatency={this.props.pingLatency}
             process_rss={this.props.process_rss}
             available_ram={this.props.available_ram}
+            track_memory_usage_mb={this.props.track_memory_usage_mb}
             audioIoRunning={this.props.audioIoRunning}
             onStartAudio={this.props.onStartAudio}
             onStopAudio={this.props.onStopAudio} />
@@ -354,6 +356,7 @@ export class App extends Component {
              pingLatency={this.props.ping_latency}
              process_rss={this.props.process_rss}
              available_ram={this.props.available_ram}
+             track_memory_usage_mb={this.props.track_memory_usage_mb}
              audioIoRunning={this.props.is_audio_io_running}
              onStartAudio={this.props.onStartAudio}
              onStopAudio={this.props.onStopAudio}
