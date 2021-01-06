@@ -38,7 +38,7 @@ def test_moving_average_alternating():
     assert avg.get() is None
     assert avg.new_value(4) == 4
     assert avg.new_value(3) == 3.5
-    assert avg.new_value(4) == (4+3+4) / 3
+    assert avg.new_value(4) == (4 + 3 + 4) / 3
     assert avg.new_value(3) == 3.5
     assert avg.new_value(4) == 3.5
     assert avg.new_value(3) == 3.5

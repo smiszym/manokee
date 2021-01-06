@@ -46,8 +46,10 @@ class Ping:
         self._current_ping_latency = MovingAverage()
 
     def ping_id_to_send(self) -> Optional[int]:
-        if (self._sent_ping_time is not None
-                and time.perf_counter() - self._sent_ping_time > self.timeout):
+        if (
+            self._sent_ping_time is not None
+            and time.perf_counter() - self._sent_ping_time > self.timeout
+        ):
             self._reset()
         if self._sent_ping_id is not None:
             return None
@@ -60,7 +62,8 @@ class Ping:
     def pong_received(self, id: int):
         if id == self._sent_ping_id:
             current = self._current_ping_latency.new_value(
-                time.perf_counter() - self._sent_ping_time)
+                time.perf_counter() - self._sent_ping_time
+            )
             self._sent_ping_id = None
             self._sent_ping_time = None
             return current

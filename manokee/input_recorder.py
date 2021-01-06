@@ -35,8 +35,11 @@ class InputFragment:
     @property
     def transport_state(self) -> TransportState:
         if self._was_transport_rolling:
-            return (TransportState.RECORDING if self._is_recording
-                    else TransportState.ROLLING)
+            return (
+                TransportState.RECORDING
+                if self._is_recording
+                else TransportState.ROLLING
+            )
         else:
             return TransportState.STOPPED
 
@@ -47,8 +50,10 @@ class InputFragment:
         return None
 
     def is_chunk_compatible(self, chunk: InputAudioChunk) -> bool:
-        return (self._was_transport_rolling is None
-                or self._was_transport_rolling == chunk.was_transport_rolling)
+        return (
+            self._was_transport_rolling is None
+            or self._was_transport_rolling == chunk.was_transport_rolling
+        )
 
     def append_chunk(self, chunk: InputAudioChunk):
         assert self.is_chunk_compatible(chunk)
@@ -63,8 +68,9 @@ class InputFragment:
     def cut(self, desired_length: int):
         # This will cut to a bit longer fragment than desired_length,
         # because it won't cut individual chunks.
-        while (len(self._chunks) > 1
-               and desired_length < len(self) - len(self._chunks[-1])):
+        while len(self._chunks) > 1 and desired_length < len(self) - len(
+            self._chunks[-1]
+        ):
             chunk = self._chunks.pop(0)
             self._length -= len(chunk)
 
@@ -72,21 +78,20 @@ class InputFragment:
         return AudioClip.concatenate(self._chunks)
 
     def to_js(self, amio_interface: Interface) -> dict:
-        result = {'id': self._id,
-                  'transport_state': str(self.transport_state),
-                  'length': format_frame(amio_interface, len(self)),
-                  }
+        result = {
+            "id": self._id,
+            "transport_state": str(self.transport_state),
+            "length": format_frame(amio_interface, len(self)),
+        }
         if self.starting_frame is not None:
-            result['starting_time'] = format_frame(
-                amio_interface, self.starting_frame)
+            result["starting_time"] = format_frame(amio_interface, self.starting_frame)
         return result
 
 
 class InputRecorder:
     def __init__(self, keepalive_mins: float, keepalive_margin_mins: float):
         self._id_generator = itertools.count()
-        self._input_fragments = deque([
-            InputFragment(next(self._id_generator), False)])
+        self._input_fragments = deque([InputFragment(next(self._id_generator), False)])
         self._is_recording = False
         self._meter = Meter(2)
         self._keepalive_mins = keepalive_mins
@@ -121,13 +126,16 @@ class InputRecorder:
 
     def append_input_chunk(self, input_chunk: InputAudioChunk):
         self._update_meter(input_chunk)
-        if (self.last_fragment.transport_state != TransportState.STOPPED
-                and not input_chunk.was_transport_rolling):
+        if (
+            self.last_fragment.transport_state != TransportState.STOPPED
+            and not input_chunk.was_transport_rolling
+        ):
             # Stop recording when AMIO transport stops rolling
             self._is_recording = False
         if not self.last_fragment.is_chunk_compatible(input_chunk):
-            self._input_fragments.appendleft(InputFragment(
-                next(self._id_generator), self._is_recording))
+            self._input_fragments.appendleft(
+                InputFragment(next(self._id_generator), self._is_recording)
+            )
         self.last_fragment.append_chunk(input_chunk)
         # Keep track of what the current wall time is (approximately)
         self._wall_time_approx = input_chunk.wall_time
@@ -143,35 +151,34 @@ class InputRecorder:
                     last_recording_fragment = fragment
             # If no recording fragment remained, append the last removed
             # recording fragment
-            if (last_recording_fragment is not None
-                    and not any(
-                        fragment.transport_state == TransportState.RECORDING
-                        for fragment in self._input_fragments)):
+            if last_recording_fragment is not None and not any(
+                fragment.transport_state == TransportState.RECORDING
+                for fragment in self._input_fragments
+            ):
                 self._input_fragments.append(last_recording_fragment)
 
         total_length = sum(len(fragment) for fragment in self._input_fragments)
         last_fragment_length = len(self._input_fragments[-1])
         # Cut the last fragment if too long
         total_allowed = amio_interface.secs_to_frame(
-            60 * (self._keepalive_mins + self._keepalive_margin_mins))
+            60 * (self._keepalive_mins + self._keepalive_margin_mins)
+        )
         fragment_to_cut = self._input_fragments[-1]
         if fragment_to_cut.transport_state != TransportState.RECORDING:
-            fragment_to_cut.cut(
-                total_allowed - (total_length - last_fragment_length))
+            fragment_to_cut.cut(total_allowed - (total_length - last_fragment_length))
 
     def _first_to_discard(self, discard_threshold: float) -> Optional[int]:
         if self._wall_time_approx is None:
             return None
         for i, fragment in enumerate(self._input_fragments):
-            if ((self._wall_time_approx - fragment.last_chunk_wall_time())
-                    .total_seconds() >= discard_threshold):
+            if (
+                self._wall_time_approx - fragment.last_chunk_wall_time()
+            ).total_seconds() >= discard_threshold:
                 return i
         return None
 
     def _update_meter(self, input_chunk: InputAudioChunk):
         _, left_rms, left_peak = input_chunk.channel(0).create_metering_data()
         _, right_rms, right_peak = input_chunk.channel(1).create_metering_data()
-        self._meter.current_rms_dB = [
-            float(max(left_rms)), float(max(right_rms))]
-        self._meter.current_peak_dB = [
-            float(max(left_peak)), float(max(right_peak))]
+        self._meter.current_rms_dB = [float(max(left_rms)), float(max(right_rms))]
+        self._meter.current_peak_dB = [float(max(left_peak)), float(max(right_peak))]

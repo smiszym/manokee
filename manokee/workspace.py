@@ -8,8 +8,7 @@ def dir_is_session(path):
     :param path: Path to a directory.
     :return: True if this directory contains Manokee session.
     """
-    return (os.path.isdir(path)
-            and os.path.isfile(os.path.join(path, "session.mnk")))
+    return os.path.isdir(path) and os.path.isfile(os.path.join(path, "session.mnk"))
 
 
 class Workspace:
@@ -31,13 +30,13 @@ class Workspace:
             self._sessions = []
             return
         else:
-            self._sessions = sorted([
-                path for path in _abslistdir(self._directory)
-                if dir_is_session(path)])
+            self._sessions = sorted(
+                [path for path in _abslistdir(self._directory) if dir_is_session(path)]
+            )
 
     def session_file_path_for_session_name(self, name):
         # Verify that name is a filename without path separators
-        assert '\0' not in name and '/' not in name
+        assert "\0" not in name and "/" not in name
         return os.path.join(self._directory, name, "session.mnk")
 
 

@@ -12,8 +12,10 @@ class LabelTrack:
         return self.element.attrib["name"]
 
     def get_label_positions(self):
-        return (float(label.attrib["t"])
-                for label in self.element.findall("ns:label", self.ns))
+        return (
+            float(label.attrib["t"])
+            for label in self.element.findall("ns:label", self.ns)
+        )
 
 
 class WaveBlock:
@@ -44,15 +46,20 @@ class WaveClip:
         return float(self.element.attrib["offset"])
 
     def get_wave_blocks(self):
-        return (WaveBlock(block, self.ns)
-                for block in self.element.find("ns:sequence", self.ns)
-                    .findall("ns:waveblock", self.ns))
+        return (
+            WaveBlock(block, self.ns)
+            for block in self.element.find("ns:sequence", self.ns).findall(
+                "ns:waveblock", self.ns
+            )
+        )
 
     def get_audio_clips(self):
-        return (AudioClip
-                    .from_au_file(self.project
-                                  .get_blockfile_path(block.get_filename()))
-                for block in self.get_wave_blocks())
+        return (
+            AudioClip.from_au_file(
+                self.project.get_blockfile_path(block.get_filename())
+            )
+            for block in self.get_wave_blocks()
+        )
 
     def as_audio_clip(self):
         return AudioClip.concatenate(self.get_audio_clips())
@@ -74,8 +81,10 @@ class WaveTrack:
         return float(self.element.attrib["rate"])
 
     def get_clips(self):
-        return (WaveClip(clip, self.ns, self.project)
-                for clip in self.element.findall("ns:waveclip", self.ns))
+        return (
+            WaveClip(clip, self.ns, self.project)
+            for clip in self.element.findall("ns:waveclip", self.ns)
+        )
 
     def as_audio_clip(self):
         # TODO Support offsets etc.
@@ -96,8 +105,10 @@ class AudacityProject(ElementTree):
 
     def get_wave_tracks(self):
         root = self.getroot()
-        return (WaveTrack(track, self.ns, self)
-                for track in root.findall("ns:wavetrack", self.ns))
+        return (
+            WaveTrack(track, self.ns, self)
+            for track in root.findall("ns:wavetrack", self.ns)
+        )
 
     def get_project_dir(self):
         return os.path.dirname(self.aup_file_path)
@@ -108,7 +119,8 @@ class AudacityProject(ElementTree):
             self.getroot().attrib["projname"],
             name[0:3],
             "d" + name[3:5],
-            name)
+            name,
+        )
 
     def as_audio_clip(self):
         tracks = self.get_wave_tracks()

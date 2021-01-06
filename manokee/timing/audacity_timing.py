@@ -12,8 +12,7 @@ class AudacityTiming(Timing):
         offset = 0
         if m:
             offset = int(m.group(1))
-        self.b = [pos - offset / 1000
-                  for pos in label_track.get_label_positions()]
+        self.b = [pos - offset / 1000 for pos in label_track.get_label_positions()]
 
     def beat_to_seconds(self, beat_number: float) -> float:
         beat_a = int(beat_number)

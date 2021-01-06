@@ -9,32 +9,40 @@ import xml.etree.ElementTree as ET
 
 
 class Track:
-    def __init__(self, session: 'manokee.session.Session', frame_rate: float,
-            element: ET.Element = None, name: str = None):
+    def __init__(
+        self,
+        session: "manokee.session.Session",
+        frame_rate: float,
+        element: ET.Element = None,
+        name: str = None,
+    ):
         self._session = session
         if element is not None:
             assert name is None
-            self._name = element.attrib['name']
-            self._is_rec = element.attrib['rec'] != "0"
-            self._is_mute = element.attrib['mute'] != "0"
-            self._is_solo = element.attrib['solo'] != "0"
-            self._rec_source = element.attrib['rec-source']
-            self._source = element.attrib.get('source', 'internal')
+            self._name = element.attrib["name"]
+            self._is_rec = element.attrib["rec"] != "0"
+            self._is_mute = element.attrib["mute"] != "0"
+            self._is_solo = element.attrib["solo"] != "0"
+            self._rec_source = element.attrib["rec-source"]
+            self._source = element.attrib.get("source", "internal")
             self._fader = Fader(
-                float(element.attrib['vol']), float(element.attrib['pan']))
+                float(element.attrib["vol"]), float(element.attrib["pan"])
+            )
             self._beats_in_audacity_beat = int(
-                element.attrib.get('beats-in-audacity-beat', '1'))
+                element.attrib.get("beats-in-audacity-beat", "1")
+            )
             self._audacity_project = (
-                audacity_project.parse(element.attrib.get('audacity-project'))
+                audacity_project.parse(element.attrib.get("audacity-project"))
                 if self.is_audacity_project
-                else None)
+                else None
+            )
         else:
             self._name = name if name is not None else "track"
             self._is_rec = False
             self._is_mute = False
             self._is_solo = False
-            self._rec_source = 'L'
-            self._source = 'internal'
+            self._rec_source = "L"
+            self._source = "internal"
             self._fader = Fader()
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
@@ -79,7 +87,8 @@ class Track:
         if self._session.session_file_path is None:
             return None
         return os.path.join(
-            os.path.dirname(self._session.session_file_path), self.name + ".flac")
+            os.path.dirname(self._session.session_file_path), self.name + ".flac"
+        )
 
     def get_audio_clip(self):
         return self._audio
@@ -149,12 +158,12 @@ class Track:
 
     def to_js(self) -> dict:
         return {
-            'name': self._name,
-            'is_rec': self._is_rec,
-            'is_mute': self._is_mute,
-            'is_solo': self._is_solo,
-            'rec_source': self._rec_source,
-            'vol_dB': self._fader.vol_dB,
-            'pan': self._fader.pan,
-            'requires_audio_save': self.requires_audio_save,
+            "name": self._name,
+            "is_rec": self._is_rec,
+            "is_mute": self._is_mute,
+            "is_solo": self._is_solo,
+            "rec_source": self._rec_source,
+            "vol_dB": self._fader.vol_dB,
+            "pan": self._fader.pan,
+            "requires_audio_save": self.requires_audio_save,
         }

@@ -10,13 +10,13 @@ def ipv4_addresses():
     for interface in interfaces():
         links = ifaddresses(interface).get(AF_INET, [])
         for link in links:
-            addr = ip_address(link['addr'])
+            addr = ip_address(link["addr"])
             if not addr.is_loopback:
                 result.append(addr)
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = 5000
     addresses = ipv4_addresses()
     assert len(addresses) > 0
@@ -27,4 +27,5 @@ if __name__ == '__main__':
         for address in addresses:
             print(f"http://{address}:{port}/")
     eventlet.wsgi.server(
-        eventlet.listen(('', port)), app, log=logging.getLogger('webserver'))
+        eventlet.listen(("", port)), app, log=logging.getLogger("webserver")
+    )

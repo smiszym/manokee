@@ -32,8 +32,9 @@ def parse_frame(amio_interface: Interface, formatted: str) -> Optional[int]:
     return amio_interface.secs_to_frame(seconds)
 
 
-def format_beat(amio_interface: Interface,
-        playspec_controller: PlayspecController, frame: int) -> str:
+def format_beat(
+    amio_interface: Interface, playspec_controller: PlayspecController, frame: int
+) -> str:
     if amio_interface is None:
         return "??+??"
     if playspec_controller.session is None:
@@ -44,5 +45,6 @@ def format_beat(amio_interface: Interface,
         amio_interface,
         playspec_controller.session,
         playspec_controller.timing,
-        frame + 1)
+        frame + 1,
+    )
     return f"{bar + 1}+{beat + 1}"

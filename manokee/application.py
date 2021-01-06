@@ -8,11 +8,12 @@ from manokee.workspace import Workspace
 from typing import List, Optional
 
 
-class Application():
+class Application:
     """
     Manokee application. This class implements functionality that
     the web interface provides.
     """
+
     def __init__(self):
         self._amio_interface = None
         self._playspec_controller = None
@@ -20,13 +21,15 @@ class Application():
         self._auto_rewind_position = 0
         self.on_session_change = None
         self._global_config = read_global_config()
-        self._workspace = Workspace(self._global_config.get('workspace'))
+        self._workspace = Workspace(self._global_config.get("workspace"))
         self._recent_sessions = RecentSessions()
         self._input_recorder = InputRecorder(4, 2)
         self._midi_interpreter = MidiInterpreter()
         self._midi_input_receiver = MidiInputReceiver(
             lambda raw_message: self._on_midi_message(
-                self._midi_interpreter.interpret(raw_message)))
+                self._midi_interpreter.interpret(raw_message)
+            )
+        )
         self._midi_input_receiver.start()
 
     @property
@@ -77,7 +80,8 @@ class Application():
 
     def _onSessionChanged(self):
         self._recent_sessions.append(
-            self._playspec_controller.session.session_file_path)
+            self._playspec_controller.session.session_file_path
+        )
         if self.on_session_change is not None:
             self.on_session_change()
 
@@ -124,11 +128,12 @@ class Application():
         session = self._playspec_controller.session
         for track in session.tracks:
             if track.is_rec:
-                clip_to_commit = left if track.rec_source == 'L' else right
+                clip_to_commit = left if track.rec_source == "L" else right
                 clip = track.get_audio_clip()
                 clip.writeable = True
-                clip.overwrite(clip_to_commit, fragment.starting_frame,
-                               extend_to_fit=True)
+                clip.overwrite(
+                    clip_to_commit, fragment.starting_frame, extend_to_fit=True
+                )
                 clip.writeable = False
                 track.requires_audio_save = True
                 track.notify_modified()

@@ -24,13 +24,12 @@ class PlayspecController:
         self._session_holder.session = Session(
             self._amio_interface.get_frame_rate()
             if self._amio_interface is not None
-            else 48000)
+            else 48000
+        )
 
     def _on_session_changed(self):
-        self._session_holder.session.on_modify = (
-            self._schedule_playspecs_recreation)
-        self._metronome = Metronome(
-            self._amio_interface, self._session_holder.session)
+        self._session_holder.session.on_modify = self._schedule_playspecs_recreation
+        self._metronome = Metronome(self._amio_interface, self._session_holder.session)
         self._timing = self._session_holder.session.timing
         self._recreate_playspecs()
         if self.on_session_change is not None:
@@ -52,7 +51,8 @@ class PlayspecController:
         session = self._session_holder.session
         self._playspecs_for_groups = {
             group_name: session.make_playspec_for_track_group(
-                            self._amio_interface, self._metronome, group_name)
+                self._amio_interface, self._metronome, group_name
+            )
             for group_name in self._session_holder.session.track_group_names
         }
         self._playspec = self._playspecs_for_groups[""]
@@ -75,8 +75,9 @@ class PlayspecController:
             track = self._session_holder.session.track_for_name(group_name)
             if track is None:
                 raise ValueError(f"No such track: {group_name}")
-            self._timing = (InterpolatedTiming(
-                track.timing, track.beats_in_audacity_beat))
+            self._timing = InterpolatedTiming(
+                track.timing, track.beats_in_audacity_beat
+            )
         new_timing = self._timing
         self._active_track_group_name = group_name
         self._playspec = self._playspecs_for_groups[group_name]
@@ -88,10 +89,12 @@ class PlayspecController:
         insert_frame = self._amio_interface.secs_to_frame(insert_second)
         new_second = new_timing.beat_to_seconds(insert_beat)
         new_frame = self._amio_interface.secs_to_frame(new_second)
-        logging.info(f"Current position is {current_second} s, which is {beat} beat, "
-              f"so we'll switch on {insert_beat} beat, which corresponds to "
-              f"{new_second} s in the new timing which is "
-              f"beat {new_timing.seconds_to_beat(new_second)}.")
+        logging.info(
+            f"Current position is {current_second} s, which is {beat} beat, "
+            f"so we'll switch on {insert_beat} beat, which corresponds to "
+            f"{new_second} s in the new timing which is "
+            f"beat {new_timing.seconds_to_beat(new_second)}."
+        )
         logging.info(f"Insert frame = {insert_frame}; new frame = {new_frame}")
         self._playspec.set_insertion_points(insert_frame, new_frame)
         self._amio_interface.set_current_playspec(self._playspec)

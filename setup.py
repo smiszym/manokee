@@ -8,12 +8,13 @@ import os.path
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+    with codecs.open(os.path.join(here, rel_path), "r") as fp:
         return fp.read()
+
 
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
+        if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
     else:
@@ -21,18 +22,18 @@ def get_version(rel_path):
 
 
 setup(
-    name = 'manokee',
-    version = get_version("manokee/__init__.py"),
-    author = "Michał Szymański",
+    name="manokee",
+    version=get_version("manokee/__init__.py"),
+    author="Michał Szymański",
     author_email="smiszym@gmail.com",
-    description = """Audio recording software with a mobile-first web interface""",
+    description="""Audio recording software with a mobile-first web interface""",
     license="MIT",
     url="https://github.com/smiszym/manokee",
-    packages = ["manokee"],
-    requires = [
+    packages=["manokee"],
+    requires=[
         "mypy",
     ],
-    install_requires = [
+    install_requires=[
         "amio @ https://api.github.com/repos/smiszym/amio/tarball/ecd8555974d8366a317a1061f02da2948d446b6a",
         "eventlet",
         "Flask",
