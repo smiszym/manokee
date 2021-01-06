@@ -1,6 +1,7 @@
 *.pyc
 __pycache__
 node_modules/
+/venv/
 
 # Generated file
 /manokee/web/front/dist/bundle.js
