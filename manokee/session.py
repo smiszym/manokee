@@ -342,6 +342,10 @@ class Session(ObservableMixin):
         self._configuration["metronome_vol"] = str(new_value)
         self._notify_observers()
 
+    def change_metronome_pan(self, new_pan: float) -> None:
+        self._configuration["metronome_pan"] = str(new_pan)
+        self._notify_observers()
+
     def make_playspec_for_track_group(
         self, amio_interface: Interface, track_group_name: str
     ) -> Playspec:

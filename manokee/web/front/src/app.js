@@ -46,6 +46,7 @@ function renderStateUpdate(msg) {
       onToggleMetronome={() => socket.emit('toggle_metronome')}
       onMetronomeVolDown={() => socket.emit('metronome_vol_down')}
       onMetronomeVolUp={() => socket.emit('metronome_vol_up')}
+      onMetronomePanChange={(pan) => socket.emit('metronome_pan_change', {pan})}
       onChangeTempoBy={(delta) => socket.emit('change_tempo_by', {delta})}
       onSetTimeSig={(time_sig) => socket.emit('set_time_sig', {time_sig})}
       onSetActiveTrackGroup={
@@ -173,6 +174,7 @@ class MoreOptions extends Component {
             onToggleMetronome={this.props.onToggleMetronome}
             onMetronomeVolDown={this.props.onMetronomeVolDown}
             onMetronomeVolUp={this.props.onMetronomeVolUp}
+            onMetronomePanChange={this.props.onMetronomePanChange}
             onChangeTempoBy={this.props.onChangeTempoBy}
             onSetTimeSig={this.props.onSetTimeSig}
             onSetActiveTrackGroup={this.props.onSetActiveTrackGroup} />
@@ -328,6 +330,7 @@ export class App extends Component {
              onToggleMetronome={this.props.onToggleMetronome}
              onMetronomeVolDown={this.props.onMetronomeVolDown}
              onMetronomeVolUp={this.props.onMetronomeVolUp}
+             onMetronomePanChange={this.props.onMetronomePanChange}
              onChangeTempoBy={this.props.onChangeTempoBy}
              onSetTimeSig={this.props.onSetTimeSig}
              onSetActiveTrackGroup={this.props.onSetActiveTrackGroup}

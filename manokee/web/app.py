@@ -273,6 +273,11 @@ def metronome_vol_up(sid):
 
 
 @sio.event
+def metronome_pan_change(sid, attr):
+    application.session.change_metronome_pan(float(attr["pan"]))
+
+
+@sio.event
 def add_track(sid, attr):
     application.session.add_track(
         attr["name"], application.amio_interface.get_frame_rate()

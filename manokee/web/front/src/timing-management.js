@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import Popup from "reactjs-popup";
 
+import PanKnob from "./pan-knob";
+
 export class TimingManagement extends Component {
   render() {
     const {configuration = {}} = this.props.session || {};
@@ -45,9 +47,14 @@ export class TimingManagement extends Component {
         </Popup>
         <div>Tempo: {bpm} bpm</div>
         <div>Time signature: {time_sig}/4</div>
-        <div>Metronome {metronome ? "on" : "off"}</div>
-        <div>Metronome volume: {metronome_vol}</div>
-        <div>Metronome pan: {metronome_pan}</div>
+        <div>Metronome {metronome == "1" ? "on" : "off"}</div>
+        <div>Metronome volume: {parseFloat(metronome_vol).toFixed(1)} dB</div>
+        <div>
+          Metronome pan:
+          <PanKnob
+            pan={metronome_pan}
+            onPanChange={value => this.props.onMetronomePanChange(value)} />
+        </div>
         <div>
           {
             this.props.session.track_group_names.map((group_name, i) => {
