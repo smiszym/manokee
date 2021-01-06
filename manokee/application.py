@@ -4,6 +4,7 @@ from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
 from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
 from manokee.playspec_controller import PlayspecController
+from manokee.session_holder import SessionHolder
 from manokee.workspace import Workspace
 from typing import List, Optional
 
@@ -15,7 +16,14 @@ class Application:
     """
 
     def __init__(self):
+        self._session_holder = SessionHolder()
         self._amio_interface = None
+        # TODO Make it possible to open a session without specifying frame rate
+        self._session_holder.session = Session(
+            self._amio_interface.get_frame_rate()
+            if self._amio_interface is not None
+            else 48000
+        )
         self._playspec_controller = None
         self._auto_rewind = False
         self._auto_rewind_position = 0
@@ -90,7 +98,9 @@ class Application:
         self._amio_interface = amio.create_io_interface()
         self._amio_interface.init("manokee")
         self._amio_interface.input_chunk_callback = self._on_input_chunk
-        self._playspec_controller = PlayspecController(self.amio_interface)
+        self._playspec_controller = PlayspecController(
+            self.amio_interface, self._session_holder
+        )
         self._playspec_controller.on_session_change = self._onSessionChanged
         self._recent_sessions.read()
 

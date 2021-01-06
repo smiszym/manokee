@@ -11,21 +11,15 @@ from typing import Optional
 
 
 class PlayspecController:
-    def __init__(self, amio_interface: Interface):
+    def __init__(self, amio_interface: Interface, session_holder: SessionHolder):
         self._amio_interface = amio_interface
         self._metronome = None
         self.on_session_change = None
         self._playspec: Optional[Playspec] = None
         self._timing: Timing = FixedBpmTiming()
         self._active_track_group_name = ""
-        self._session_holder = SessionHolder()
+        self._session_holder = session_holder
         self._session_holder.on_session_change = self._on_session_changed
-        # TODO Make it possible to open a session without specifying frame rate
-        self._session_holder.session = Session(
-            self._amio_interface.get_frame_rate()
-            if self._amio_interface is not None
-            else 48000
-        )
 
     def _on_session_changed(self):
         self._session_holder.session.on_modify = self._schedule_playspecs_recreation
