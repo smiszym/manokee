@@ -4,7 +4,7 @@ from manokee.global_config import *
 from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
 from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
-from manokee.playspec_controller import PlayspecController
+from manokee.playspec_controller import PlayspecController, LoopSpec
 from manokee.revising import Reviser
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
@@ -214,13 +214,27 @@ class Application:
         if not self._input_recorder.is_recording:
             self._amio_interface.set_position(frame)
 
+    @property
+    def active_track_group_name(self) -> Optional[str]:
+        if self._playspec_controller is not None:
+            return self._playspec_controller.active_track_group_name
+        else:
+            return None
+
     def set_active_track_group_name(self, name: str):
         if not self._input_recorder.is_recording:
-            self._playspec_controller.set_active_track_group_name(name)
+            self._playspec_controller.active_track_group_name = name
+
+    @property
+    def loop_spec(self) -> Optional[LoopSpec]:
+        if self._playspec_controller is not None:
+            return self._playspec_controller.loop_spec
+        else:
+            return None
 
     def set_loop_spec(self, loop_spec):
         if not self._input_recorder.is_recording:
-            self._playspec_controller.set_loop_spec(loop_spec)
+            self._playspec_controller.loop_spec = loop_spec
 
     def frame_to_bar_beat(self, frame: int) -> Tuple[Optional[int], Optional[int]]:
         session = self._session_holder.session

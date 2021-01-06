@@ -159,6 +159,8 @@ def _construct_state_update_json(state_update_id):
         "frame_formatted": format_frame(amio_interface, frame),
         "beat_formatted": format_beat(bar, beat),
         "current_bar": bar,
+        "active_track_group_name": application.active_track_group_name,
+        "is_looped": application.loop_spec is not None,
         "auto_rewind": application.auto_rewind,
         "session": session_js,
         "capture_meter": application.capture_meter.current_rms_dB,

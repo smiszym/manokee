@@ -58,12 +58,21 @@ export class TimingManagement extends Component {
         <div>
           {
             this.props.session.track_group_names.map((group_name, i) => {
-              return <button key={group_name} onClick={evt =>
-                  this.props.onSetActiveTrackGroup(group_name)}>
+              return <button
+                key={group_name}
+                className={
+                  this.props.active_track_group_name == group_name
+                    ? "highlighted-button"
+                    : ""
+                }
+                onClick={evt => this.props.onSetActiveTrackGroup(group_name)}>
                 {group_name ? group_name : "Main group"}
               </button>
             })
           }
+        </div>
+        <div>
+          Playback is {this.props.is_looped ? "" : "not"} looped.
         </div>
         {
           this.props.session.track_group_names.length >= 2

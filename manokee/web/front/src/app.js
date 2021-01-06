@@ -37,6 +37,8 @@ function renderStateUpdate(msg) {
       capture_meter={msg.capture_meter}
       recorded_fragments={msg.recorded_fragments}
       fragment_being_revised_id={msg.fragment_being_revised_id}
+      active_track_group_name={msg.active_track_group_name}
+      is_looped={msg.is_looped}
       onStartAudio={() => socket.emit('start_audio')}
       onStopAudio={() => socket.emit('stop_audio')}
       onNewSession={() => socket.emit('new_session')}
@@ -192,6 +194,8 @@ class MoreOptions extends Component {
         <TabPanel>
           <TimingManagement
             session={this.props.session}
+            active_track_group_name={this.props.active_track_group_name}
+            is_looped={this.props.is_looped}
             onToggleMetronome={this.props.onToggleMetronome}
             onMetronomeVolDown={this.props.onMetronomeVolDown}
             onMetronomeVolUp={this.props.onMetronomeVolUp}
@@ -350,6 +354,8 @@ export class App extends Component {
              trackEditMode={this.state.track_edit_mode}
              workspaceSessions={this.props.workspace_sessions}
              session={this.props.session}
+             active_track_group_name={this.props.active_track_group_name}
+             is_looped={this.props.is_looped}
              onNewSession={this.props.onNewSession}
              onLoadSession={this.props.onLoadSession}
              onSaveSession={this.props.onSaveSession}

@@ -87,7 +87,12 @@ class PlayspecController:
     def plays_main_track_group(self) -> bool:
         return self._active_track_group_name == ""
 
-    def set_active_track_group_name(self, group_name: str):
+    @property
+    def active_track_group_name(self) -> Optional[str]:
+        return self._active_track_group_name
+
+    @active_track_group_name.setter
+    def active_track_group_name(self, group_name: str) -> None:
         old_timing = self._timing
         self._timing = self._session_holder.session.group_timing(group_name)
         new_timing = self._timing
@@ -109,7 +114,12 @@ class PlayspecController:
             None,
         )
 
-    def set_loop_spec(self, loop_spec: LoopSpec):
+    @property
+    def loop_spec(self) -> Optional[LoopSpec]:
+        return self._loop_spec
+
+    @loop_spec.setter
+    def loop_spec(self, loop_spec: LoopSpec) -> None:
         self._loop_spec = loop_spec
         self._loop_iterator = cycle(loop_spec)
         self._active_track_group_name = None
