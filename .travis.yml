@@ -2,7 +2,7 @@ language: python
 python:
   - "3.7"
   - "3.8"
-  - "3.8-dev"
+  - "3.9"
 before_install:
   # libasound2-dev for building python-rtmidi package
   # libjack-jackd2-dev, swig for building amio package
