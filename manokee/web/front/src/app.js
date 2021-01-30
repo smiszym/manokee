@@ -86,7 +86,6 @@ export function onLoad() {
     socket = io();
     socket.on('connect', function (msg) {
         socket.removeAllListeners();
-        socket.emit('connected');
         socket.on('state_update', function (msg) {
             if (msg.state_update_id) {
                 socket.emit('state_update_ack', {'id': msg.state_update_id});

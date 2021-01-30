@@ -108,6 +108,7 @@ app = socketio.WSGIApp(
     },
 )
 application = Application()
+_client_sids = set()
 _ping = Ping()
 _should_stop_updating_clients = threading.Event()
 
@@ -176,12 +177,19 @@ def stop_updating_clients():
 
 
 @sio.event
-def connected(sid):
-    logging.info("A client connected.")
+def connect(sid, environ):
+    _client_sids.add(sid)
+    print(f"A client connected with session ID {sid}")
     if not application.is_audio_io_running:
         application.start_audio_io()
         sio.emit("recent_sessions", application.recent_sessions)
         sio.emit("workspace_sessions", application.workspace.sessions)
+
+
+@sio.event
+def disconnect(sid):
+    _client_sids.remove(sid)
+    print(f"A client disconnected with session ID {sid}")
 
 
 @sio.event
