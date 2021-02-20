@@ -1,9 +1,9 @@
 from amio import Interface, Playspec
-import logging
 from manokee.session import Session
 from manokee.session_holder import SessionHolder
 from manokee.timing.timing import Timing
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
+from manokee.timing_utils import calculate_insertion_points
 from typing import Dict
 
 
@@ -44,12 +44,8 @@ class PlayspecController:
                 self._amio_interface
             )
         )
-        self._amio_interface.schedule_playspec_change(
-            self._playspecs_for_groups[self._active_track_group_name],
-            0,
-            0,
-            None,
-        )
+        current_playspec = self._playspecs_for_groups[self._active_track_group_name]
+        self._amio_interface.schedule_playspec_change(current_playspec, 0, 0, None)
 
     @property
     def timing(self) -> Timing:
@@ -65,22 +61,16 @@ class PlayspecController:
         self._timing = self._session_holder.session.group_timing(group_name)
         new_timing = self._timing
         self._active_track_group_name = group_name
-        playspec = self._playspecs_for_groups[group_name]
-        current_frame = self._amio_interface.get_position()
-        current_second = self._amio_interface.frame_to_secs(current_frame)
-        beat = int(old_timing.seconds_to_beat(current_second))
-        insert_beat = beat + 1  # TODO Handle very short beats
-        insert_second = old_timing.beat_to_seconds(insert_beat)
-        insert_frame = self._amio_interface.secs_to_frame(insert_second)
-        new_second = new_timing.beat_to_seconds(insert_beat)
-        new_frame = self._amio_interface.secs_to_frame(new_second)
-        logging.info(
-            f"Current position is {current_second} s, which is {beat} beat, "
-            f"so we'll switch on {insert_beat} beat, which corresponds to "
-            f"{new_second} s in the new timing which is "
-            f"beat {new_timing.seconds_to_beat(new_second)}."
+        insertion_points = calculate_insertion_points(
+            self._amio_interface,
+            self._amio_interface.get_position(),
+            old_timing,
+            new_timing,
         )
-        logging.info(f"Insert frame = {insert_frame}; new frame = {new_frame}")
+        current_playspec = self._playspecs_for_groups[self._active_track_group_name]
         self._amio_interface.schedule_playspec_change(
-            playspec, insert_frame, new_frame, None
+            current_playspec,
+            insertion_points.insert_at,
+            insertion_points.start_from,
+            None,
         )
