@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
-import Popup from 'reactjs-popup';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import io from 'socket.io-client';
 

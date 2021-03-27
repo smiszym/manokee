@@ -97,13 +97,19 @@ button {
   justify-content: space-between;
 }
 
-/* Override reactjs-popup style */
-.lower-control-panel-buttons > div > div.popup-content {
-  background-color: #172111 !important;
-  width: 100% !important;
-  margin: 2em !important;
+.popup-content {
+  width: 100%;
+  padding: 5px;
   overflow-x: hidden;
   overflow-y: scroll;
+  background-color: #afad6f;
+  color: #4c4b16;
+  margin: 10vh 30vw 60vh !important;
+  text-align: center;
+}
+
+.popup-overlay {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .react-tabs {
@@ -138,16 +144,6 @@ button {
 
 .vol-ctrl > div {
   display: inline-block;
-}
-
-.vol-ctrl > div > div.popup-content {
-  background-color: #afad6f !important;
-  color: #4c4b16;
-  width: 100% !important;
-  margin: 10vh 30vw 60vh !important;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  text-align: center;
 }
 
 #change-volume > div > button {
