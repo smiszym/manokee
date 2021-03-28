@@ -2,7 +2,7 @@ Manokee -- Audio recording software with a mobile-first web interface
 
 **Manokee is still under early development**
 
-Michał Szymański, 2020
+Michał Szymański, 2020-2021
 
 Install the necessary npm packages for the frontend with:
 
