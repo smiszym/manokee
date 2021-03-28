@@ -8,7 +8,7 @@ class AudacityTiming(Timing):
         label_track = project.get_label_track()
         # If the label track has name "offset=130",
         # there will be 130 ms offset applied to labels
-        m = re.search("=(\d+)", label_track.get_name())
+        m = re.search(r"=(\d+)", label_track.get_name())
         offset = 0
         if m:
             offset = int(m.group(1))
