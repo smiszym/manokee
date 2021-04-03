@@ -1,4 +1,5 @@
 import logging
+from typing import Set
 
 import psutil
 
@@ -123,13 +124,12 @@ app = socketio.WSGIApp(
     },
 )
 application = Application()
-_client_sids = set()
-_ping = Ping()
+_client_sids: Set = set()
 _should_stop_updating_clients = threading.Event()
 _process = psutil.Process()
 
 
-def _construct_state_update_json(state_update_id):
+def _construct_state_update_json(ping):
     amio_interface = application.amio_interface
     if amio_interface is not None:
         playspec_controller = application.playspec_controller
@@ -155,7 +155,8 @@ def _construct_state_update_json(state_update_id):
     else:
         bar, beat = None, None
     state_update_json = {
-        "ping_latency": _ping.current_ping_latency,
+        "ping_latency": ping.current_ping_latency,
+        "state_update_id": ping.ping_id_to_send(),
         "is_audio_io_running": application.is_audio_io_running,
         "frame_rate": application.frame_rate,
         "is_transport_rolling": is_transport_rolling,
@@ -183,14 +184,14 @@ def _construct_state_update_json(state_update_id):
         if application.session is not None
         else {},
     }
-    if state_update_id is not None:
-        state_update_json["state_update_id"] = state_update_id
     return state_update_json
 
 
 def _update_task():
     while not _should_stop_updating_clients.is_set():
-        sio.emit("state_update", _construct_state_update_json(_ping.ping_id_to_send()))
+        for sid in _client_sids:
+            with sio.session(sid) as session:
+                sio.emit("state_update", _construct_state_update_json(session["ping"]))
         sio.sleep(0.05)
 
 
@@ -206,6 +207,8 @@ def stop_updating_clients():
 def connect(sid, environ):
     _client_sids.add(sid)
     print(f"A client connected with session ID {sid}")
+    with sio.session(sid) as session:
+        session["ping"] = Ping()
     if not application.is_audio_io_running:
         application.start_audio_io()
         sio.emit("recent_sessions", application.recent_sessions)
@@ -220,7 +223,8 @@ def disconnect(sid):
 
 @sio.event
 def state_update_ack(sid, attr):
-    _ping.pong_received(attr["id"])
+    with sio.session(sid) as session:
+        session["ping"].pong_received(attr["id"])
 
 
 @sio.event
