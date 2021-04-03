@@ -53,6 +53,21 @@ export class TransportControl extends Component {
           {this.props.current_bar + 2}
         </button>
       </div>
+      <div>
+        Move:
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar - 16)}>
+          -16 bars
+        </button>
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar - 4)}>
+          -4 bars
+        </button>
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar + 4)}>
+          +4 bars
+        </button>
+        <button onClick={evt => this.props.onGoToBar(this.props.current_bar + 16)}>
+          +16 bars
+        </button>
+      </div>
     </div>;
   }
 
