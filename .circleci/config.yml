@@ -2,15 +2,16 @@ version: 2.1
 workflows:
   build-test:
     jobs:
-      - build
+      - build-py
+      - build-js
       - check-black
       - mypy
       - pytest
 
 jobs:
-  build:
+  build-py:
     docker:
-      - image: circleci/python:3.9.0
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - run:
@@ -22,9 +23,17 @@ jobs:
             python setup.py sdist
             python setup.py bdist_wheel
 
+  build-js:
+    docker:
+      - image: cimg/node:14.16.0
+    steps:
+      - checkout
+      - run:
+          command: (cd manokee/web/front && npm install && npm run build)
+
   mypy:
     docker:
-      - image: circleci/python:3.9.0
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - run:
@@ -36,7 +45,7 @@ jobs:
 
   check-black:
     docker:
-      - image: circleci/python:3.9.0
+      - image: cimg/python:3.9.2
     steps:
       - checkout
       - run:
@@ -46,7 +55,7 @@ jobs:
 
   pytest:
     docker:
-      - image: circleci/python:3.9.0
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - run:
