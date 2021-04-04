@@ -38,6 +38,7 @@ setup(
         "eventlet==0.30.2",
         "Flask==1.1.2",
         "Flask-SocketIO==4.3.2",
+        "jsonpatch==1.32",
         "mido==1.2.9",
         "netifaces==0.10.9",
         "psutil==5.8.0",

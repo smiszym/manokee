@@ -1,6 +1,7 @@
 import logging
 from typing import Set
 
+import jsonpatch
 import psutil
 
 from manokee.application import Application
@@ -129,7 +130,7 @@ _should_stop_updating_clients = threading.Event()
 _process = psutil.Process()
 
 
-def _construct_state_update_json(ping):
+def _construct_state_json(ping):
     amio_interface = application.amio_interface
     if amio_interface is not None:
         playspec_controller = application.playspec_controller
@@ -191,7 +192,11 @@ def _update_task():
     while not _should_stop_updating_clients.is_set():
         for sid in _client_sids:
             with sio.session(sid) as session:
-                sio.emit("state_update", _construct_state_update_json(session["ping"]))
+                prev_state = session.get("previous_state", {})
+                current_state = _construct_state_json(session["ping"])
+                patch = jsonpatch.make_patch(prev_state, current_state)
+                sio.emit("state_update", patch.to_string())
+                session["previous_state"] = current_state
         sio.sleep(0.05)
 
 

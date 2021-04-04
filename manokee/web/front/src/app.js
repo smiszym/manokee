@@ -1,3 +1,4 @@
+import jsonpatch from 'jsonpatch';
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -17,6 +18,7 @@ import {
 } from './meter-utils';
 
 var socket;
+var application_state = {};
 var workspace_sessions;
 var track_metering_data = {};
 
@@ -97,10 +99,14 @@ export function onLoad() {
     socket.on('connect', function (msg) {
         socket.removeAllListeners();
         socket.on('state_update', function (msg) {
-            if (msg.state_update_id) {
-                socket.emit('state_update_ack', {'id': msg.state_update_id});
+            application_state = jsonpatch.apply_patch(application_state, msg);
+            if (application_state.state_update_id) {
+                socket.emit(
+                    'state_update_ack',
+                    {'id': application_state.state_update_id}
+                );
             }
-            renderStateUpdate(msg);
+            renderStateUpdate(application_state);
         });
         socket.on('workspace_sessions', function (msg) {
             workspace_sessions = msg;
