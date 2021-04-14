@@ -165,7 +165,17 @@ class Session(ObservableMixin):
             if track.is_audacity_project:
                 attrib["audacity-project"] = track.audacity_project.aup_file_path
                 attrib["beats-in-audacity-beat"] = str(track.beats_in_audacity_beat)
-            ET.SubElement(tracks, "track", attrib=attrib)
+            track_el = ET.SubElement(tracks, "track", attrib=attrib)
+            for entry in track.wall_time_recorder.entries:
+                ET.SubElement(
+                    track_el,
+                    "wall-time",
+                    attrib={
+                        "session-time": str(entry.session_time),
+                        "start-time": str(entry.start_time),
+                        "duration": str(entry.duration),
+                    },
+                )
 
         _ET_indent(root)
         tree = ET.ElementTree(root)

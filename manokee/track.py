@@ -1,4 +1,9 @@
+from datetime import datetime, timedelta
+import os
+import xml.etree.ElementTree as ET
+
 from amio import AudioClip, Fader
+
 import manokee.audacity.project as audacity_project
 import manokee.session
 from manokee.input_recorder import InputFragment
@@ -6,9 +11,17 @@ from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.track_loader import track_loader
-import os
-from typing import Callable, Optional
-import xml.etree.ElementTree as ET
+from manokee.wall_time_recorder import WallTimeEntry, WallTimeRecorder
+
+
+def parse_timedelta(s: str) -> timedelta:
+    try:
+        t = datetime.strptime(s, "%H:%M:%S.%f")
+    except ValueError:
+        t = datetime.strptime(s, "%H:%M:%S")
+    return timedelta(
+        hours=t.hour, minutes=t.minute, seconds=t.second, microseconds=t.microsecond
+    )
 
 
 class Track:
@@ -41,6 +54,16 @@ class Track:
                 if self.is_audacity_project
                 else None
             )
+            self.wall_time_recorder = WallTimeRecorder(
+                [
+                    WallTimeEntry(
+                        parse_timedelta(element.attrib["session-time"]),
+                        datetime.fromisoformat(element.attrib["start-time"]),
+                        parse_timedelta(element.attrib["duration"]),
+                    )
+                    for element in element.findall("wall-time")
+                ]
+            )
         else:
             self._name = name if name is not None else "track"
             self._is_rec = False
@@ -51,6 +74,7 @@ class Track:
             self._fader = Fader()
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
+            self.wall_time_recorder = WallTimeRecorder()
         self.requires_audio_save = False
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
@@ -172,21 +196,22 @@ class Track:
     def commit_input_fragment_if_needed(self, fragment: InputFragment):
         if not self._is_rec:
             return
-        self._commit_recording(
-            fragment.as_clip().channel(0 if self._rec_source == "L" else 1),
-            fragment.starting_frame,
-        )
-
-    def _commit_recording(
-        self, recorded_clip: AudioClip, starting_frame: Optional[int]
-    ):
         if not self.is_loaded:
             raise RuntimeError("Track not fully loaded yet")
-        if starting_frame is None:
-            return
+        if fragment.starting_frame is None:
+            raise RuntimeError("Invalid InputFragment")
         self._audio.writeable = True
-        self._audio.overwrite(recorded_clip, starting_frame, extend_to_fit=True)
+        self._audio.overwrite(
+            fragment.as_clip().channel(0 if self._rec_source == "L" else 1),
+            fragment.starting_frame,
+            extend_to_fit=True,
+        )
         self._audio.writeable = False
+        self.wall_time_recorder.add(
+            timedelta(seconds=fragment.starting_frame / fragment.frame_rate),
+            fragment.start_wall_time,
+            timedelta(seconds=len(fragment) / fragment.frame_rate),
+        )
         self.requires_audio_save = True
         self.notify_modified()
 

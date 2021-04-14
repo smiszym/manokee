@@ -50,6 +50,10 @@ class InputFragment:
             return self._chunks[0].starting_frame
         return None
 
+    @property
+    def frame_rate(self):
+        return self._chunks[0].frame_rate
+
     def is_chunk_compatible(self, chunk: InputAudioChunk) -> bool:
         return (
             self._was_transport_rolling is None
@@ -63,6 +67,11 @@ class InputFragment:
         self._stop_frame = chunk.starting_frame + len(chunk)
         self._length += len(chunk)
 
+    @property
+    def start_wall_time(self):
+        return self._chunks[0].wall_time
+
+    @property
     def last_chunk_wall_time(self):
         return self._chunks[-1].wall_time
 
@@ -188,7 +197,7 @@ class InputRecorder(ObservableMixin):
             return None
         for i, fragment in enumerate(self._input_fragments):
             if (
-                self._wall_time_approx - fragment.last_chunk_wall_time()
+                self._wall_time_approx - fragment.last_chunk_wall_time
             ).total_seconds() >= discard_threshold:
                 return i
         return None
