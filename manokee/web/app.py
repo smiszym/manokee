@@ -1,6 +1,8 @@
+import asyncio
 import logging
 from typing import Set
 
+from aiohttp import web
 import jsonpatch
 import psutil
 
@@ -11,7 +13,6 @@ from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame
 from manokee.timing_utils import beat_number_to_frame
 import socketio
-import threading
 
 
 logging.basicConfig(
@@ -21,112 +22,136 @@ logging.getLogger("engineio").setLevel(logging.WARNING)
 logging.getLogger("socketio").setLevel(logging.WARNING)
 logging.getLogger("webserver").setLevel(logging.WARNING)
 
+routes = web.RouteTableDef()
 
-sio = socketio.Server()
-app = socketio.WSGIApp(
-    sio,
-    static_files={
-        "/": {
-            "content_type": "text/html",
-            "filename": "manokee/web/front/dist/index.html",
-        },
-        "/bundle.js": {
-            "content_type": "text/javascript",
-            "filename": "manokee/web/front/dist/bundle.js",
-        },
-        "/favicon.ico": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/favicon.svg",
-        },
-        "/main.css": {
-            "content_type": "text/css",
-            "filename": "manokee/web/front/dist/main.css",
-        },
-        "/A.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/A.svg",
-        },
-        "/B.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/B.svg",
-        },
-        "/more.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/more.svg",
-        },
-        "/play-pause.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/play-pause.svg",
-        },
-        "/record.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/record.svg",
-        },
-        "/commit.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/commit.svg",
-        },
-        "/discard.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/discard.svg",
-        },
-        "/remove-arm-for-recording.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/remove-arm-for-recording.svg",
-        },
-        "/rewind.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/rewind.svg",
-        },
-        "/track-edit-mode.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/track-edit-mode.svg",
-        },
-        "/audio-io-running.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/audio-io-running.svg",
-        },
-        "/audio-io-stopped.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/audio-io-stopped.svg",
-        },
-        "/status-good.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/status-good.svg",
-        },
-        "/status-bad.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/status-bad.svg",
-        },
-        "/mark.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/mark.svg",
-        },
-        "/metronome.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/metronome.svg",
-        },
-        "/transport.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/transport.svg",
-        },
-        "/microphone.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/microphone.svg",
-        },
-        "/session.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/session.svg",
-        },
-        "/auto-rewind.svg": {
-            "content_type": "image/svg+xml",
-            "filename": "manokee/web/front/dist/auto-rewind.svg",
-        },
-    },
-)
+
+@routes.get("/")
+async def index(request):
+    return web.FileResponse("manokee/web/front/dist/index.html")
+
+
+@routes.get("/bundle.js")
+async def bundle(request):
+    return web.FileResponse("manokee/web/front/dist/bundle.js")
+
+
+@routes.get("/favicon.ico")
+async def favicon(request):
+    return web.FileResponse("manokee/web/front/dist/favicon.svg")
+
+
+@routes.get("/main.css")
+async def main_css(request):
+    return web.FileResponse("manokee/web/front/dist/main.css")
+
+
+@routes.get("/A.svg")
+async def A(request):
+    return web.FileResponse("manokee/web/front/dist/A.svg")
+
+
+@routes.get("/B.svg")
+async def B(request):
+    return web.FileResponse("manokee/web/front/dist/B.svg")
+
+
+@routes.get("/more.svg")
+async def more(request):
+    return web.FileResponse("manokee/web/front/dist/more.svg")
+
+
+@routes.get("/play-pause.svg")
+async def play_pause(request):
+    return web.FileResponse("manokee/web/front/dist/play-pause.svg")
+
+
+@routes.get("/record.svg")
+async def record(request):
+    return web.FileResponse("manokee/web/front/dist/record.svg")
+
+
+@routes.get("/commit.svg")
+async def commit(request):
+    return web.FileResponse("manokee/web/front/dist/commit.svg")
+
+
+@routes.get("/discard.svg")
+async def discard(request):
+    return web.FileResponse("manokee/web/front/dist/discard.svg")
+
+
+@routes.get("/remove-arm-for-recording.svg")
+async def remove_arm_for_recording(request):
+    return web.FileResponse("manokee/web/front/dist/remove-arm-for-recording.svg")
+
+
+@routes.get("/rewind.svg")
+async def rewind(request):
+    return web.FileResponse("manokee/web/front/dist/rewind.svg")
+
+
+@routes.get("/track-edit-mode.svg")
+async def track_edit_mode(request):
+    return web.FileResponse("manokee/web/front/dist/track-edit-mode.svg")
+
+
+@routes.get("/audio-io-running.svg")
+async def audio_io_running(request):
+    return web.FileResponse("manokee/web/front/dist/audio-io-running.svg")
+
+
+@routes.get("/audio-io-stopped.svg")
+async def audio_io_stopped(request):
+    return web.FileResponse("manokee/web/front/dist/audio-io-stopped.svg")
+
+
+@routes.get("/status-good.svg")
+async def status_good(request):
+    return web.FileResponse("manokee/web/front/dist/status-good.svg")
+
+
+@routes.get("/status-bad.svg")
+async def status_bad(request):
+    return web.FileResponse("manokee/web/front/dist/status-bad.svg")
+
+
+@routes.get("/mark.svg")
+async def mark(request):
+    return web.FileResponse("manokee/web/front/dist/mark.svg")
+
+
+@routes.get("/metronome.svg")
+async def metronome(request):
+    return web.FileResponse("manokee/web/front/dist/metronome.svg")
+
+
+@routes.get("/transport.svg")
+async def transport(request):
+    return web.FileResponse("manokee/web/front/dist/transport.svg")
+
+
+@routes.get("/microphone.svg")
+async def microphone(request):
+    return web.FileResponse("manokee/web/front/dist/microphone.svg")
+
+
+@routes.get("/session.svg")
+async def session(request):
+    return web.FileResponse("manokee/web/front/dist/session.svg")
+
+
+@routes.get("/auto-rewind.svg")
+async def auto_rewind(request):
+    return web.FileResponse("manokee/web/front/dist/auto-rewind.svg")
+
+
+sio = socketio.AsyncServer(async_mode="aiohttp")
+app = web.Application()
+app.add_routes(routes)
+sio.attach(app)
+
 application = Application()
 _client_sids: Set = set()
-_should_stop_updating_clients = threading.Event()
 _process = psutil.Process()
 
 
@@ -188,36 +213,47 @@ def _construct_state_json(ping):
     return state_update_json
 
 
-def _update_task():
-    while not _should_stop_updating_clients.is_set():
-        for sid in _client_sids:
-            with sio.session(sid) as session:
-                prev_state = session.get("previous_state", {})
-                current_state = _construct_state_json(session["ping"])
-                patch = jsonpatch.make_patch(prev_state, current_state)
-                sio.emit("state_update", patch.to_string())
-                session["previous_state"] = current_state
-        sio.sleep(0.05)
+async def _update_task(app):
+    # TODO: Exceptions silently stop execution, i.e., there is no message in logs!
+    try:
+        while True:
+            for sid in _client_sids:
+                async with sio.session(sid) as session:
+                    prev_state = session.get("previous_state", {})
+                    current_state = _construct_state_json(session["ping"])
+                    patch = jsonpatch.make_patch(prev_state, current_state)
+                    await sio.emit("state_update", patch.to_string())
+                    session["previous_state"] = current_state
+            await asyncio.sleep(0.05)
+    except asyncio.CancelledError:
+        pass
+    finally:
+        logging.info("Finished background update task")
 
 
-_update_thread = sio.start_background_task(target=_update_task)
+async def start_background_tasks(app):
+    app["update_task"] = asyncio.create_task(_update_task(app))
 
 
-def stop_updating_clients():
-    _should_stop_updating_clients.set()
-    _update_thread.join()
+async def cleanup_background_tasks(app):
+    app["update_task"].cancel()
+    await app["update_task"]
+
+
+app.on_startup.append(start_background_tasks)
+app.on_cleanup.append(cleanup_background_tasks)
 
 
 @sio.event
-def connect(sid, environ):
+async def connect(sid, environ):
     _client_sids.add(sid)
     print(f"A client connected with session ID {sid}")
-    with sio.session(sid) as session:
+    async with sio.session(sid) as session:
         session["ping"] = Ping()
     if not application.is_audio_io_running:
-        application.start_audio_io()
-        sio.emit("recent_sessions", application.recent_sessions)
-        sio.emit("workspace_sessions", application.workspace.sessions)
+        await application.start_audio_io()
+        await sio.emit("recent_sessions", application.recent_sessions)
+        await sio.emit("workspace_sessions", application.workspace.sessions)
 
 
 @sio.event
@@ -227,21 +263,21 @@ def disconnect(sid):
 
 
 @sio.event
-def state_update_ack(sid, attr):
-    with sio.session(sid) as session:
+async def state_update_ack(sid, attr):
+    async with sio.session(sid) as session:
         session["ping"].pong_received(attr["id"])
 
 
 @sio.event
-def start_audio(sid):
-    application.start_audio_io()
-    sio.emit("recent_sessions", application.recent_sessions)
-    sio.emit("workspace_sessions", application.workspace.sessions)
+async def start_audio(sid):
+    await application.start_audio_io()
+    await sio.emit("recent_sessions", application.recent_sessions)
+    await sio.emit("workspace_sessions", application.workspace.sessions)
 
 
 @sio.event
-def stop_audio(sid):
-    application.stop_audio_io()
+async def stop_audio(sid):
+    await application.stop_audio_io()
 
 
 def _js_metering_data_for_track(track):
@@ -264,31 +300,26 @@ def new_session(sid):
         application.session = Session(application.amio_interface.get_frame_rate())
 
 
-def emit_track_metering_data():
+async def emit_track_metering_data():
     # Due to a message limit in socketio (btw, the message exceeding
     # the limit is currently silently discarded, which I consider a bug),
     # we need to send the metering data in parts. I decided to split
     # the data per track, but for long tracks this will break
     # (long tracks may not receive any data). TODO: Fix it.
     for track in application.session.tracks:
-        sio.emit("track_metering_data", _js_metering_data_for_track(track))
+        await sio.emit("track_metering_data", _js_metering_data_for_track(track))
 
 
 @sio.event
-def load_session(sid, attr):
+async def load_session(sid, attr):
     if application.amio_interface is not None:
         path = attr["session"]
         logging.info("Loading session: " + path)
         application.session = Session(application.amio_interface.get_frame_rate(), path)
 
-        def load_all_tracks():
-            while not all(track.is_loaded for track in application.session.tracks):
-                for track in application.session.tracks:
-                    track.continue_loading()
-                    sio.sleep()
-            emit_track_metering_data()
-
-        sio.start_background_task(target=load_all_tracks)
+        for track in application.session.tracks:
+            await track.load()
+        await emit_track_metering_data()
 
 
 @sio.event
@@ -365,9 +396,9 @@ def start_recording(sid):
 
 
 @sio.event
-def commit_recording(sid, attr):
+async def commit_recording(sid, attr):
     application.commit_recording(attr["fragment"])
-    emit_track_metering_data()
+    await emit_track_metering_data()
 
 
 @sio.event

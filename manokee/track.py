@@ -1,8 +1,10 @@
+import asyncio
 from datetime import datetime, timedelta
 import os
 import xml.etree.ElementTree as ET
 
 from amio import AudioClip, Fader
+import soundfile as sf
 
 import manokee.audacity.project as audacity_project
 import manokee.session
@@ -10,7 +12,6 @@ from manokee.input_recorder import InputFragment
 from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
-from manokee.track_loader import track_loader
 from manokee.wall_time_recorder import WallTimeEntry, WallTimeRecorder
 
 
@@ -33,8 +34,8 @@ class Track:
         name: str = None,
     ):
         self._session = session
-        self._loader = None
-        self.percent_loaded = 100
+        self.percent_loaded = None
+        self.frame_rate = frame_rate
         if element is not None:
             assert name is None
             self._name = element.attrib["name"]
@@ -80,29 +81,38 @@ class Track:
             self._audio = self.audacity_project.as_audio_clip()
             self._audio.writeable = False
         else:
-            if self.filename is not None:
-                try:
-                    self._audio, self._loader = track_loader(self.filename)
-                    self.percent_loaded = 0
-                    if self._audio is None:
-                        self._audio = AudioClip.zeros(1, 1, frame_rate)
-                except FileNotFoundError:
-                    self._audio = AudioClip.zeros(1, 1, frame_rate)
-            else:
-                self._audio = AudioClip.zeros(1, 1, frame_rate)
+            self._audio = AudioClip.zeros(1, 1, self.frame_rate)
+            self.percent_loaded = 0
 
     @property
     def is_loaded(self):
-        return self._loader is None
+        return self.percent_loaded is None
 
-    def continue_loading(self):
+    async def load(self):
         if self.is_loaded:
             return
+
         try:
-            self.percent_loaded = next(self._loader)
-        except StopIteration:
-            self.percent_loaded = 100
-            self._loader = None
+            if not self.filename or os.path.getsize(self.filename) == 0:
+                raise FileNotFoundError
+            f = sf.SoundFile(self.filename)
+        except FileNotFoundError:
+            self.percent_loaded = None
+        else:
+            self._audio = AudioClip.zeros(f.frames, f.channels, f.samplerate)
+            self._audio.writeable = True
+
+            read_so_far = 0
+            blocksize = 30 * f.samplerate  # load in 30-second chunks
+            for block in f.blocks(blocksize=blocksize):
+                self._audio.overwrite(AudioClip(block, f.samplerate), read_so_far)
+                read_so_far += blocksize
+                self.percent_loaded = 100 * read_so_far / f.frames
+                await asyncio.sleep(0)
+
+            f.close()
+            self._audio.writeable = False
+            self.percent_loaded = None
             self.notify_modified()
 
     def notify_modified(self):

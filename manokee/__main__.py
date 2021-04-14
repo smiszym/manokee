@@ -1,9 +1,11 @@
-import eventlet.wsgi
-from ipaddress import ip_address
 import logging
-from manokee.web.app import app
+
+from aiohttp import web
+from ipaddress import ip_address
 from netifaces import interfaces, ifaddresses, AF_INET
 import qrcode
+
+from manokee.web.app import app
 
 
 def ipv4_addresses():
@@ -28,6 +30,4 @@ if __name__ == "__main__":
         qr = qrcode.QRCode()
         qr.add_data(url)
         qr.print_ascii()
-    eventlet.wsgi.server(
-        eventlet.listen(("", port)), app, log=logging.getLogger("webserver")
-    )
+    web.run_app(app, port=port, access_log=logging.getLogger("webserver"))

@@ -100,11 +100,11 @@ class Application:
         if session is not None:
             self._recent_sessions.append(session.session_file_path)
 
-    def start_audio_io(self):
+    async def start_audio_io(self):
         assert self._amio_interface is None
         logger.info("Starting audio I/O")
         self._amio_interface = amio.create_io_interface()
-        self._amio_interface.init("manokee")
+        await self._amio_interface.init("manokee")
         self._playspec_controller = PlayspecController(
             self.amio_interface, self._session_holder, self._reviser
         )
@@ -113,13 +113,13 @@ class Application:
         self._session_holder.add_observer(self._onSessionChanged)
         self._recent_sessions.read()
 
-    def stop_audio_io(self):
+    async def stop_audio_io(self):
         assert self._amio_interface is not None
         logger.info("Stopping audio I/O")
-        self._playspec_controller.close()
+        await self._playspec_controller.close()
         self._playspec_controller = None
         self._session_holder.session = None
-        self._amio_interface.close()
+        await self._amio_interface.close()
         self._amio_interface = None
         self._recent_sessions.write()
 

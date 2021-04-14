@@ -34,8 +34,8 @@ setup(
         "mypy",
     ],
     install_requires=[
-        "amio @ https://api.github.com/repos/smiszym/amio/tarball/5cd4bc4415ccae430508a2bbe6905fa86bebe51a",
-        "eventlet==0.30.2",
+        "aiohttp==3.7.4.post0",
+        "amio @ https://api.github.com/repos/smiszym/amio/tarball/d0603eb1de379b6bd8dbe1089bce0aef86f7cc2f",
         "jsonpatch==1.32",
         "mido==1.2.9",
         "netifaces==0.10.9",
