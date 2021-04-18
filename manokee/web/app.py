@@ -151,7 +151,6 @@ app.add_routes(routes)
 sio.attach(app)
 
 application = Application()
-_client_sids: Set = set()
 _process = psutil.Process()
 
 
@@ -217,7 +216,7 @@ async def _update_task(app):
     # TODO: Exceptions silently stop execution, i.e., there is no message in logs!
     try:
         while True:
-            for sid in _client_sids:
+            for sid in app["client_sids"]:
                 async with sio.session(sid) as session:
                     prev_state = session.get("previous_state", {})
                     current_state = _construct_state_json(session["ping"])
@@ -232,6 +231,7 @@ async def _update_task(app):
 
 
 async def start_background_tasks(app):
+    app["client_sids"] = set()
     app["update_task"] = asyncio.create_task(_update_task(app))
 
 
@@ -246,7 +246,7 @@ app.on_cleanup.append(cleanup_background_tasks)
 
 @sio.event
 async def connect(sid, environ):
-    _client_sids.add(sid)
+    app["client_sids"].add(sid)
     print(f"A client connected with session ID {sid}")
     async with sio.session(sid) as session:
         session["ping"] = Ping()
@@ -258,7 +258,7 @@ async def connect(sid, environ):
 
 @sio.event
 def disconnect(sid):
-    _client_sids.remove(sid)
+    app["client_sids"].remove(sid)
     print(f"A client disconnected with session ID {sid}")
 
 
