@@ -45,5 +45,6 @@ setup(
         "python-socketio==4.6.1",
         "qrcode==6.1",
         "SoundFile==0.10.3.post1",
+        "toml==0.10.2",
     ],
 )
