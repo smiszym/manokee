@@ -15,34 +15,3 @@ def read_global_config():
             else:
                 raise ValueError(f"Cannot parse config line `{line.rstrip()}`")
     return result
-
-
-class RecentSessions:
-    def __init__(self):
-        self._list = []
-
-    def read(self):
-        # TODO: Change the format to an SQLite database with metadata like
-        # last access date, etc.
-        self._list = []
-        path = os.path.join(os.environ["HOME"], ".manokee-sessions")
-        try:
-            with open(path) as f:
-                for line in f:
-                    self._list.append(line.rstrip())
-        except FileNotFoundError:
-            pass
-
-    def write(self):
-        path = os.path.join(os.environ["HOME"], ".manokee-sessions")
-        with open(path, "w") as f:
-            for session in self._list:
-                f.write(session)
-                f.write("\n")
-
-    def get(self):
-        return self._list
-
-    def append(self, session):
-        if session not in self._list:
-            self._list.append(session)

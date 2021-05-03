@@ -252,7 +252,6 @@ async def connect(sid, environ):
         session["ping"] = Ping()
     if not application.is_audio_io_running:
         await application.start_audio_io()
-        await sio.emit("recent_sessions", application.recent_sessions)
         await sio.emit("workspace_sessions", application.workspace.sessions)
 
 
@@ -271,7 +270,6 @@ async def state_update_ack(sid, attr):
 @sio.event
 async def start_audio(sid):
     await application.start_audio_io()
-    await sio.emit("recent_sessions", application.recent_sessions)
     await sio.emit("workspace_sessions", application.workspace.sessions)
 
 

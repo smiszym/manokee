@@ -1,6 +1,6 @@
 import amio
 import logging
-from manokee.global_config import *
+from manokee.global_config import read_global_config
 from manokee.input_recorder import InputFragment, InputRecorder
 from manokee.meter import Meter
 from manokee.midi_control import ManokeeMidiMessage, MidiInputReceiver, MidiInterpreter
@@ -30,7 +30,6 @@ class Application:
         self._auto_rewind_position = 0
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get("workspace"))
-        self._recent_sessions = RecentSessions()
         self._input_recorder = InputRecorder(4, 2)
         self._reviser = Reviser(self._session_holder, self._input_recorder)
         self._midi_interpreter = MidiInterpreter()
@@ -72,10 +71,6 @@ class Application:
         return self._workspace
 
     @property
-    def recent_sessions(self) -> List[str]:
-        return self._recent_sessions.get()
-
-    @property
     def recorded_fragments(self) -> List[InputFragment]:
         return self._input_recorder.fragments
 
@@ -95,11 +90,6 @@ class Application:
         if message is not None:
             message.apply(self)
 
-    def _onSessionChanged(self):
-        session = self._session_holder.session
-        if session is not None:
-            self._recent_sessions.append(session.session_file_path)
-
     async def start_audio_io(self):
         assert self._amio_interface is None
         logger.info("Starting audio I/O")
@@ -110,8 +100,6 @@ class Application:
         )
         self._amio_interface.input_chunk_callback = self._on_input_chunk
         self._session_holder.session = Session(self._amio_interface.get_frame_rate())
-        self._session_holder.add_observer(self._onSessionChanged)
-        self._recent_sessions.read()
 
     async def stop_audio_io(self):
         assert self._amio_interface is not None
@@ -121,7 +109,6 @@ class Application:
         self._session_holder.session = None
         await self._amio_interface.close()
         self._amio_interface = None
-        self._recent_sessions.write()
 
     def save_session_as(self, name: str):
         path = self._workspace.session_file_path_for_session_name(name)
