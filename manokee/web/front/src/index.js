@@ -1,13 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
 
-import {App, onLoad} from './app';
+import { App, onLoad } from "./app";
 
 window.onload = onLoad;
 
 ReactDOM.render(
   <App current_position="?" current_beat="--" />,
-  document.getElementById('app')
+  document.getElementById("app")
 );
 
 module.hot.accept();

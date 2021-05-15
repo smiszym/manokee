@@ -12,12 +12,11 @@ export function gains_for_track(track, meter_value) {
 }
 
 export function calculate_tracks_audibility(tracks, is_transport_rolling) {
-  const soloed = tracks.some(track => track.is_solo);
+  const soloed = tracks.some((track) => track.is_solo);
   return tracks.reduce((result, track) => {
     if (is_transport_rolling)
       result[track.name] = soloed ? track.is_solo : !track.is_mute;
-    else
-      result[track.name] = false;
+    else result[track.name] = false;
     return result;
   }, {});
 }
