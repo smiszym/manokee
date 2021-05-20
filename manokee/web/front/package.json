@@ -1,6 +1,6 @@
 {
   "name": "manokee-front",
-  "version": "1.4.0-alpha",
+  "version": "0.4.0-dev",
   "description": "Web interface for Manokee",
   "browser": "index.js",
   "scripts": {
