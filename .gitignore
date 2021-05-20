@@ -1,7 +1,12 @@
+# Python
 *.pyc
 __pycache__
-node_modules/
 /venv/
+/.coverage
+/htmlcov/
+
+# JavaScript
+node_modules/
 
 # Generated file
 /manokee/web/front/dist/bundle.js

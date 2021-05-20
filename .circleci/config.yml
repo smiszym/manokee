@@ -62,6 +62,10 @@ jobs:
           command: |
             sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
             pip install -e .
-            pip install pytest
-            pytest
+            pip install coverage pytest
+            coverage run --source manokee -m pytest
+            coverage report -m
+            coverage html
+      - store_artifacts:
+          path: htmlcov
 
