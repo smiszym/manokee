@@ -24,7 +24,7 @@ class Application:
 
     def __init__(self):
         self._session_holder = SessionHolder()
-        self._amio_interface = None
+        self.amio_interface = None
         self._playspec_controller = None
         self._auto_rewind = False
         self._auto_rewind_position = 0
@@ -49,17 +49,13 @@ class Application:
         self._session_holder.session = session
 
     @property
-    def amio_interface(self) -> amio.Interface:
-        return self._amio_interface
-
-    @property
     def is_audio_io_running(self) -> bool:
-        return self._amio_interface is not None
+        return self.amio_interface is not None
 
     @property
     def frame_rate(self) -> Optional[float]:
-        if self._amio_interface is not None:
-            return self._amio_interface.get_frame_rate()
+        if self.amio_interface is not None:
+            return self.amio_interface.get_frame_rate()
         return None
 
     @property
@@ -91,24 +87,24 @@ class Application:
             message.apply(self)
 
     async def start_audio_io(self):
-        assert self._amio_interface is None
+        assert self.amio_interface is None
         logger.info("Starting audio I/O")
-        self._amio_interface = amio.create_io_interface()
-        await self._amio_interface.init("manokee")
+        self.amio_interface = amio.create_io_interface()
+        await self.amio_interface.init("manokee")
         self._playspec_controller = PlayspecController(
             self.amio_interface, self._session_holder, self._reviser
         )
-        self._amio_interface.input_chunk_callback = self._on_input_chunk
-        self._session_holder.session = Session(self._amio_interface.get_frame_rate())
+        self.amio_interface.input_chunk_callback = self._on_input_chunk
+        self._session_holder.session = Session(self.amio_interface.get_frame_rate())
 
     async def stop_audio_io(self):
-        assert self._amio_interface is not None
+        assert self.amio_interface is not None
         logger.info("Stopping audio I/O")
         await self._playspec_controller.close()
         self._playspec_controller = None
         self._session_holder.session = None
-        await self._amio_interface.close()
-        self._amio_interface = None
+        await self.amio_interface.close()
+        self.amio_interface = None
 
     def save_session_as(self, name: str):
         path = self._workspace.session_file_path_for_session_name(name)
@@ -117,27 +113,27 @@ class Application:
         logger.info(f"Saved session as {name}")
 
     def play_stop(self):
-        was_rolling = self._amio_interface.is_transport_rolling()
+        was_rolling = self.amio_interface.is_transport_rolling()
         if not was_rolling:
-            self._auto_rewind_position = self._amio_interface.get_position()
+            self._auto_rewind_position = self.amio_interface.get_position()
         logger.info(f"{'Stopping' if was_rolling else 'Starting'} playback")
-        self._amio_interface.set_transport_rolling(not was_rolling)
+        self.amio_interface.set_transport_rolling(not was_rolling)
         if self._auto_rewind and was_rolling:
-            self._amio_interface.set_position(self._auto_rewind_position)
+            self.amio_interface.set_position(self._auto_rewind_position)
         self._playspec_controller.is_recording = False
 
     def start_recording(self):
-        if self._amio_interface.is_transport_rolling():
+        if self.amio_interface.is_transport_rolling():
             return
         if not self._playspec_controller.plays_main_track_group():
             return
         if self._input_recorder.fragment_being_revised is not None:
             return
         logger.info("Starting recording")
-        self._auto_rewind_position = self._amio_interface.get_position()
+        self._auto_rewind_position = self.amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._playspec_controller.is_recording = True
-        self._amio_interface.set_transport_rolling(True)
+        self.amio_interface.set_transport_rolling(True)
 
     @property
     def is_revising(self) -> bool:
@@ -170,7 +166,7 @@ class Application:
     def go_to_beat(self, beat: int):
         self.go_to_frame_if_possible(
             beat_number_to_frame(
-                self._amio_interface, self._playspec_controller.timing, beat
+                self.amio_interface, self._playspec_controller.timing, beat
             )
         )
 
@@ -181,7 +177,7 @@ class Application:
             return
         self.go_to_frame_if_possible(
             beat_number_to_frame(
-                self._amio_interface,
+                self.amio_interface,
                 self._playspec_controller.timing,
                 session.time_signature * bar,
             )
@@ -195,11 +191,11 @@ class Application:
             )
         except KeyError:
             return
-        self.go_to_frame_if_possible(self._amio_interface.secs_to_frame(seconds))
+        self.go_to_frame_if_possible(self.amio_interface.secs_to_frame(seconds))
 
     def go_to_frame_if_possible(self, frame: int):
         if not self._input_recorder.is_recording:
-            self._amio_interface.set_position(frame)
+            self.amio_interface.set_position(frame)
 
     @property
     def active_track_group_name(self) -> Optional[str]:
@@ -229,12 +225,12 @@ class Application:
         if session is None:
             return None, None
         absolute_beat = int(
-            timing.seconds_to_beat(self._amio_interface.frame_to_secs(frame))
+            timing.seconds_to_beat(self.amio_interface.frame_to_secs(frame))
         )
         sig = session.time_signature
         return absolute_beat // sig, absolute_beat % sig
 
     def _on_input_chunk(self, input_chunk: amio.InputAudioChunk):
         self._input_recorder.append_input_chunk(input_chunk)
-        self._input_recorder.remove_old_fragments(self._amio_interface)
+        self._input_recorder.remove_old_fragments(self.amio_interface)
         self._playspec_controller.on_input_chunk()
