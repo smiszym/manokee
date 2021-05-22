@@ -29,7 +29,7 @@ class Application:
         self.auto_rewind = False
         self.auto_rewind_position = 0
         self._global_config = read_global_config()
-        self._workspace = Workspace(self._global_config.get("workspace"))
+        self.workspace = Workspace(self._global_config.get("workspace"))
         self._input_recorder = InputRecorder(4, 2)
         self._reviser = Reviser(self._session_holder, self._input_recorder)
         self._midi_interpreter = MidiInterpreter()
@@ -61,10 +61,6 @@ class Application:
     @property
     def playspec_controller(self) -> PlayspecController:
         return self._playspec_controller
-
-    @property
-    def workspace(self) -> Workspace:
-        return self._workspace
 
     @property
     def recorded_fragments(self) -> List[InputFragment]:
@@ -99,7 +95,7 @@ class Application:
         self.amio_interface = None
 
     def save_session_as(self, name: str):
-        path = self._workspace.session_file_path_for_session_name(name)
+        path = self.workspace.session_file_path_for_session_name(name)
         self._session_holder.session.session_file_path = path
         self._session_holder.session.save()
         logger.info(f"Saved session as {name}")
