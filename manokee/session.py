@@ -300,7 +300,11 @@ class Session(ObservableMixin):
         self, track_group_name: str
     ) -> Optional["Metronome"]:
         if track_group_name == "":
-            return Metronome(self)  # TODO: Support variable-bpm metronome
+            return Metronome(
+                bpm=self.bpm,
+                time_signature=self.time_signature,
+                frame_rate=self.frame_rate,
+            )
         else:
             return None
 
