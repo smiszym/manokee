@@ -6,6 +6,7 @@ def test_moving_average_constant():
     assert avg.get() is None
     for _ in range(20):
         assert avg.new_value(4) == 4
+        assert avg.get() == 4
 
 
 def test_moving_average_increasing():
@@ -18,6 +19,7 @@ def test_moving_average_increasing():
     assert avg.new_value(8) == 6.5
     assert avg.new_value(9) == 7.5
     assert avg.new_value(10) == 8.5
+    assert avg.get() == 8.5
 
 
 def test_moving_average_decreasing():
@@ -31,6 +33,7 @@ def test_moving_average_decreasing():
     assert avg.new_value(-1) == 0.5
     assert avg.new_value(-2) == -0.5
     assert avg.new_value(-3) == -1.5
+    assert avg.get() == -1.5
 
 
 def test_moving_average_alternating():
@@ -45,3 +48,4 @@ def test_moving_average_alternating():
     assert avg.new_value(4) == 3.5
     assert avg.new_value(3) == 3.5
     assert avg.new_value(4) == 3.5
+    assert avg.get() == 3.5
