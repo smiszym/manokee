@@ -231,7 +231,7 @@ class Session(ObservableMixin):
         mark = self._marks[name]
         if mark is None:
             return None
-        return mark.to_seconds(timing.beat_to_seconds)
+        return timing.beat_to_seconds(mark.beat)
 
     def set_mark_at_beat(self, name, beat):
         self._marks[name] = Mark(beat=beat)
