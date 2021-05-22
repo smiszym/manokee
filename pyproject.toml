@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "manokee"
+version = "0.4.0-dev"
+description = "Audio recording software with a mobile-first web interface"
+authors = ["Michał Szymański <smiszym@gmail.com>"]
+license = "MIT"
+homepage = "https://github.com/smiszym/manokee"
+repository = "https://github.com/smiszym/manokee"
+keywords = ["audio", "music", "linux"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Sound/Audio :: Capture/Recording"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aiohttp = "^3.7.4.post0"
+amio = "0.1.0"
+jsonpatch = "^1.32"
+mido = "^1.2.9"
+netifaces = "0.10.9"
+psutil = "^5.8.0"
+pygit2 = "^1.5.0"
+python-rtmidi = "^1.4.7"
+python-socketio = "^4.6.1"
+qrcode = "^6.1"
+SoundFile = "0.10.3.post1"
+toml = "0.10.2"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.812"
+pytest = "^6.2.4"
+black = "^21.5b1"
+coverage = "^5.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -19,9 +19,8 @@ jobs:
 # libjack-jackd2-dev, libsndfile1, swig for building amio package
           command: |
             sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
-            pip install -e .
-            python setup.py sdist
-            python setup.py bdist_wheel
+            poetry install --no-ansi
+            poetry build
 
   build-js:
     docker:
@@ -39,9 +38,8 @@ jobs:
       - run:
           command: |
             sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
-            pip install -e .
-            pip install mypy
-            mypy manokee/
+            poetry install --no-ansi
+            poetry run mypy manokee/
 
   check-black:
     docker:
@@ -61,11 +59,10 @@ jobs:
       - run:
           command: |
             sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
-            pip install -e .
-            pip install coverage pytest
-            coverage run --source manokee -m pytest
-            coverage report -m
-            coverage html
+            poetry install --no-ansi
+            poetry run coverage run --source manokee -m pytest
+            poetry run coverage report -m
+            poetry run coverage html
       - store_artifacts:
           path: htmlcov
 
