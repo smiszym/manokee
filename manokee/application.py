@@ -26,8 +26,8 @@ class Application:
         self._session_holder = SessionHolder()
         self.amio_interface = None
         self._playspec_controller = None
-        self._auto_rewind = False
-        self._auto_rewind_position = 0
+        self.auto_rewind = False
+        self.auto_rewind_position = 0
         self._global_config = read_global_config()
         self._workspace = Workspace(self._global_config.get("workspace"))
         self._input_recorder = InputRecorder(4, 2)
@@ -74,14 +74,6 @@ class Application:
     def capture_meter(self) -> Meter:
         return self._input_recorder.meter
 
-    @property
-    def auto_rewind(self) -> bool:
-        return self._auto_rewind
-
-    @auto_rewind.setter
-    def auto_rewind(self, value: bool):
-        self._auto_rewind = value
-
     def _on_midi_message(self, message: ManokeeMidiMessage):
         if message is not None:
             message.apply(self)
@@ -115,11 +107,11 @@ class Application:
     def play_stop(self):
         was_rolling = self.amio_interface.is_transport_rolling()
         if not was_rolling:
-            self._auto_rewind_position = self.amio_interface.get_position()
+            self.auto_rewind_position = self.amio_interface.get_position()
         logger.info(f"{'Stopping' if was_rolling else 'Starting'} playback")
         self.amio_interface.set_transport_rolling(not was_rolling)
-        if self._auto_rewind and was_rolling:
-            self.amio_interface.set_position(self._auto_rewind_position)
+        if self.auto_rewind and was_rolling:
+            self.amio_interface.set_position(self.auto_rewind_position)
         self._playspec_controller.is_recording = False
 
     def start_recording(self):
@@ -130,7 +122,7 @@ class Application:
         if self._input_recorder.fragment_being_revised is not None:
             return
         logger.info("Starting recording")
-        self._auto_rewind_position = self.amio_interface.get_position()
+        self.auto_rewind_position = self.amio_interface.get_position()
         self._input_recorder.is_recording = True
         self._playspec_controller.is_recording = True
         self.amio_interface.set_transport_rolling(True)
