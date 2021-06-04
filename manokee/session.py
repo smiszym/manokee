@@ -71,20 +71,20 @@ class Session(ObservableMixin):
                 self._configuration = {}
             marks_el = et.getroot().find("marks")
             if marks_el is not None:
-                self._marks = {
+                self.marks = {
                     element.attrib["name"]: Mark.from_str(element.attrib["position"])
                     for element in marks_el.findall("mark")
                 }
             else:
-                self._marks = {}
+                self.marks = {}
             tracks_el = et.getroot().find("tracks")
             if tracks_el is not None:
-                self._tracks = [
+                self.tracks = [
                     Track(self, frame_rate, element)
                     for element in tracks_el.findall("track")
                 ]
             else:
-                self._tracks = []
+                self.tracks = []
         else:
             self.history = SessionHistory(None)
             if session_file_path is None:
@@ -108,13 +108,13 @@ class Session(ObservableMixin):
                 "metronome_vol": "-12.0",
                 "metronome_pan": "0",
             }
-            self._marks = {}
-            self._tracks = []
+            self.marks = {}
+            self.tracks = []
         self._are_controls_modified = False
 
     def save(self):
         assert self._session_file_path is not None
-        assert all(track.is_loaded for track in self._tracks)
+        assert all(track.is_loaded for track in self.tracks)
 
         session_dir = os.path.dirname(self._session_file_path)
         try:
@@ -129,7 +129,7 @@ class Session(ObservableMixin):
             ):
                 raise FileExistsError("Directory is not a Manokee session")
 
-        for track in self._tracks:
+        for track in self.tracks:
             if track.requires_audio_save:
                 track.get_audio_clip().to_soundfile(track.filename)
                 track.requires_audio_save = False
@@ -147,11 +147,11 @@ class Session(ObservableMixin):
             ET.SubElement(configuration, "setting", name=key, value=value)
 
         marks = ET.SubElement(root, "marks")
-        for key, mark in self._marks.items():
+        for key, mark in self.marks.items():
             ET.SubElement(marks, "mark", name=key, position=str(mark))
 
         tracks = ET.SubElement(root, "tracks")
-        for track in self._tracks:
+        for track in self.tracks:
             attrib = {
                 "rec": "1" if track.is_rec else "0",
                 "rec-source": track.rec_source,
@@ -228,30 +228,22 @@ class Session(ObservableMixin):
         return self._frame_rate
 
     def mark_position_seconds(self, name: str, timing: Timing) -> Optional[float]:
-        mark = self._marks[name]
+        mark = self.marks[name]
         if mark is None:
             return None
         return timing.beat_to_seconds(mark.beat)
 
     def set_mark_at_beat(self, name, beat):
-        self._marks[name] = Mark(beat=beat)
-
-    @property
-    def marks(self) -> dict:
-        return self._marks
-
-    @property
-    def tracks(self) -> list:
-        return self._tracks
+        self.marks[name] = Mark(beat=beat)
 
     def track_for_name(self, name: str) -> Optional[Track]:
-        for track in self._tracks:
+        for track in self.tracks:
             if track.name == name:
                 return track
         return None
 
     def _index_of_track(self, name: str) -> Optional[int]:
-        for i, track in enumerate(self._tracks):
+        for i, track in enumerate(self.tracks):
             if track.name == name:
                 return i
         return None
@@ -259,39 +251,39 @@ class Session(ObservableMixin):
     def remove_track(self, name: str):
         i = self._index_of_track(name)
         if i is not None:
-            del self._tracks[i]
+            del self.tracks[i]
         self._notify_observers()
 
     def move_track_up(self, name: str):
         i = self._index_of_track(name)
         if i is None or i == 0:
             return  # can't move the track up
-        self._tracks[i - 1], self._tracks[i] = (self._tracks[i], self._tracks[i - 1])
+        self.tracks[i - 1], self.tracks[i] = (self.tracks[i], self.tracks[i - 1])
         self._notify_observers()
 
     def move_track_down(self, name: str):
         i = self._index_of_track(name)
-        if i is None or i == len(self._tracks) - 1:
+        if i is None or i == len(self.tracks) - 1:
             return  # can't move the track down
-        self._tracks[i + 1], self._tracks[i] = (self._tracks[i], self._tracks[i + 1])
+        self.tracks[i + 1], self.tracks[i] = (self.tracks[i], self.tracks[i + 1])
         self._notify_observers()
 
     def add_track(self, name: str, frame_rate: float):
         track = Track(self, frame_rate, element=None, name=name)
-        self._tracks.append(track)
+        self.tracks.append(track)
         self._notify_observers()
 
     @property
     def track_group_names(self) -> List[str]:
         audacity_groups = [
-            track.name for track in self._tracks if track.is_audacity_project
+            track.name for track in self.tracks if track.is_audacity_project
         ]
         return [""] + audacity_groups
 
     def tracks_in_group(self, track_group_name: str):
         if track_group_name == "":
             # The main track group
-            return [track for track in self._tracks if not track.is_audacity_project]
+            return [track for track in self.tracks if not track.is_audacity_project]
         else:
             # Audacity track group
             return [self.track_for_name(track_group_name)]
@@ -375,14 +367,14 @@ class Session(ObservableMixin):
         reviser: "manokee.revising.Reviser",
     ) -> Playspec:
         # First, calculate basic audibility of tracks from solo and mute values
-        is_soloed = any(track.is_solo for track in self._tracks)
+        is_soloed = any(track.is_solo for track in self.tracks)
         audibility = {
             track: track.is_solo if is_soloed else not track.is_mute
-            for track in self._tracks
+            for track in self.tracks
         }
         # Then, exclude tracks currently being recorded
         if is_recording:
-            for track in self._tracks:
+            for track in self.tracks:
                 if track.is_rec:
                     audibility[track] = False
         return list(
@@ -411,8 +403,8 @@ class Session(ObservableMixin):
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
             "configuration": self._configuration,
-            "marks": {name: str(mark) for name, mark in self._marks.items()},
-            "tracks": [track.to_js() for track in self._tracks],
+            "marks": {name: str(mark) for name, mark in self.marks.items()},
+            "tracks": [track.to_js() for track in self.tracks],
             "track_group_names": self.track_group_names,
             "history": self.history.to_js(),
         }
