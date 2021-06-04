@@ -88,7 +88,6 @@ class Application:
     async def stop_audio_io(self):
         assert self.amio_interface is not None
         logger.info("Stopping audio I/O")
-        await self._playspec_controller.close()
         self._playspec_controller = None
         self._session_holder.session = None
         await self.amio_interface.close()

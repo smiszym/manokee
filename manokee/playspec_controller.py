@@ -34,9 +34,6 @@ class PlayspecController:
         self._requires_playspec_recreation = False
         self._input_chunks_until_recreation = 0
 
-    def close(self):
-        self._session_holder.remove_observer(self._on_session_changed)
-
     def on_input_chunk(self):
         if self._input_chunks_until_recreation > 0:
             self._input_chunks_until_recreation -= 1
