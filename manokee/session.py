@@ -405,7 +405,12 @@ class Session(ObservableMixin):
             "configuration": self._configuration,
             "marks": {name: str(mark) for name, mark in self.marks.items()},
             "tracks": [track.to_js() for track in self.tracks],
-            "track_group_names": self.track_group_names,
+            "track_groups": [
+                {
+                    "name": name,
+                }
+                for name in self.track_group_names
+            ],
             "history": self.history.to_js(),
         }
 

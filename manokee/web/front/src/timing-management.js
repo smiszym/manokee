@@ -62,26 +62,26 @@ export class TimingManagement extends Component {
             />
           </div>
           <div>
-            {this.props.session.track_group_names.map((group_name, i) => {
+            {this.props.session.track_groups.map((group, i) => {
               return (
                 <button
-                  key={group_name}
+                  key={group.name}
                   className={
-                    this.props.active_track_group_name == group_name
+                    this.props.active_track_group_name == group.name
                       ? "highlighted-button"
                       : ""
                   }
                   onClick={(evt) =>
-                    this.props.onSetActiveTrackGroup(group_name)
+                    this.props.onSetActiveTrackGroup(group.name)
                   }
                 >
-                  {group_name ? group_name : "Main group"}
+                  {group.name ? group.name : "Main group"}
                 </button>
               );
             })}
           </div>
           <div>Playback is {this.props.is_looped ? "" : "not"} looped.</div>
-          {this.props.session.track_group_names.length >= 2 && (
+          {this.props.session.track_groups.length >= 2 && (
             <div>
               <button
                 onClick={(evt) =>
@@ -90,12 +90,12 @@ export class TimingManagement extends Component {
                     {
                       bar_a: "a",
                       bar_b: "b",
-                      track_group_name: this.props.session.track_group_names[1],
+                      track_group_name: this.props.session.track_groups[1].name,
                     },
                   ])
                 }
               >
-                Loop A-B main / {this.props.session.track_group_names[1]}
+                Loop A-B main / {this.props.session.track_groups[1].name}
               </button>
               <button
                 onClick={(evt) =>
@@ -112,12 +112,12 @@ export class TimingManagement extends Component {
                     {
                       bar_a: "a",
                       bar_b: "b",
-                      track_group_name: this.props.session.track_group_names[1],
+                      track_group_name: this.props.session.track_groups[1].name,
                     },
                   ])
                 }
               >
-                Loop A-B {this.props.session.track_group_names[1]}
+                Loop A-B {this.props.session.track_groups[1].name}
               </button>
             </div>
           )}
