@@ -49,6 +49,14 @@ export class Status extends Component {
           onStartAudio={this.props.onStartAudio}
           onStopAudio={this.props.onStopAudio}
         />
+        Manokee uses the excellent{" "}
+        <a
+          target="_blank"
+          href="https://www.fontspace.com/cute-aurora-font-f46818"
+        >
+          Cute Aurora font by 611 Studio
+        </a>
+        .
       </div>
     );
   }

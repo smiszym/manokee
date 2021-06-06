@@ -40,6 +40,11 @@ async def favicon(request):
     return web.FileResponse("manokee/web/front/dist/favicon.svg")
 
 
+@routes.get("/CuteAurora-PK3lZ.ttf")
+async def font_ttf(request):
+    return web.FileResponse("manokee/web/front/dist/CuteAurora-PK3lZ.ttf")
+
+
 @routes.get("/main.css")
 async def main_css(request):
     return web.FileResponse("manokee/web/front/dist/main.css")
