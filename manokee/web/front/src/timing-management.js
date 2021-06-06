@@ -7,7 +7,6 @@ export class TimingManagement extends Component {
   render() {
     const { configuration = {} } = this.props.session || {};
     const {
-      bpm = "",
       time_sig = "",
       intro_len = "",
       met_intro_only = "",
@@ -50,7 +49,6 @@ export class TimingManagement extends Component {
               <button onClick={(evt) => this.props.onSetTimeSig(9)}>9/4</button>
             </div>
           </Popup>
-          <div>Tempo: {bpm} bpm</div>
           <div>Time signature: {time_sig}/4</div>
           <div>Metronome {metronome == "1" ? "on" : "off"}</div>
           <div>Metronome volume: {parseFloat(metronome_vol).toFixed(1)} dB</div>
@@ -62,23 +60,29 @@ export class TimingManagement extends Component {
             />
           </div>
           <div>
-            {this.props.session.track_groups.map((group, i) => {
-              return (
-                <button
-                  key={group.name}
-                  className={
-                    this.props.active_track_group_name == group.name
-                      ? "highlighted-button"
-                      : ""
-                  }
-                  onClick={(evt) =>
-                    this.props.onSetActiveTrackGroup(group.name)
-                  }
-                >
-                  {group.name ? group.name : "Main group"}
-                </button>
-              );
-            })}
+            <ul>
+              {this.props.session.track_groups.map((group, i) => {
+                return (
+                  <li key={group.name}>
+                    <button
+                      key={group.name}
+                      className={
+                        this.props.active_track_group_name == group.name
+                          ? "highlighted-button"
+                          : ""
+                      }
+                      onClick={(evt) =>
+                        this.props.onSetActiveTrackGroup(group.name)
+                      }
+                    >
+                      {group.name ? group.name : "Main group"}
+                    </button>
+                    ({group.average_bpm.toFixed(0)} bpm
+                    {group.name ? " on average" : ""})
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div>Playback is {this.props.is_looped ? "" : "not"} looped.</div>
           {this.props.session.track_groups.length >= 2 && (

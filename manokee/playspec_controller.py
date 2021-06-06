@@ -57,12 +57,12 @@ class PlayspecController:
         self._input_chunks_until_recreation = 19  # @48kHz, it's ~0.05 s, or ~20 times/s
         self._requires_playspec_recreation = False
         session = self._session_holder.session
-        logging.debug(f"Recreating playspecs for groups: {session.track_group_names}")
+        logging.debug(f"Recreating playspecs for groups: {session.track_groups.keys()}")
         self._playspecs_for_groups = {
-            group_name: session.make_playspec_for_track_group(
-                group_name, self._is_recording, self._reviser
+            name: session.make_playspec_for_track_group(
+                name, self._is_recording, self._reviser
             )
-            for group_name in session.track_group_names
+            for name, group in session.track_groups.items()
         }
         current_playspec = self._playspecs_for_groups[self._active_track_group_name]
         self._amio_interface.schedule_playspec_change(current_playspec, 0, 0, None)

@@ -15,7 +15,7 @@ from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.timing.timing import Timing
 import os
-from typing import Callable, Dict, Optional, List
+from typing import Optional, List, Mapping
 import xml.etree.ElementTree as ET
 
 
@@ -23,6 +23,9 @@ import xml.etree.ElementTree as ET
 # the implementation from http://effbot.org/zone/element-lib.htm#prettyprint
 # below.
 # (see https://bugs.python.org/issue14465)
+from manokee.track_group import TrackGroup
+
+
 def _ET_indent(elem, level=0):
     i = "\n" + level * "  "
     if len(elem):
@@ -274,31 +277,13 @@ class Session(ObservableMixin):
         self._notify_observers()
 
     @property
-    def track_group_names(self) -> List[str]:
+    def track_groups(self) -> Mapping[str, TrackGroup]:
         audacity_groups = [
             track.name for track in self.tracks if track.is_audacity_project
         ]
-        return [""] + audacity_groups
-
-    def tracks_in_group(self, track_group_name: str):
-        if track_group_name == "":
-            # The main track group
-            return [track for track in self.tracks if not track.is_audacity_project]
-        else:
-            # Audacity track group
-            return [self.track_for_name(track_group_name)]
-
-    def create_metronome_for_track_group(
-        self, track_group_name: str
-    ) -> Optional["Metronome"]:
-        if track_group_name == "":
-            return Metronome(
-                bpm=self.bpm,
-                time_signature=self.time_signature,
-                frame_rate=self.frame_rate,
-            )
-        else:
-            return None
+        return {
+            name: TrackGroup(name=name, session=self) for name in [""] + audacity_groups
+        }
 
     @property
     def bpm(self) -> float:
@@ -382,13 +367,13 @@ class Session(ObservableMixin):
                 track_playspec_entries(
                     (
                         track
-                        for track in self.tracks_in_group(track_group_name)
+                        for track in self.track_groups[track_group_name].tracks
                         if audibility[track]
                     ),
                     reviser.audio_substitutes,
                 ),
                 metronome_playspec_entries(
-                    self, self.create_metronome_for_track_group(track_group_name)
+                    self, self.track_groups[track_group_name].create_metronome()
                 ),
             )
         )
@@ -408,8 +393,9 @@ class Session(ObservableMixin):
             "track_groups": [
                 {
                     "name": name,
+                    "average_bpm": group.average_bpm,
                 }
-                for name in self.track_group_names
+                for name, group in self.track_groups.items()
             ],
             "history": self.history.to_js(),
         }

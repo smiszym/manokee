@@ -1,7 +1,8 @@
 import asyncio
-from datetime import datetime, timedelta
 import os
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+from typing import Optional
 
 from amio import AudioClip, Fader
 import soundfile as sf
@@ -80,9 +81,11 @@ class Track:
         if self.is_audacity_project:
             self._audio = self.audacity_project.as_audio_clip()
             self._audio.writeable = False
+            self.average_bpm: Optional[float] = self._calculate_average_bpm()
         else:
             self._audio = AudioClip.zeros(1, 1, self.frame_rate)
             self.percent_loaded = 0
+            self.average_bpm = None
 
     @property
     def is_loaded(self):
@@ -238,3 +241,10 @@ class Track:
             "is_loaded": self.is_loaded,
             "percent_loaded": self.percent_loaded,
         }
+
+    def _calculate_average_bpm(self) -> float:
+        return (
+            60.0
+            / AudacityTiming(self._audacity_project).average_beat_length
+            * self._beats_in_audacity_beat
+        )
