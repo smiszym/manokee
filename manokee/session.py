@@ -102,7 +102,6 @@ class Session(ObservableMixin):
             self._session_format_version = "1"
             self._modified_with = manokee.__version__
             self._configuration = {
-                "tape_length": "10",
                 "bpm": "120",
                 "time_sig": "4",
                 "intro_len": "-1",

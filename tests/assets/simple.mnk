@@ -2,7 +2,6 @@
 <session format-name="manokee" format-version="1">
     <program-version modified-with="1.2.0" />
     <configuration>
-        <setting name="tape_length" value="10" />
         <setting name="bpm" value="154" />
         <setting name="time_sig" value="4" />
         <setting name="intro_len" value="-1" />

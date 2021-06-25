@@ -10,12 +10,8 @@ export class TransportControl extends Component {
   }
 
   render() {
-    const { configuration = {} } = this.props.session || {};
-    const { tape_length = "" } = configuration || {};
-
     return (
       <div>
-        <div>Tape length: {tape_length}</div>
         <div>
           Transport state: <span>unknown</span>.
         </div>
