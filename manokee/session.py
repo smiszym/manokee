@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from amio import Interface, Playspec
 from itertools import chain
 import manokee  # __version__
@@ -398,6 +400,25 @@ class Session(ObservableMixin):
             ],
             "history": self.history.to_js(),
         }
+
+    @property
+    def session_directory(self) -> Optional[Path]:
+        if self._session_file_path is None:
+            return None
+        return Path(self._session_file_path).parent
+
+    def files_in_session_directory(self) -> Optional[set[Path]]:
+        session_directory = self.session_directory
+        if session_directory is None:
+            return None
+        all_files: set[Path] = set()
+        for root, dirs, files in os.walk(session_directory):
+            try:
+                dirs.remove(".git")
+            except ValueError:
+                pass
+            all_files.update(Path(root) / file for file in files)
+        return all_files
 
     @staticmethod
     def is_suitable_for_overwrite(session_file_path) -> bool:
