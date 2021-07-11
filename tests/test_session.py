@@ -4,7 +4,7 @@ import pytest
 
 def test_load_session():
     # TODO Make it possible to open a session without specifying frame rate
-    session = Session(48000, "tests/assets/simple.mnk")
+    session = Session(48000, "tests/assets/sessions/simple/session.mnk")
     assert session.bpm == 154
     assert sum(1 for _ in session.tracks) == 2
     assert sum(1 for _ in session.marks) == 0
