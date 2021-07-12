@@ -19,7 +19,7 @@ speedups = ["aiodns", "brotlipy", "cchardet"]
 
 [[package]]
 name = "amio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Audio Mixing and Input/Output"
 category = "main"
 optional = false
@@ -547,7 +547,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "4967876324733fc0a74931b1adda105c9a66b56c17993892e0fd181ee31f72d4"
+content-hash = "6d9a4d248fa3db8276919b0c724b658b0c312f4d0faeb0361f4bc159343b5963"
 
 [metadata.files]
 aiohttp = [
@@ -590,7 +590,7 @@ aiohttp = [
     {file = "aiohttp-3.7.4.post0.tar.gz", hash = "sha256:493d3299ebe5f5a7c66b9819eacdcfbbaaf1a8e84911ddffcdc48888497afecf"},
 ]
 amio = [
-    {file = "amio-0.1.0.tar.gz", hash = "sha256:4b5dc52416102db6ac891539be799036787b467d13de21c69c260c8d91968053"},
+    {file = "amio-0.1.1.tar.gz", hash = "sha256:22419e4409f7bf24de10f9e6c3c7d0822418a8dd4faaf9f8b65b0b5b3a34fcb8"},
 ]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
