@@ -1,47 +1,25 @@
-from pathlib import Path
-
-from amio import Interface, Playspec
+import os
+import xml.etree.ElementTree as ET
 from itertools import chain
+from pathlib import Path
+from typing import Optional, Mapping
+
+from amio import Playspec
+
 import manokee  # __version__
+import manokee.revising
 from manokee.mark import Mark
-from manokee.metronome import Metronome
 from manokee.observable import ObservableMixin
 from manokee.playspec_generators import (
     track_playspec_entries,
     metronome_playspec_entries,
 )
-import manokee.revising
 from manokee.session_history import SessionHistory
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
-from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.timing.timing import Timing
-import os
-from typing import Optional, List, Mapping
-import xml.etree.ElementTree as ET
-
-
-# ET.indent() will be available from Python 3.9; until then, I use
-# the implementation from http://effbot.org/zone/element-lib.htm#prettyprint
-# below.
-# (see https://bugs.python.org/issue14465)
 from manokee.track_group import TrackGroup
-
-
-def _ET_indent(elem, level=0):
-    i = "\n" + level * "  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            _ET_indent(elem, level + 1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+from manokee.utils import ET_indent
 
 
 class Session(ObservableMixin):
@@ -181,7 +159,7 @@ class Session(ObservableMixin):
                     },
                 )
 
-        _ET_indent(root)
+        ET_indent(root)
         tree = ET.ElementTree(root)
         tree.write(self._session_file_path)
         self._are_controls_modified = False
