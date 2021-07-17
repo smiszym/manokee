@@ -320,8 +320,7 @@ async def load_session(sid, attr):
         logging.info("Loading session: " + path)
         application.session = Session(application.amio_interface.get_frame_rate(), path)
 
-        for track in application.session.tracks:
-            await track.load()
+        await asyncio.gather(*[track.load() for track in application.session.tracks])
         application.session._notify_observers()
         await emit_track_metering_data()
 
