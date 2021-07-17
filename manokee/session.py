@@ -250,10 +250,11 @@ class Session(ObservableMixin):
         self.tracks[i + 1], self.tracks[i] = (self.tracks[i], self.tracks[i + 1])
         self._notify_observers()
 
-    def add_track(self, name: str, frame_rate: float):
+    async def add_track(self, name: str, frame_rate: float):
         track = Track(self, frame_rate, element=None, name=name)
         self.tracks.append(track)
         self._notify_observers()
+        await track.load()
 
     @property
     def track_groups(self) -> Mapping[str, TrackGroup]:
