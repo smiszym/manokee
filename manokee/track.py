@@ -39,13 +39,13 @@ class Track:
         self.frame_rate = frame_rate
         if element is not None:
             assert name is None
-            self._name = element.attrib["name"]
-            self._is_rec = element.attrib["rec"] != "0"
-            self._is_mute = element.attrib["mute"] != "0"
-            self._is_solo = element.attrib["solo"] != "0"
-            self._rec_source = element.attrib["rec-source"]
+            self.name = element.attrib["name"]
+            self.is_rec = element.attrib["rec"] != "0"
+            self.is_mute = element.attrib["mute"] != "0"
+            self.is_solo = element.attrib["solo"] != "0"
+            self.rec_source = element.attrib["rec-source"]
             self._source = element.attrib.get("source", "internal")
-            self._fader = Fader(
+            self.fader = Fader(
                 float(element.attrib["vol"]), float(element.attrib["pan"])
             )
             self._beats_in_audacity_beat = int(
@@ -67,13 +67,13 @@ class Track:
                 ]
             )
         else:
-            self._name = name if name is not None else "track"
-            self._is_rec = False
-            self._is_mute = False
-            self._is_solo = False
-            self._rec_source = "L"
+            self.name = name if name is not None else "track"
+            self.is_rec = False
+            self.is_mute = False
+            self.is_solo = False
+            self.rec_source = "L"
             self._source = "internal"
-            self._fader = Fader()
+            self.fader = Fader()
             self._beats_in_audacity_beat = 1
             self._audacity_project = None
             self.wall_time_recorder = WallTimeRecorder()
@@ -122,15 +122,6 @@ class Track:
         self._session._notify_observers()
 
     @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value
-        self.notify_modified()
-
-    @property
     def filename(self):
         if self._session.session_file_path is None:
             return None
@@ -140,42 +131,6 @@ class Track:
 
     def get_audio_clip(self):
         return self._audio
-
-    @property
-    def is_rec(self) -> bool:
-        return self._is_rec
-
-    @is_rec.setter
-    def is_rec(self, enabled: bool):
-        self._is_rec = enabled
-        self.notify_modified()
-
-    @property
-    def is_mute(self) -> bool:
-        return self._is_mute
-
-    @is_mute.setter
-    def is_mute(self, enabled: bool):
-        self._is_mute = enabled
-        self.notify_modified()
-
-    @property
-    def is_solo(self) -> bool:
-        return self._is_solo
-
-    @is_solo.setter
-    def is_solo(self, enabled: bool):
-        self._is_solo = enabled
-        self.notify_modified()
-
-    @property
-    def rec_source(self) -> str:
-        return self._rec_source
-
-    @rec_source.setter
-    def rec_source(self, value: str):
-        self._rec_source = value
-        self.notify_modified()
 
     @property
     def source(self):
@@ -202,12 +157,8 @@ class Track:
         else:
             return self._session.timing
 
-    @property
-    def fader(self) -> Fader:
-        return self._fader
-
     def commit_input_fragment_if_needed(self, fragment: InputFragment):
-        if not self._is_rec:
+        if not self.is_rec:
             return
         if not self.is_loaded:
             raise RuntimeError("Track not fully loaded yet")
@@ -215,7 +166,7 @@ class Track:
             raise RuntimeError("Invalid InputFragment")
         self._audio.writeable = True
         self._audio.overwrite(
-            fragment.as_clip().channel(0 if self._rec_source == "L" else 1),
+            fragment.as_clip().channel(0 if self.rec_source == "L" else 1),
             fragment.starting_frame,
             extend_to_fit=True,
         )
@@ -230,13 +181,13 @@ class Track:
 
     def to_js(self) -> dict:
         return {
-            "name": self._name,
-            "is_rec": self._is_rec,
-            "is_mute": self._is_mute,
-            "is_solo": self._is_solo,
-            "rec_source": self._rec_source,
-            "vol_dB": self._fader.vol_dB,
-            "pan": self._fader.pan,
+            "name": self.name,
+            "is_rec": self.is_rec,
+            "is_mute": self.is_mute,
+            "is_solo": self.is_solo,
+            "rec_source": self.rec_source,
+            "vol_dB": self.fader.vol_dB,
+            "pan": self.fader.pan,
             "requires_audio_save": self.requires_audio_save,
             "is_loaded": self.is_loaded,
             "percent_loaded": self.percent_loaded,

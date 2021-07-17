@@ -444,30 +444,35 @@ def set_loop_spec(sid, attr):
 def unset_rec_all(sid):
     for track in application.session.tracks:
         track.is_rec = False
+        track.notify_modified()
 
 
 @sio.event
 def set_rec(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_rec = attr["enabled"]
+    track.notify_modified()
 
 
 @sio.event
 def set_rec_source(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.rec_source = attr["source"]
+    track.notify_modified()
 
 
 @sio.event
 def set_mute(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_mute = attr["enabled"]
+    track.notify_modified()
 
 
 @sio.event
 def set_solo(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_solo = attr["enabled"]
+    track.notify_modified()
 
 
 @sio.event
@@ -506,6 +511,7 @@ def rename_track(sid, attr):
     track = application.session.track_for_name(attr["track"])
     if track is not None:
         track.name = attr["new_name"]
+        track.notify_modified()
 
 
 @sio.event

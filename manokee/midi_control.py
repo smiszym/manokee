@@ -59,10 +59,13 @@ class ButtonMessage(ManokeeMidiMessage):
             track = session.tracks[self.track_number]
             if self.action == 0:
                 track.is_rec = not track.is_rec
+                track.notify_modified()
             elif self.action == 1:
                 track.is_mute = not track.is_mute
+                track.notify_modified()
             elif self.action == 2:
                 track.is_solo = not track.is_solo
+                track.notify_modified()
 
 
 class StartRecordingMessage(ManokeeMidiMessage):
