@@ -322,6 +322,7 @@ async def load_session(sid, attr):
 
         for track in application.session.tracks:
             await track.load()
+        application.session._notify_observers()
         await emit_track_metering_data()
 
 
@@ -444,56 +445,56 @@ def set_loop_spec(sid, attr):
 def unset_rec_all(sid):
     for track in application.session.tracks:
         track.is_rec = False
-        track.notify_modified()
+        application.session._notify_observers()
 
 
 @sio.event
 def set_rec(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_rec = attr["enabled"]
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def set_rec_source(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.rec_source = attr["source"]
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def set_mute(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_mute = attr["enabled"]
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def set_solo(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.is_solo = attr["enabled"]
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def set_pan(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.fader.pan = attr["pan"]
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def volume_down(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.fader.vol_dB = track.fader.vol_dB - 1
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
 def volume_up(sid, attr):
     track = application.session.track_for_name(attr["track"])
     track.fader.vol_dB = track.fader.vol_dB + 1
-    track.notify_modified()
+    application.session._notify_observers()
 
 
 @sio.event
@@ -511,7 +512,7 @@ def rename_track(sid, attr):
     track = application.session.track_for_name(attr["track"])
     if track is not None:
         track.name = attr["new_name"]
-        track.notify_modified()
+        application.session._notify_observers()
 
 
 @sio.event

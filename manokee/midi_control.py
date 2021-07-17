@@ -45,7 +45,7 @@ class VolumeChangeMessage(ManokeeMidiMessage):
         if session is not None:
             track = session.tracks[self.track_number]
             track.fader.vol_dB = self.new_value
-            track.notify_modified()
+            session._notify_observers()
 
 
 class ButtonMessage(ManokeeMidiMessage):
@@ -59,13 +59,13 @@ class ButtonMessage(ManokeeMidiMessage):
             track = session.tracks[self.track_number]
             if self.action == 0:
                 track.is_rec = not track.is_rec
-                track.notify_modified()
+                session._notify_observers()
             elif self.action == 1:
                 track.is_mute = not track.is_mute
-                track.notify_modified()
+                session._notify_observers()
             elif self.action == 2:
                 track.is_solo = not track.is_solo
-                track.notify_modified()
+                session._notify_observers()
 
 
 class StartRecordingMessage(ManokeeMidiMessage):

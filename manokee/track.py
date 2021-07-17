@@ -116,10 +116,6 @@ class Track:
             f.close()
             self._audio.writeable = False
             self.percent_loaded = None
-            self.notify_modified()
-
-    def notify_modified(self):
-        self._session._notify_observers()
 
     @property
     def filename(self):
@@ -177,7 +173,6 @@ class Track:
             timedelta(seconds=len(fragment) / fragment.frame_rate),
         )
         self.requires_audio_save = True
-        self.notify_modified()
 
     def to_js(self) -> dict:
         return {

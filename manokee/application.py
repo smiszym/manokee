@@ -149,6 +149,7 @@ class Application:
         for track in self._session_holder.session.tracks:
             if track.is_rec:
                 track.commit_input_fragment_if_needed(fragment)
+        self._session_holder.session._notify_observers()
 
     def go_to_beat(self, beat: int):
         self.go_to_frame_if_possible(
