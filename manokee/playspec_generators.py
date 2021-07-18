@@ -13,7 +13,7 @@ def track_playspec_entries(
     audio_substitutes: Dict["manokee.track.Track", "manokee.revising.AudioSubstitute"],
 ) -> PlayspecEntryGenerator:
     for track in tracks:
-        clip = track.get_audio_clip()
+        clip = track.audio
         substitute = audio_substitutes.get(track)
         if substitute is not None:
             start = substitute.starting_frame

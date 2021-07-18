@@ -1,13 +1,14 @@
 import asyncio
 import os
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
 
 from amio import AudioClip, Fader
 import soundfile as sf
 
-import manokee.audacity.project as audacity_project
+import manokee.audacity.project as aup
 import manokee.session
 from manokee.input_recorder import InputFragment
 from manokee.timing.timing import Timing
@@ -26,37 +27,64 @@ def parse_timedelta(s: str) -> timedelta:
     )
 
 
+@dataclass(eq=False)
 class Track:
-    def __init__(
-        self,
-        session: "manokee.session.Session",
-        frame_rate: float,
-        element: ET.Element = None,
-        name: str = None,
-    ):
-        self._session = session
-        self.percent_loaded = None
-        self.frame_rate = frame_rate
-        if element is not None:
-            assert name is None
-            self.name = element.attrib["name"]
-            self.is_rec = element.attrib["rec"] != "0"
-            self.is_mute = element.attrib["mute"] != "0"
-            self.is_solo = element.attrib["solo"] != "0"
-            self.rec_source = element.attrib["rec-source"]
-            self._source = element.attrib.get("source", "internal")
-            self.fader = Fader(
-                float(element.attrib["vol"]), float(element.attrib["pan"])
-            )
-            self._beats_in_audacity_beat = int(
-                element.attrib.get("beats-in-audacity-beat", "1")
-            )
-            self._audacity_project = (
-                audacity_project.parse(element.attrib.get("audacity-project"))
-                if self.is_audacity_project
-                else None
-            )
-            self.wall_time_recorder = WallTimeRecorder(
+    session: "manokee.session.Session"
+
+    name: str
+    rec_source: str
+    fader: Fader
+    frame_rate: float
+
+    percent_loaded: Optional[float]
+
+    audio: AudioClip
+    wall_time_recorder: WallTimeRecorder
+
+    average_bpm: Optional[float] = None
+    audacity_project: Optional[aup.AudacityProject] = None
+    beats_in_audacity_beat: int = 1
+    source: str = "internal"
+    requires_audio_save: bool = False
+
+    is_rec: bool = False
+    is_mute: bool = False
+    is_solo: bool = False
+
+    @classmethod
+    def empty(cls, session, name: str, frame_rate: float):
+        return cls(
+            session=session,
+            name=name if name is not None else "track",
+            rec_source="L",
+            fader=Fader(),
+            frame_rate=frame_rate,
+            percent_loaded=0,
+            audio=AudioClip.zeros(1, 1, frame_rate),
+            wall_time_recorder=WallTimeRecorder(),
+        )
+
+    @classmethod
+    def from_xml(cls, session, frame_rate: float, element: ET.Element):
+        if element.attrib.get("source", "internal") == "audacity-project":
+            percent_loaded = None
+            audacity_project = aup.parse(element.attrib.get("audacity-project"))
+        else:
+            percent_loaded = 0
+            audacity_project = None
+
+        result = cls(
+            session=session,
+            name=element.attrib["name"],
+            is_rec=element.attrib["rec"] != "0",
+            is_mute=element.attrib["mute"] != "0",
+            is_solo=element.attrib["solo"] != "0",
+            rec_source=element.attrib["rec-source"],
+            fader=Fader(float(element.attrib["vol"]), float(element.attrib["pan"])),
+            frame_rate=frame_rate,
+            percent_loaded=percent_loaded,
+            audio=AudioClip.zeros(1, 1, frame_rate),
+            wall_time_recorder=WallTimeRecorder(
                 [
                     WallTimeEntry(
                         parse_timedelta(element.attrib["session-time"]),
@@ -65,27 +93,20 @@ class Track:
                     )
                     for element in element.findall("wall-time")
                 ]
-            )
-        else:
-            self.name = name if name is not None else "track"
-            self.is_rec = False
-            self.is_mute = False
-            self.is_solo = False
-            self.rec_source = "L"
-            self._source = "internal"
-            self.fader = Fader()
-            self._beats_in_audacity_beat = 1
-            self._audacity_project = None
-            self.wall_time_recorder = WallTimeRecorder()
-        self.requires_audio_save = False
-        if self.is_audacity_project:
-            self._audio = self.audacity_project.as_audio_clip()
-            self._audio.writeable = False
-            self.average_bpm: Optional[float] = self._calculate_average_bpm()
-        else:
-            self._audio = AudioClip.zeros(1, 1, self.frame_rate)
-            self.percent_loaded = 0
-            self.average_bpm = None
+            ),
+            audacity_project=audacity_project,
+            beats_in_audacity_beat=int(
+                element.attrib.get("beats-in-audacity-beat", "1")
+            ),
+            source=element.attrib.get("source", "internal"),
+        )
+        if result.is_audacity_project:
+            result.audio = result.audacity_project.as_audio_clip()  # type: ignore
+            result.audio.writeable = False
+
+        result._calculate_average_bpm()
+
+        return result
 
     @property
     def is_loaded(self):
@@ -102,56 +123,42 @@ class Track:
         except FileNotFoundError:
             self.percent_loaded = None
         else:
-            self._audio = AudioClip.zeros(f.frames, f.channels, f.samplerate)
-            self._audio.writeable = True
+            self.audio = AudioClip.zeros(f.frames, f.channels, f.samplerate)
+            self.audio.writeable = True
 
             read_so_far = 0
             blocksize = 30 * f.samplerate  # load in 30-second chunks
             for block in f.blocks(blocksize=blocksize):
-                self._audio.overwrite(AudioClip(block, f.samplerate), read_so_far)
+                self.audio.overwrite(AudioClip(block, f.samplerate), read_so_far)
                 read_so_far += blocksize
                 self.percent_loaded = 100 * read_so_far / f.frames
                 await asyncio.sleep(0)
 
             f.close()
-            self._audio.writeable = False
+            self.audio.writeable = False
             self.percent_loaded = None
 
     @property
     def filename(self):
-        if self._session.session_file_path is None:
+        if self.session.session_file_path is None:
             return None
         return os.path.join(
-            os.path.dirname(self._session.session_file_path), self.name + ".flac"
+            os.path.dirname(self.session.session_file_path), self.name + ".flac"
         )
-
-    def get_audio_clip(self):
-        return self._audio
-
-    @property
-    def source(self):
-        return self._source
 
     @property
     def is_audacity_project(self) -> bool:
-        return self._source == "audacity-project"
-
-    @property
-    def audacity_project(self):
-        return self._audacity_project
-
-    @property
-    def beats_in_audacity_beat(self) -> int:
-        return self._beats_in_audacity_beat
+        return self.source == "audacity-project"
 
     @property
     def timing(self) -> Timing:
         if self.is_audacity_project:
             return InterpolatedTiming(
-                AudacityTiming(self._audacity_project), self._beats_in_audacity_beat
+                AudacityTiming(self.audacity_project),  # type: ignore
+                self.beats_in_audacity_beat,
             )
         else:
-            return self._session.timing
+            return self.session.timing
 
     def commit_input_fragment_if_needed(self, fragment: InputFragment):
         if not self.is_rec:
@@ -160,13 +167,13 @@ class Track:
             raise RuntimeError("Track not fully loaded yet")
         if fragment.starting_frame is None:
             raise RuntimeError("Invalid InputFragment")
-        self._audio.writeable = True
-        self._audio.overwrite(
+        self.audio.writeable = True
+        self.audio.overwrite(
             fragment.as_clip().channel(0 if self.rec_source == "L" else 1),
             fragment.starting_frame,
             extend_to_fit=True,
         )
-        self._audio.writeable = False
+        self.audio.writeable = False
         self.wall_time_recorder.add(
             timedelta(seconds=fragment.starting_frame / fragment.frame_rate),
             fragment.start_wall_time,
@@ -188,9 +195,14 @@ class Track:
             "percent_loaded": self.percent_loaded,
         }
 
-    def _calculate_average_bpm(self) -> float:
-        return (
-            60.0
-            / AudacityTiming(self._audacity_project).average_beat_length
-            * self._beats_in_audacity_beat
-        )
+    def _calculate_average_bpm(self) -> None:
+        if self.is_audacity_project:
+            self.average_bpm = (
+                60.0
+                / AudacityTiming(
+                    self.audacity_project  # type: ignore
+                ).average_beat_length
+                * self.beats_in_audacity_beat
+            )
+        else:
+            self.average_bpm = None

@@ -63,7 +63,7 @@ class Session(ObservableMixin):
             tracks_el = et.getroot().find("tracks")
             if tracks_el is not None:
                 self.tracks = [
-                    Track(self, frame_rate, element)
+                    Track.from_xml(session=self, frame_rate=frame_rate, element=element)
                     for element in tracks_el.findall("track")
                 ]
             else:
@@ -113,7 +113,7 @@ class Session(ObservableMixin):
 
         for track in self.tracks:
             if track.requires_audio_save:
-                track.get_audio_clip().to_soundfile(track.filename)
+                track.audio.to_soundfile(track.filename)
                 track.requires_audio_save = False
 
         root = ET.Element(
@@ -251,7 +251,7 @@ class Session(ObservableMixin):
         self._notify_observers()
 
     async def add_track(self, name: str, frame_rate: float):
-        track = Track(self, frame_rate, element=None, name=name)
+        track = Track.empty(session=self, name=name, frame_rate=frame_rate)
         self.tracks.append(track)
         await track.load()
         self._notify_observers()

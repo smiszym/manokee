@@ -208,7 +208,7 @@ def _construct_state_json(ping):
             # - NumPy array
             # - immutable bytes object with audio data
             # - block of memory used by the native I/O thread
-            track.name: int(3 * track.get_audio_clip().memory_usage_mb)
+            track.name: int(3 * track.audio.memory_usage_mb)
             for track in application.session.tracks
         }
         if application.session is not None
@@ -284,7 +284,7 @@ async def stop_audio(sid):
 
 
 def _js_metering_data_for_track(track):
-    clip = track.get_audio_clip()
+    clip = track.audio
     if clip is None:
         return {"track": track.name}
     num_fragments, rms, peak = clip.create_metering_data()
