@@ -301,6 +301,7 @@ def _js_metering_data_for_track(track):
 def new_session(sid):
     if application.amio_interface is not None:
         application.session = Session(application.amio_interface.get_frame_rate())
+        application.go_to_beat(0)
 
 
 async def emit_track_metering_data():
@@ -319,6 +320,7 @@ async def load_session(sid, attr):
         path = attr["session"]
         logging.info("Loading session: " + path)
         application.session = Session(application.amio_interface.get_frame_rate(), path)
+        application.go_to_beat(0)
 
         await asyncio.gather(*[track.load() for track in application.session.tracks])
         application.session._notify_observers()
