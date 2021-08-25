@@ -46,12 +46,12 @@ class Session(ObservableMixin):
                 self.modified_with = modified_with_el.attrib["modified-with"]
             configuration_el = et.getroot().find("configuration")
             if configuration_el is not None:
-                self._configuration = {
+                self.configuration = {
                     element.attrib["name"]: element.attrib["value"]
                     for element in configuration_el.findall("setting")
                 }
             else:
-                self._configuration = {}
+                self.configuration = {}
             marks_el = et.getroot().find("marks")
             if marks_el is not None:
                 self.marks = {
@@ -81,7 +81,7 @@ class Session(ObservableMixin):
             self.session_format_name = "manokee"
             self.session_format_version = "1"
             self.modified_with = manokee.__version__
-            self._configuration = {
+            self.configuration = {
                 "bpm": "120",
                 "time_sig": "4",
                 "intro_len": "-1",
@@ -125,7 +125,7 @@ class Session(ObservableMixin):
         )
 
         configuration = ET.SubElement(root, "configuration")
-        for key, value in self._configuration.items():
+        for key, value in self.configuration.items():
             ET.SubElement(configuration, "setting", name=key, value=value)
 
         marks = ET.SubElement(root, "marks")
@@ -189,10 +189,6 @@ class Session(ObservableMixin):
             return None
         return os.path.basename(os.path.dirname(self._session_file_path))
 
-    @property
-    def configuration(self) -> dict:
-        return self._configuration
-
     def mark_position_seconds(self, name: str, timing: Timing) -> Optional[float]:
         mark = self.marks[name]
         if mark is None:
@@ -251,20 +247,20 @@ class Session(ObservableMixin):
 
     @property
     def bpm(self) -> float:
-        return float(self._configuration["bpm"])
+        return float(self.configuration["bpm"])
 
     @bpm.setter
     def bpm(self, value: float):
-        self._configuration["bpm"] = str(value)
+        self.configuration["bpm"] = str(value)
         self._notify_observers()
 
     @property
     def time_signature(self) -> int:
-        return int(self._configuration["time_sig"])
+        return int(self.configuration["time_sig"])
 
     @time_signature.setter
     def time_signature(self, value: int):
-        self._configuration["time_sig"] = str(value)
+        self.configuration["time_sig"] = str(value)
         self._notify_observers()
 
     def beat_to_bar(self, beat: float) -> float:
@@ -291,22 +287,22 @@ class Session(ObservableMixin):
             return track.timing
 
     def toggle_metronome(self):
-        new_value = not (self._configuration["metronome"] == "1")
-        self._configuration["metronome"] = "1" if new_value == True else "0"
+        new_value = not (self.configuration["metronome"] == "1")
+        self.configuration["metronome"] = "1" if new_value == True else "0"
         self._notify_observers()
 
     def metronome_vol_down(self):
-        new_value = float(self._configuration["metronome_vol"]) - 1
-        self._configuration["metronome_vol"] = str(new_value)
+        new_value = float(self.configuration["metronome_vol"]) - 1
+        self.configuration["metronome_vol"] = str(new_value)
         self._notify_observers()
 
     def metronome_vol_up(self):
-        new_value = float(self._configuration["metronome_vol"]) + 1
-        self._configuration["metronome_vol"] = str(new_value)
+        new_value = float(self.configuration["metronome_vol"]) + 1
+        self.configuration["metronome_vol"] = str(new_value)
         self._notify_observers()
 
     def change_metronome_pan(self, new_pan: float) -> None:
-        self._configuration["metronome_pan"] = str(new_pan)
+        self.configuration["metronome_pan"] = str(new_pan)
         self._notify_observers()
 
     def make_playspec_for_track_group(
@@ -351,7 +347,7 @@ class Session(ObservableMixin):
         return {
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
-            "configuration": self._configuration,
+            "configuration": self.configuration,
             "marks": {name: str(mark) for name, mark in self.marks.items()},
             "tracks": [track.to_js() for track in self.tracks],
             "track_groups": [
