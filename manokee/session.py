@@ -38,8 +38,8 @@ class Session(ObservableMixin):
                 )
             self.history = SessionHistory(os.path.dirname(self._session_file_path))
             et = ET.parse(self._session_file_path)
-            self._session_format_name = et.getroot().attrib["format-name"]
-            self._session_format_version = et.getroot().attrib["format-version"]
+            self.session_format_name: str = et.getroot().attrib["format-name"]
+            self.session_format_version: str = et.getroot().attrib["format-version"]
             modified_with_el = et.getroot().find("program-version")
             self._modified_with: Optional[str] = None
             if modified_with_el is not None:
@@ -78,8 +78,8 @@ class Session(ObservableMixin):
                 self._session_file_path = os.path.join(
                     os.path.curdir, session_file_path, "session.mnk"
                 )
-            self._session_format_name = "manokee"
-            self._session_format_version = "1"
+            self.session_format_name = "manokee"
+            self.session_format_version = "1"
             self._modified_with = manokee.__version__
             self._configuration = {
                 "bpm": "120",
@@ -188,14 +188,6 @@ class Session(ObservableMixin):
         if self._session_file_path is None:
             return None
         return os.path.basename(os.path.dirname(self._session_file_path))
-
-    @property
-    def session_format_name(self) -> str:
-        return self._session_format_name
-
-    @property
-    def session_format_version(self) -> str:
-        return self._session_format_version
 
     @property
     def modified_with(self) -> Optional[str]:
