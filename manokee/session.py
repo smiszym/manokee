@@ -25,7 +25,7 @@ from manokee.utils import ET_indent
 class Session(ObservableMixin):
     def __init__(self, frame_rate: float, session_file_path: Optional[str] = None):
         super().__init__()
-        self._frame_rate = frame_rate
+        self.frame_rate = frame_rate
         self._session_file_path: Optional[str] = None
         if session_file_path is not None and os.path.exists(session_file_path):
             if os.path.isdir(session_file_path):
@@ -204,10 +204,6 @@ class Session(ObservableMixin):
     @property
     def configuration(self) -> dict:
         return self._configuration
-
-    @property
-    def frame_rate(self) -> float:
-        return self._frame_rate
 
     def mark_position_seconds(self, name: str, timing: Timing) -> Optional[float]:
         mark = self.marks[name]
