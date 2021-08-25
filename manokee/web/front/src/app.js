@@ -214,7 +214,10 @@ class MoreOptions extends Component {
 
     return (
       <div id="more-options">
-        <Tabs>
+        <Tabs
+          selectedIndex={this.props.selectedMoreOptionsTab}
+          onSelect={this.props.onSelectMoreOptionsTab}
+        >
           <TabList>
             <Tab>{status_icon}</Tab>
             <Tab>{session_icon}</Tab>
@@ -341,6 +344,7 @@ export class App extends Component {
     this.state = {
       track_edit_mode: false,
       main_view_mode: "mixer",
+      selected_more_options_tab: 0,
     };
   }
   render() {
@@ -445,6 +449,10 @@ export class App extends Component {
             />
           ) : (
             <MoreOptions
+              selectedMoreOptionsTab={this.state.selected_more_options_tab}
+              onSelectMoreOptionsTab={(index) =>
+                this.setState({ selected_more_options_tab: index })
+              }
               pingLatency={this.props.ping_latency}
               process_rss={this.props.process_rss}
               available_ram={this.props.available_ram}
