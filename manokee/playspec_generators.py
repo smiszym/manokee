@@ -64,11 +64,8 @@ def metronome_playspec_entries(
 ) -> PlayspecEntryGenerator:
     if not metronome:
         return
-    metronome_fader = Fader(
-        float(session.configuration["metronome_vol"]),
-        float(session.configuration["metronome_pan"]),
-    )
-    if session.configuration["metronome"] == "1":
+    metronome_fader = session.metronome_fader
+    if session.metronome_enabled:
         metronome_clip = metronome.audio_clip
         yield PlayspecEntry(
             metronome_clip,

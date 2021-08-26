@@ -8,8 +8,6 @@ export class TimingManagement extends Component {
     const { configuration = {} } = this.props.session || {};
     const {
       time_sig = "",
-      intro_len = "",
-      met_intro_only = "",
       metronome = "",
       metronome_vol = "",
       metronome_pan = "",

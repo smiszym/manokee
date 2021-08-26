@@ -4,7 +4,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Optional, Mapping
 
-from amio import Playspec
+from amio import Playspec, Fader
 
 import manokee  # __version__
 import manokee.revising
@@ -46,12 +46,23 @@ class Session(ObservableMixin):
                 self.modified_with = modified_with_el.attrib["modified-with"]
             configuration_el = et.getroot().find("configuration")
             if configuration_el is not None:
-                self.configuration = {
+                configuration_from_file = {
                     element.attrib["name"]: element.attrib["value"]
                     for element in configuration_el.findall("setting")
                 }
             else:
-                self.configuration = {}
+                configuration_from_file = {}
+            self._bpm: float = float(configuration_from_file.get("bpm", "120"))
+            self._time_signature: int = int(
+                configuration_from_file.get("time_sig", "4")
+            )
+            self.metronome_enabled: bool = (
+                configuration_from_file.get("metronome", "0") == "1"
+            )
+            self.metronome_fader: Fader = Fader(
+                float(configuration_from_file.get("metronome_vol", "-12")),
+                float(configuration_from_file.get("metronome_pan", "0")),
+            )
             marks_el = et.getroot().find("marks")
             if marks_el is not None:
                 self.marks = {
@@ -81,15 +92,10 @@ class Session(ObservableMixin):
             self.session_format_name = "manokee"
             self.session_format_version = "1"
             self.modified_with = manokee.__version__
-            self.configuration = {
-                "bpm": "120",
-                "time_sig": "4",
-                "intro_len": "-1",
-                "met_intro_only": "0",
-                "metronome": "0",
-                "metronome_vol": "-12.0",
-                "metronome_pan": "0",
-            }
+            self._bpm = 120
+            self._time_signature = 4
+            self.metronome_enabled = False
+            self.metronome_fader = Fader(-12, 0)
             self.marks = {}
             self.tracks = []
         self._are_controls_modified = False
@@ -125,8 +131,31 @@ class Session(ObservableMixin):
         )
 
         configuration = ET.SubElement(root, "configuration")
-        for key, value in self.configuration.items():
-            ET.SubElement(configuration, "setting", name=key, value=value)
+        ET.SubElement(configuration, "setting", name="bpm", value=str(self._bpm))
+        ET.SubElement(
+            configuration,
+            "setting",
+            name="time_sig",
+            value=str(self._time_signature),
+        )
+        ET.SubElement(
+            configuration,
+            "setting",
+            name="metronome",
+            value="1" if self.metronome_enabled else "0",
+        )
+        ET.SubElement(
+            configuration,
+            "setting",
+            name="metronome_vol",
+            value=str(self.metronome_fader.vol_dB),
+        )
+        ET.SubElement(
+            configuration,
+            "setting",
+            name="metronome_pan",
+            value=str(self.metronome_fader.pan),
+        )
 
         marks = ET.SubElement(root, "marks")
         for key, mark in self.marks.items():
@@ -247,20 +276,20 @@ class Session(ObservableMixin):
 
     @property
     def bpm(self) -> float:
-        return float(self.configuration["bpm"])
+        return self._bpm
 
     @bpm.setter
     def bpm(self, value: float):
-        self.configuration["bpm"] = str(value)
+        self._bpm = value
         self._notify_observers()
 
     @property
     def time_signature(self) -> int:
-        return int(self.configuration["time_sig"])
+        return self._time_signature
 
     @time_signature.setter
     def time_signature(self, value: int):
-        self.configuration["time_sig"] = str(value)
+        self._time_signature = value
         self._notify_observers()
 
     def beat_to_bar(self, beat: float) -> float:
@@ -271,7 +300,7 @@ class Session(ObservableMixin):
 
     @property
     def timing(self) -> Timing:
-        return FixedBpmTiming(self.bpm)
+        return FixedBpmTiming(self._bpm)
 
     @property
     def track_timings(self) -> set:
@@ -287,22 +316,19 @@ class Session(ObservableMixin):
             return track.timing
 
     def toggle_metronome(self):
-        new_value = not (self.configuration["metronome"] == "1")
-        self.configuration["metronome"] = "1" if new_value == True else "0"
+        self.metronome_enabled = not self.metronome_enabled
         self._notify_observers()
 
     def metronome_vol_down(self):
-        new_value = float(self.configuration["metronome_vol"]) - 1
-        self.configuration["metronome_vol"] = str(new_value)
+        self.metronome_fader.vol_dB -= 1
         self._notify_observers()
 
     def metronome_vol_up(self):
-        new_value = float(self.configuration["metronome_vol"]) + 1
-        self.configuration["metronome_vol"] = str(new_value)
+        self.metronome_fader.vol_dB += 1
         self._notify_observers()
 
     def change_metronome_pan(self, new_pan: float) -> None:
-        self.configuration["metronome_pan"] = str(new_pan)
+        self.metronome_fader.pan = new_pan
         self._notify_observers()
 
     def make_playspec_for_track_group(
@@ -347,7 +373,13 @@ class Session(ObservableMixin):
         return {
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
-            "configuration": self.configuration,
+            "configuration": {
+                "bpm": self._bpm,
+                "time_sig": self._time_signature,
+                "metronome": "1" if self.metronome_enabled else "0",
+                "metronome_vol": str(self.metronome_fader.vol_dB),
+                "metronome_pan": str(self.metronome_fader.pan),
+            },
             "marks": {name: str(mark) for name, mark in self.marks.items()},
             "tracks": [track.to_js() for track in self.tracks],
             "track_groups": [

@@ -4,8 +4,6 @@
     <configuration>
         <setting name="bpm" value="154" />
         <setting name="time_sig" value="4" />
-        <setting name="intro_len" value="-1" />
-        <setting name="met_intro_only" value="0" />
         <setting name="metronome" value="0" />
         <setting name="metronome_vol" value="-8.8" />
         <setting name="metronome_pan" value="0" />
