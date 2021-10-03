@@ -11,6 +11,7 @@ from manokee.looping import LoopFragment
 from manokee.ping import Ping
 from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame
+from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing_utils import beat_number_to_frame
 import socketio
 
@@ -499,7 +500,8 @@ def volume_up(sid, attr):
 
 @sio.event
 def change_tempo_by(sid, attr):
-    application.session.bpm += attr["delta"]
+    new_bpm = application.session.main_track_group.timing.bpm + attr["delta"]
+    application.session.main_track_group.timing = FixedBpmTiming(new_bpm)
 
 
 @sio.event

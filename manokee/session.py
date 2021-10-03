@@ -2,7 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 from itertools import chain
 from pathlib import Path
-from typing import Optional, Mapping
+from typing import Optional, Iterable, List, Tuple
 
 from amio import Playspec, Fader
 
@@ -52,16 +52,15 @@ class Session(ObservableMixin):
                 }
             else:
                 configuration_from_file = {}
-            self._bpm: float = float(configuration_from_file.get("bpm", "120"))
             self._time_signature: int = int(
-                configuration_from_file.get("time_sig", "4")
+                configuration_from_file.get("time-signature", "4")
             )
             self.metronome_enabled: bool = (
                 configuration_from_file.get("metronome", "0") == "1"
             )
             self.metronome_fader: Fader = Fader(
-                float(configuration_from_file.get("metronome_vol", "-12")),
-                float(configuration_from_file.get("metronome_pan", "0")),
+                float(configuration_from_file.get("metronome-vol", "-12")),
+                float(configuration_from_file.get("metronome-pan", "0")),
             )
             marks_el = et.getroot().find("marks")
             if marks_el is not None:
@@ -71,14 +70,22 @@ class Session(ObservableMixin):
                 }
             else:
                 self.marks = {}
-            tracks_el = et.getroot().find("tracks")
-            if tracks_el is not None:
-                self.tracks = [
-                    Track.from_xml(session=self, frame_rate=frame_rate, element=element)
-                    for element in tracks_el.findall("track")
+            track_groups_el = et.getroot().find("track-groups")
+            if track_groups_el is not None:
+                self.track_groups: List[TrackGroup] = [
+                    TrackGroup.from_xml(
+                        session=self,
+                        frame_rate=frame_rate,
+                        element=track_group_el,
+                    )
+                    for track_group_el in track_groups_el.findall("track-group")
                 ]
             else:
-                self.tracks = []
+                self.track_groups = [
+                    TrackGroup(
+                        name="", session=self, tracks=[], timing=FixedBpmTiming(120)
+                    )
+                ]
         else:
             self.history = SessionHistory(None)
             if session_file_path is None:
@@ -90,14 +97,15 @@ class Session(ObservableMixin):
                     os.path.curdir, session_file_path, "session.mnk"
                 )
             self.session_format_name = "manokee"
-            self.session_format_version = "1"
+            self.session_format_version = "unstable"
             self.modified_with = manokee.__version__
-            self._bpm = 120
             self._time_signature = 4
             self.metronome_enabled = False
             self.metronome_fader = Fader(-12, 0)
             self.marks = {}
-            self.tracks = []
+            self.track_groups = [
+                TrackGroup(name="", session=self, tracks=[], timing=FixedBpmTiming(120))
+            ]
         self._are_controls_modified = False
 
     def save(self):
@@ -123,7 +131,7 @@ class Session(ObservableMixin):
                 track.requires_audio_save = False
 
         root = ET.Element(
-            "session", attrib={"format-name": "manokee", "format-version": "1"}
+            "session", attrib={"format-name": "manokee", "format-version": "unstable"}
         )
 
         ET.SubElement(
@@ -131,11 +139,10 @@ class Session(ObservableMixin):
         )
 
         configuration = ET.SubElement(root, "configuration")
-        ET.SubElement(configuration, "setting", name="bpm", value=f"{self._bpm:.2f}")
         ET.SubElement(
             configuration,
             "setting",
-            name="time_sig",
+            name="time-signature",
             value=str(self._time_signature),
         )
         ET.SubElement(
@@ -147,13 +154,13 @@ class Session(ObservableMixin):
         ET.SubElement(
             configuration,
             "setting",
-            name="metronome_vol",
+            name="metronome-vol",
             value=f"{self.metronome_fader.vol_dB:.2f}",
         )
         ET.SubElement(
             configuration,
             "setting",
-            name="metronome_pan",
+            name="metronome-pan",
             value=f"{self.metronome_fader.pan:.2f}",
         )
 
@@ -161,32 +168,55 @@ class Session(ObservableMixin):
         for key, mark in self.marks.items():
             ET.SubElement(marks, "mark", name=key, position=str(mark))
 
-        tracks = ET.SubElement(root, "tracks")
-        for track in self.tracks:
-            attrib = {
-                "rec": "1" if track.is_rec else "0",
-                "rec-source": track.rec_source,
-                "mute": "1" if track.is_mute else "0",
-                "solo": "1" if track.is_solo else "0",
-                "vol": f"{track.fader.vol_dB:.2f}",
-                "pan": f"{track.fader.pan:.2f}",
-                "name": track.name,
-                "source": track.source,
-            }
-            if track.is_audacity_project:
-                attrib["audacity-project"] = track.audacity_project.aup_file_path
-                attrib["beats-in-audacity-beat"] = str(track.beats_in_audacity_beat)
-            track_el = ET.SubElement(tracks, "track", attrib=attrib)
-            for entry in track.wall_time_recorder.entries:
+        track_groups_el = ET.SubElement(root, "track-groups")
+        for track_group in self.track_groups:
+            track_group_el = ET.SubElement(
+                track_groups_el, "track-group", attrib={"name": track_group.name}
+            )
+            timing_el = ET.SubElement(track_group_el, "timing")
+            timing = track_group.timing
+            if isinstance(timing, FixedBpmTiming):
                 ET.SubElement(
-                    track_el,
-                    "wall-time",
+                    timing_el,
+                    "fixed-bpm-timing",
+                    attrib={"beats-per-minute": f"{timing.bpm:.2f}"},
+                )
+            elif isinstance(timing, AudacityTiming):
+                ET.SubElement(
+                    timing_el,
+                    "audacity-timing",
                     attrib={
-                        "session-time": str(entry.session_time),
-                        "start-time": str(entry.start_time),
-                        "duration": str(entry.duration),
+                        "audacity-project": timing.audacity_project.aup_file_path,
+                        "beats-in-audacity-beat": str(timing.beats_in_audacity_beat),
                     },
                 )
+            else:
+                raise TypeError("Unknown timing type")
+            tracks_el = ET.SubElement(track_group_el, "tracks")
+            for track in track_group.tracks:
+                attrib = {
+                    "rec": "1" if track.is_rec else "0",
+                    "rec-source": track.rec_source,
+                    "mute": "1" if track.is_mute else "0",
+                    "solo": "1" if track.is_solo else "0",
+                    "vol": f"{track.fader.vol_dB:.2f}",
+                    "pan": f"{track.fader.pan:.2f}",
+                    "name": track.name,
+                    "source": track.source,
+                }
+                if track.is_audacity_project:
+                    attrib["audacity-project"] = track.audacity_project.aup_file_path
+                track_el = ET.SubElement(tracks_el, "track", attrib=attrib)
+                for entry in track.wall_time_recorder.entries:
+                    ET.SubElement(
+                        track_el,
+                        "wall-time",
+                        attrib={
+                            "session-time": str(entry.session_time),
+                            "start-time": str(entry.start_time),
+                            "duration": str(entry.duration),
+                        },
+                    )
 
         ET_indent(root)
         tree = ET.ElementTree(root)
@@ -233,55 +263,62 @@ class Session(ObservableMixin):
                 return track
         return None
 
-    def _index_of_track(self, name: str) -> Optional[int]:
-        for i, track in enumerate(self.tracks):
-            if track.name == name:
-                return i
-        return None
+    @property
+    def main_track_group(self) -> Optional[TrackGroup]:
+        return self.track_group_by_name("")
+
+    def track_group_by_name(self, name: str) -> TrackGroup:
+        for group in self.track_groups:
+            if group.name == name:
+                return group
+        raise KeyError(f"Track group with name '{name}' does not exist")
+
+    def _track_name_to_group_and_index(self, name: str) -> Tuple[TrackGroup, int]:
+        for group in self.track_groups:
+            for i, track in enumerate(group.tracks):
+                if track.name == name:
+                    return group, i
+        raise KeyError(f"Track with name '{name}' does not exist")
 
     def remove_track(self, name: str):
-        i = self._index_of_track(name)
-        if i is not None:
-            del self.tracks[i]
+        try:
+            group, i = self._track_name_to_group_and_index(name)
+        except KeyError:
+            return
+        del group.tracks[i]
         self._notify_observers()
 
     def move_track_up(self, name: str):
-        i = self._index_of_track(name)
-        if i is None or i == 0:
+        try:
+            group, i = self._track_name_to_group_and_index(name)
+        except KeyError:
+            return
+        if i == 0:
             return  # can't move the track up
-        self.tracks[i - 1], self.tracks[i] = (self.tracks[i], self.tracks[i - 1])
+        tracks = group.tracks
+        tracks[i - 1], tracks[i] = (tracks[i], tracks[i - 1])
         self._notify_observers()
 
     def move_track_down(self, name: str):
-        i = self._index_of_track(name)
-        if i is None or i == len(self.tracks) - 1:
+        try:
+            group, i = self._track_name_to_group_and_index(name)
+        except KeyError:
+            return
+        tracks = group.tracks
+        if i == len(tracks) - 1:
             return  # can't move the track down
-        self.tracks[i + 1], self.tracks[i] = (self.tracks[i], self.tracks[i + 1])
+        tracks[i + 1], tracks[i] = (tracks[i], tracks[i + 1])
         self._notify_observers()
 
     async def add_track(self, name: str, frame_rate: float):
         track = Track.empty(session=self, name=name, frame_rate=frame_rate)
-        self.tracks.append(track)
+        self.main_track_group.tracks.append(track)
         await track.load()
         self._notify_observers()
 
     @property
-    def track_groups(self) -> Mapping[str, TrackGroup]:
-        audacity_groups = [
-            track.name for track in self.tracks if track.is_audacity_project
-        ]
-        return {
-            name: TrackGroup(name=name, session=self) for name in [""] + audacity_groups
-        }
-
-    @property
-    def bpm(self) -> float:
-        return self._bpm
-
-    @bpm.setter
-    def bpm(self, value: float):
-        self._bpm = value
-        self._notify_observers()
+    def tracks(self) -> Iterable[Track]:
+        return chain.from_iterable(group.tracks for group in self.track_groups)
 
     @property
     def time_signature(self) -> int:
@@ -297,23 +334,6 @@ class Session(ObservableMixin):
 
     def bar_to_beat(self, bar: float) -> float:
         return bar * self.time_signature
-
-    @property
-    def timing(self) -> Timing:
-        return FixedBpmTiming(self._bpm)
-
-    @property
-    def track_timings(self) -> set:
-        return {track.timing for track in self.tracks}
-
-    def group_timing(self, track_group_name: str) -> Timing:
-        if track_group_name == "":
-            return self.timing
-        else:
-            track = self.track_for_name(track_group_name)
-            if track is None:
-                raise ValueError(f"No such track: {track_group_name}")
-            return track.timing
 
     def toggle_metronome(self):
         self.metronome_enabled = not self.metronome_enabled
@@ -348,19 +368,15 @@ class Session(ObservableMixin):
             for track in self.tracks:
                 if track.is_rec:
                     audibility[track] = False
+
+        track_group = self.track_group_by_name(track_group_name)
         return list(
             chain(
                 track_playspec_entries(
-                    (
-                        track
-                        for track in self.track_groups[track_group_name].tracks
-                        if audibility[track]
-                    ),
+                    (track for track in track_group.tracks if audibility[track]),
                     reviser.audio_substitutes,
                 ),
-                metronome_playspec_entries(
-                    self, self.track_groups[track_group_name].create_metronome()
-                ),
+                metronome_playspec_entries(self, track_group.create_metronome()),
             )
         )
 
@@ -374,7 +390,7 @@ class Session(ObservableMixin):
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
             "configuration": {
-                "bpm": self._bpm,
+                "bpm": self.main_track_group.timing.bpm,
                 "time_sig": self._time_signature,
                 "metronome": "1" if self.metronome_enabled else "0",
                 "metronome_vol": str(self.metronome_fader.vol_dB),
@@ -384,10 +400,10 @@ class Session(ObservableMixin):
             "tracks": [track.to_js() for track in self.tracks],
             "track_groups": [
                 {
-                    "name": name,
-                    "average_bpm": group.average_bpm,
+                    "name": group.name,
+                    "average_bpm": 60 / group.timing.average_beat_length,
                 }
-                for name, group in self.track_groups.items()
+                for group in self.track_groups
             ],
             "history": self.history.to_js(),
         }

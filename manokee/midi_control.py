@@ -43,7 +43,7 @@ class VolumeChangeMessage(ManokeeMidiMessage):
     def apply(self, application: "manokee.application.Application"):
         session = application.session
         if session is not None:
-            track = session.tracks[self.track_number]
+            track = list(session.tracks)[self.track_number]
             track.fader.vol_dB = self.new_value
             session._notify_observers()
 
@@ -56,7 +56,7 @@ class ButtonMessage(ManokeeMidiMessage):
     def apply(self, application: "manokee.application.Application"):
         session = application.session
         if session is not None:
-            track = session.tracks[self.track_number]
+            track = list(session.tracks)[self.track_number]
             if self.action == 0:
                 track.is_rec = not track.is_rec
                 session._notify_observers()

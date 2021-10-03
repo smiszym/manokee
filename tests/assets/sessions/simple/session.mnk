@@ -1,16 +1,21 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<session format-name="manokee" format-version="1">
-    <program-version modified-with="1.2.0" />
-    <configuration>
-        <setting name="bpm" value="154" />
-        <setting name="time_sig" value="4" />
-        <setting name="metronome" value="0" />
-        <setting name="metronome_vol" value="-8.8" />
-        <setting name="metronome_pan" value="0" />
-    </configuration>
-    <marks />
-    <tracks>
-        <track rec="1" rec-source="L" mute="0" solo="0" vol="-6" pan="-1" name="drums_l" />
-        <track rec="1" rec-source="R" mute="0" solo="0" vol="-6" pan="1" name="drums_r" />
-    </tracks>
+<session format-name="manokee" format-version="unstable">
+  <program-version modified-with="0.4.0-dev" />
+  <configuration>
+    <setting name="time-signature" value="4" />
+    <setting name="metronome" value="0" />
+    <setting name="metronome-vol" value="-8.80" />
+    <setting name="metronome-pan" value="0.00" />
+  </configuration>
+  <marks />
+  <track-groups>
+    <track-group name="">
+      <timing>
+        <fixed-bpm-timing beats-per-minute="154.00" />
+      </timing>
+      <tracks>
+        <track rec="1" rec-source="L" mute="0" solo="0" vol="-6.00" pan="-1.00" name="drums_l" source="internal" />
+        <track rec="1" rec-source="R" mute="0" solo="0" vol="-6.00" pan="1.00" name="drums_r" source="internal" />
+      </tracks>
+    </track-group>
+  </track-groups>
 </session>

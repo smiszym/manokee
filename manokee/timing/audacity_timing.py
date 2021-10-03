@@ -7,6 +7,7 @@ import re
 
 class AudacityTiming(Timing):
     def __init__(self, project: AudacityProject, *, beats_in_audacity_beat: int = 1):
+        self.audacity_project = project
         label_track = project.get_label_track()
         # If the label track has name "offset=130",
         # there will be 130 ms offset applied to labels

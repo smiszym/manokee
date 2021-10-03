@@ -149,16 +149,6 @@ class Track:
     def is_audacity_project(self) -> bool:
         return self.source == "audacity-project"
 
-    @property
-    def timing(self) -> Timing:
-        if self.is_audacity_project:
-            return AudacityTiming(
-                self.audacity_project,  # type: ignore
-                beats_in_audacity_beat=self.beats_in_audacity_beat,
-            )
-        else:
-            return self.session.timing
-
     def commit_input_fragment_if_needed(self, fragment: InputFragment):
         if not self.is_rec:
             return

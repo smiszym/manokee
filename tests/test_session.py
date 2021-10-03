@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from manokee.session import Session
 import pytest
+
+from manokee.session import Session
 
 
 def test_load_session():
@@ -13,9 +14,14 @@ def test_load_session():
         Path("tests/assets/sessions/simple/some-file.txt"),
         Path("tests/assets/sessions/simple/video/file.txt"),
     }
-    assert session.bpm == 154
-    assert sum(1 for _ in session.tracks) == 2
-    assert sum(1 for _ in session.marks) == 0
+    assert session.time_signature == 4
+    assert not session.metronome_enabled
+    assert session.metronome_fader.vol_dB == -8.8
+    assert session.metronome_fader.pan == 0
+    assert session.main_track_group.timing.bpm == 154
+    assert len(session.track_groups) == 1
+    assert len(session.main_track_group.tracks) == 2
+    assert len(session.marks) == 0
 
 
 @pytest.mark.skip(reason="Not implemented yet")

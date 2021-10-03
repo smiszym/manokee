@@ -44,7 +44,11 @@ class PlayspecController:
         session = self._session_holder.session
         if session is not None:
             session.add_observer(self._recreate_playspecs)
-            self._timing = session.timing
+            self._active_track_group_name = session.track_groups[0].name
+            self._timing = session.track_groups[0].timing
+            self._loop_spec = None
+            self._loop_iterator = None
+            self._current_loop_fragment = None
             self._recreate_playspecs()
         else:
             self._timing = FixedBpmTiming()
@@ -57,12 +61,15 @@ class PlayspecController:
         self._input_chunks_until_recreation = 19  # @48kHz, it's ~0.05 s, or ~20 times/s
         self._requires_playspec_recreation = False
         session = self._session_holder.session
-        logging.debug(f"Recreating playspecs for groups: {session.track_groups.keys()}")
+        logging.debug(
+            "Recreating playspecs for groups: "
+            + ", ".join([f"'{group.name}'" for group in session.track_groups])
+        )
         self._playspecs_for_groups = {
-            name: session.make_playspec_for_track_group(
-                name, self._is_recording, self._reviser
+            group.name: session.make_playspec_for_track_group(
+                group.name, self._is_recording, self._reviser
             )
-            for name, group in session.track_groups.items()
+            for group in session.track_groups
         }
         current_playspec = self._playspecs_for_groups[self._active_track_group_name]
         self._amio_interface.schedule_playspec_change(current_playspec, 0, 0, None)
@@ -91,7 +98,9 @@ class PlayspecController:
     @active_track_group_name.setter
     def active_track_group_name(self, group_name: str) -> None:
         old_timing = self._timing
-        self._timing = self._session_holder.session.group_timing(group_name)
+        self._timing = self._session_holder.session.track_group_by_name(
+            group_name
+        ).timing
         new_timing = self._timing
         self._active_track_group_name = group_name
         self._loop_spec = None
@@ -131,9 +140,9 @@ class PlayspecController:
         self._current_loop_fragment = next(self._loop_iterator)
         new_fragment = self._current_loop_fragment
         old_timing = self._timing
-        self._timing = self._session_holder.session.group_timing(
+        self._timing = self._session_holder.session.track_group_by_name(
             new_fragment.track_group_name
-        )
+        ).timing
         new_timing = self._timing
         if old_fragment is not None:
             insert_at_frame = old_timing.beat_to_seconds(old_fragment.bar_b)

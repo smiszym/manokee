@@ -1,36 +1,62 @@
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from typing import List, Optional
 
 import manokee.metronome
 import manokee.track
+from manokee.audacity.project import parse as parse_aup
+from manokee.timing.audacity_timing import AudacityTiming
+from manokee.timing.fixed_bpm_timing import FixedBpmTiming
+from manokee.timing.timing import Timing
 
 
+@dataclass(eq=False)
 class TrackGroup:
-    """
-    Temporary object providing information about a track group in a session.
-    The fields don't reflect any future changes in the session.
-    """
+    name: str
+    session: "manokee.session.Session"
+    tracks: List[manokee.track.Track]
+    timing: Timing
 
-    def __init__(self, *, name: str, session):
-        self.name = name
-        self.session = session
-        if self.name == "":
-            # The main track group
-            self.tracks: List[manokee.track.Track] = [
-                track for track in self.session.tracks if not track.is_audacity_project
-            ]
-            self.average_bpm = self.session.bpm
+    @classmethod
+    def from_xml(cls, session, frame_rate: float, element: ET.Element):
+        timing_elements = element.find("timing")
+        if timing_elements is None or len(timing_elements) != 1:
+            raise ValueError("Expected exactly one element under timing XML element")
+        timing_el = timing_elements[0]
+
+        tracks_el = element.find("tracks")
+        if tracks_el is None:
+            raise ValueError("Expected tracks XML element")
+
+        if timing_el.tag == "fixed-bpm-timing":
+            timing: Timing = FixedBpmTiming(float(timing_el.attrib["beats-per-minute"]))
+        elif timing_el.tag == "audacity-timing":
+            audacity_project = parse_aup(timing_el.attrib["audacity-project"])
+            beats_in_audacity_beat = int(timing_el.attrib["beats-in-audacity-beat"])
+            timing = AudacityTiming(
+                audacity_project, beats_in_audacity_beat=beats_in_audacity_beat
+            )
         else:
-            # Audacity track group
-            track = self.session.track_for_name(self.name)
-            self.tracks = [track]
-            self.average_bpm = track.average_bpm
+            raise ValueError(f"Unknown timing type: {timing_el.tag}")
+        return cls(
+            name=element.attrib["name"],
+            session=session,
+            tracks=[
+                manokee.track.Track.from_xml(
+                    session=session, frame_rate=frame_rate, element=track_el
+                )
+                for track_el in tracks_el.findall("track")
+            ],
+            timing=timing,
+        )
 
     def create_metronome(self) -> Optional[manokee.metronome.Metronome]:
-        if self.name == "":
+        if isinstance(self.timing, FixedBpmTiming):
             return manokee.metronome.Metronome(
-                bpm=self.session.bpm,
+                bpm=60 / self.timing.average_beat_length,
                 time_signature=self.session.time_signature,
                 frame_rate=self.session.frame_rate,
             )
         else:
+            # TODO Implement metronome for any type of timing
             return None
