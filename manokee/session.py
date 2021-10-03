@@ -131,7 +131,7 @@ class Session(ObservableMixin):
         )
 
         configuration = ET.SubElement(root, "configuration")
-        ET.SubElement(configuration, "setting", name="bpm", value=str(self._bpm))
+        ET.SubElement(configuration, "setting", name="bpm", value=f"{self._bpm:.2f}")
         ET.SubElement(
             configuration,
             "setting",
@@ -148,13 +148,13 @@ class Session(ObservableMixin):
             configuration,
             "setting",
             name="metronome_vol",
-            value=str(self.metronome_fader.vol_dB),
+            value=f"{self.metronome_fader.vol_dB:.2f}",
         )
         ET.SubElement(
             configuration,
             "setting",
             name="metronome_pan",
-            value=str(self.metronome_fader.pan),
+            value=f"{self.metronome_fader.pan:.2f}",
         )
 
         marks = ET.SubElement(root, "marks")
@@ -168,8 +168,8 @@ class Session(ObservableMixin):
                 "rec-source": track.rec_source,
                 "mute": "1" if track.is_mute else "0",
                 "solo": "1" if track.is_solo else "0",
-                "vol": str(track.fader.vol_dB),
-                "pan": str(track.fader.pan),
+                "vol": f"{track.fader.vol_dB:.2f}",
+                "pan": f"{track.fader.pan:.2f}",
                 "name": track.name,
                 "source": track.source,
             }
