@@ -13,7 +13,6 @@ import manokee.session
 from manokee.input_recorder import InputFragment
 from manokee.timing.timing import Timing
 from manokee.timing.audacity_timing import AudacityTiming
-from manokee.timing.interpolated_timing import InterpolatedTiming
 from manokee.wall_time_recorder import WallTimeEntry, WallTimeRecorder
 
 
@@ -153,9 +152,9 @@ class Track:
     @property
     def timing(self) -> Timing:
         if self.is_audacity_project:
-            return InterpolatedTiming(
-                AudacityTiming(self.audacity_project),  # type: ignore
-                self.beats_in_audacity_beat,
+            return AudacityTiming(
+                self.audacity_project,  # type: ignore
+                beats_in_audacity_beat=self.beats_in_audacity_beat,
             )
         else:
             return self.session.timing
