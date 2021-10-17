@@ -201,7 +201,6 @@ class Track:
                 / AudacityTiming(
                     self.audacity_project  # type: ignore
                 ).average_beat_length
-                * self.beats_in_audacity_beat
             )
         else:
             self.average_bpm = None
