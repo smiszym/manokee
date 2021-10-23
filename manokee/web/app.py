@@ -187,6 +187,7 @@ def _construct_state_json(ping):
     state_update_json = {
         "ping_latency": ping.current_ping_latency,
         "state_update_id": ping.ping_id_to_send(),
+        "workspace_sessions": application.workspace.sessions,
         "is_audio_io_running": application.is_audio_io_running,
         "frame_rate": application.frame_rate,
         "is_transport_rolling": is_transport_rolling,
@@ -257,7 +258,6 @@ async def connect(sid, environ):
         session["ping"] = Ping()
     if not application.is_audio_io_running:
         await application.start_audio_io()
-        await sio.emit("workspace_sessions", application.workspace.sessions)
 
 
 @sio.event
@@ -275,7 +275,6 @@ async def state_update_ack(sid, attr):
 @sio.event
 async def start_audio(sid):
     await application.start_audio_io()
-    await sio.emit("workspace_sessions", application.workspace.sessions)
 
 
 @sio.event

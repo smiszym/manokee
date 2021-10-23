@@ -21,7 +21,6 @@ import {
 
 var socket;
 var application_state = {};
-var workspace_sessions;
 var track_metering_data = {};
 
 function renderStateUpdate(msg) {
@@ -37,7 +36,7 @@ function renderStateUpdate(msg) {
       autoRewind={msg.auto_rewind}
       session={msg.session}
       track_metering_data={track_metering_data}
-      workspace_sessions={workspace_sessions}
+      workspace_sessions={msg.workspace_sessions}
       capture_meter={msg.capture_meter}
       recorded_fragments={msg.recorded_fragments}
       fragment_being_revised_id={msg.fragment_being_revised_id}
@@ -117,9 +116,6 @@ export function onLoad() {
         });
       }
       renderStateUpdate(application_state);
-    });
-    socket.on("workspace_sessions", function (msg) {
-      workspace_sessions = msg;
     });
     socket.on("track_metering_data", function (msg) {
       track_metering_data[msg.track] = msg;
