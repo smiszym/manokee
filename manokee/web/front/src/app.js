@@ -10,7 +10,7 @@ import { Marks } from "./marks";
 import { TransportControl } from "./transport-control";
 import { RecordedFragments } from "./recorded-fragments";
 import { TimingManagement } from "./timing-management";
-import { Tracks } from "./tracks";
+import { AddTrackButton, Tracks } from "./tracks";
 import { SessionManagement } from "./session-management";
 import { Status } from "./status";
 import {
@@ -426,23 +426,46 @@ export class App extends Component {
         </div>
         <div className="main-view">
           {this.state.main_view_mode === "mixer" ? (
-            <Tracks
-              track_edit_mode={this.state.track_edit_mode}
-              session={this.props.session}
-              meter_values={meter_values}
-              onRecChange={this.props.onRecChange}
-              onRecSourceChange={this.props.onRecSourceChange}
-              onMuteChange={this.props.onMuteChange}
-              onSoloChange={this.props.onSoloChange}
-              onPanChange={this.props.onPanChange}
-              onVolumeDown={this.props.onVolumeDown}
-              onVolumeUp={this.props.onVolumeUp}
-              onAddTrack={this.props.onAddTrack}
-              onNameChange={this.props.onNameChange}
-              onRemove={this.props.onRemove}
-              onMoveUp={this.props.onMoveUp}
-              onMoveDown={this.props.onMoveDown}
-            />
+            tracks.length ? (
+              <Tracks
+                track_edit_mode={this.state.track_edit_mode}
+                session={this.props.session}
+                meter_values={meter_values}
+                onRecChange={this.props.onRecChange}
+                onRecSourceChange={this.props.onRecSourceChange}
+                onMuteChange={this.props.onMuteChange}
+                onSoloChange={this.props.onSoloChange}
+                onPanChange={this.props.onPanChange}
+                onVolumeDown={this.props.onVolumeDown}
+                onVolumeUp={this.props.onVolumeUp}
+                onAddTrack={this.props.onAddTrack}
+                onNameChange={this.props.onNameChange}
+                onRemove={this.props.onRemove}
+                onMoveUp={this.props.onMoveUp}
+                onMoveDown={this.props.onMoveDown}
+              />
+            ) : (
+              <div>
+                <div>This is an empty session with no tracks.</div>
+                <div>Start by adding a track:</div>
+                <div className="standalone-add-track-btn">
+                  <AddTrackButton onAddTrack={this.props.onAddTrack} />
+                </div>
+                <div>or by opening an existing session:</div>
+                <div>
+                  <button
+                    onClick={() =>
+                      this.setState({
+                        main_view_mode: "options",
+                        selected_more_options_tab: 1,
+                      })
+                    }
+                  >
+                    See the list of sessions
+                  </button>
+                </div>
+              </div>
+            )
           ) : (
             <MoreOptions
               selectedMoreOptionsTab={this.state.selected_more_options_tab}

@@ -172,7 +172,7 @@ class Track extends Component {
   }
 }
 
-class AddTrackButton extends Component {
+export class AddTrackButton extends Component {
   render() {
     return (
       <EditTrackNamePopup

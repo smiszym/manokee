@@ -215,6 +215,10 @@ button {
   width: 100px;
 }
 
+.standalone-add-track-btn > button {
+  float: none;
+}
+
 .track-table-col.small-button {
   width: 32px;
 }
