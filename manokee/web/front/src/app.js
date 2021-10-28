@@ -10,7 +10,8 @@ import { Marks } from "./marks";
 import { TransportControl } from "./transport-control";
 import { RecordedFragments } from "./recorded-fragments";
 import { TimingManagement } from "./timing-management";
-import { AddTrackButton, Tracks } from "./tracks";
+import { AddTrackButton } from "./tracks";
+import { AllTrackGroups } from "./track-group";
 import { SessionManagement } from "./session-management";
 import { Status } from "./status";
 import {
@@ -344,7 +345,13 @@ export class App extends Component {
     };
   }
   render() {
-    const { tracks = [] } = this.props.session || {};
+    const { trackGroups = [] } = this.props.session || {
+      trackGroups: [{ tracks: [] }],
+    };
+    const tracks = Array.prototype.concat(
+      ...trackGroups.map((group) => group.tracks)
+    );
+
     const track_metering_data = this.props.track_metering_data || {};
 
     const position_seconds = this.props.position_seconds || 0;
@@ -427,10 +434,11 @@ export class App extends Component {
         <div className="main-view">
           {this.state.main_view_mode === "mixer" ? (
             tracks.length ? (
-              <Tracks
+              <AllTrackGroups
                 track_edit_mode={this.state.track_edit_mode}
                 session={this.props.session}
                 meter_values={meter_values}
+                activeTrackGroupName={this.props.active_track_group_name}
                 onRecChange={this.props.onRecChange}
                 onRecSourceChange={this.props.onRecSourceChange}
                 onMuteChange={this.props.onMuteChange}

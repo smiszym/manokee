@@ -59,7 +59,7 @@ export class TimingManagement extends Component {
           </div>
           <div>
             <ul>
-              {this.props.session.track_groups.map((group, i) => {
+              {this.props.session.trackGroups.map((group, i) => {
                 return (
                   <li key={group.name}>
                     <button
@@ -83,7 +83,7 @@ export class TimingManagement extends Component {
             </ul>
           </div>
           <div>Playback is {this.props.is_looped ? "" : "not"} looped.</div>
-          {this.props.session.track_groups.length >= 2 && (
+          {this.props.session.trackGroups.length >= 2 && (
             <div>
               <button
                 onClick={(evt) =>
@@ -92,12 +92,12 @@ export class TimingManagement extends Component {
                     {
                       bar_a: "a",
                       bar_b: "b",
-                      track_group_name: this.props.session.track_groups[1].name,
+                      track_group_name: this.props.session.trackGroups[1].name,
                     },
                   ])
                 }
               >
-                Loop A-B main / {this.props.session.track_groups[1].name}
+                Loop A-B main / {this.props.session.trackGroups[1].name}
               </button>
               <button
                 onClick={(evt) =>
@@ -114,12 +114,12 @@ export class TimingManagement extends Component {
                     {
                       bar_a: "a",
                       bar_b: "b",
-                      track_group_name: this.props.session.track_groups[1].name,
+                      track_group_name: this.props.session.trackGroups[1].name,
                     },
                   ])
                 }
               >
-                Loop A-B {this.props.session.track_groups[1].name}
+                Loop A-B {this.props.session.trackGroups[1].name}
               </button>
             </div>
           )}

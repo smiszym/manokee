@@ -397,11 +397,11 @@ class Session(ObservableMixin):
                 "metronome_pan": str(self.metronome_fader.pan),
             },
             "marks": {name: str(mark) for name, mark in self.marks.items()},
-            "tracks": [track.to_js() for track in self.tracks],
-            "track_groups": [
+            "trackGroups": [
                 {
                     "name": group.name,
                     "average_bpm": 60 / group.timing.average_beat_length,
+                    "tracks": [track.to_js() for track in group.tracks],
                 }
                 for group in self.track_groups
             ],

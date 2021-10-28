@@ -248,6 +248,10 @@ button {
   width: 1.7em;
 }
 
+.inactive-track-group {
+  color: #a0a098 !important;
+}
+
 input.rec-toggle,
 input.rec-source,
 input.mute-toggle,
@@ -322,6 +326,12 @@ input.solo-toggle {
 input.solo-toggle:checked {
   background-color: #00e000;
   color: #a0ffa0;
+}
+
+hr {
+  border: 1px solid #39671f;
+  margin-left: 10vw;
+  margin-right: 10vw;
 }
 
 /* Desktop */
