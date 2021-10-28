@@ -182,6 +182,7 @@ class Track:
             "requires_audio_save": self.requires_audio_save,
             "is_loaded": self.is_loaded,
             "percent_loaded": self.percent_loaded,
+            "source": self.source,
         }
 
     def _calculate_average_bpm(self) -> None:

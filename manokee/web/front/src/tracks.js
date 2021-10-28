@@ -81,46 +81,48 @@ export class Track extends Component {
     } else {
       return (
         <div className="track-table-row">
-          <div className="track-table-col small-button">
-            <input
-              className="rec-toggle"
-              type="checkbox"
-              checked={track.is_rec}
-              onChange={(evt) => this.props.onRecChange(evt.target.checked)}
-            />
-          </div>
-          <div className="track-table-col small-button">
-            <input
-              className="rec-source"
-              type="checkbox"
-              checked={track.rec_source === "R"}
-              onChange={(evt) =>
-                this.props.onRecSourceChange(evt.target.checked ? "R" : "L")
-              }
-            />
-          </div>
-          <div className="track-table-col small-button">
-            <input
-              className="mute-toggle"
-              type="checkbox"
-              checked={track.is_mute}
-              onChange={(evt) => this.props.onMuteChange(evt.target.checked)}
-            />
-          </div>
-          <div className="track-table-col small-button">
-            <input
-              className="solo-toggle"
-              type="checkbox"
-              checked={track.is_solo}
-              onChange={(evt) => this.props.onSoloChange(evt.target.checked)}
-            />
-          </div>
-          <div className="track-table-col pan-ctrl">
-            <PanKnob
-              pan={track.pan}
-              onPanChange={(value) => this.props.onPanChange(value)}
-            />
-          </div>
+          {track.source == "internal" && [
+            <div className="track-table-col small-button">
+              <input
+                className="rec-toggle"
+                type="checkbox"
+                checked={track.is_rec}
+                onChange={(evt) => this.props.onRecChange(evt.target.checked)}
+              />
+            </div>,
+            <div className="track-table-col small-button">
+              <input
+                className="rec-source"
+                type="checkbox"
+                checked={track.rec_source === "R"}
+                onChange={(evt) =>
+                  this.props.onRecSourceChange(evt.target.checked ? "R" : "L")
+                }
+              />
+            </div>,
+            <div className="track-table-col small-button">
+              <input
+                className="mute-toggle"
+                type="checkbox"
+                checked={track.is_mute}
+                onChange={(evt) => this.props.onMuteChange(evt.target.checked)}
+              />
+            </div>,
+            <div className="track-table-col small-button">
+              <input
+                className="solo-toggle"
+                type="checkbox"
+                checked={track.is_solo}
+                onChange={(evt) => this.props.onSoloChange(evt.target.checked)}
+              />
+            </div>,
+            <div className="track-table-col pan-ctrl">
+              <PanKnob
+                pan={track.pan}
+                onPanChange={(value) => this.props.onPanChange(value)}
+              />
+            </div>,
+          ]}
           <div className="track-table-col vol-ctrl">
             <Popup trigger={<span>{track.vol_dB.toFixed(0)} dB</span>} modal>
               <div id="change-volume">
