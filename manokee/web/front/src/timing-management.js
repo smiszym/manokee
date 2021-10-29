@@ -65,6 +65,43 @@ export class TimingManagement extends Component {
       metronome_pan = "",
     } = configuration || {};
 
+    function renderTrackGroup(
+      group,
+      activeTrackGroupName,
+      onChangeTempoBy,
+      onSetActiveTrackGroup
+    ) {
+      const timing = group.timing;
+      const bpmInfo =
+        timing.type === "fixed-bpm"
+          ? [
+              timing.bpm.toFixed(0),
+              "bpm",
+              <TempoChangeButton
+                onChangeTempoBy={onChangeTempoBy}
+                groupName={group.name}
+              />,
+            ]
+          : timing.type === "audacity"
+          ? [timing.averageBpm.toFixed(0), "bpm on average"]
+          : undefined;
+
+      return (
+        <li key={group.name}>
+          <button
+            key={group.name}
+            className={
+              activeTrackGroupName == group.name ? "highlighted-button" : ""
+            }
+            onClick={() => onSetActiveTrackGroup(group.name)}
+          >
+            {group.name ? group.name : "Main group"}
+          </button>
+          {bpmInfo}
+        </li>
+      );
+    }
+
     return (
       <div>
         <div>
@@ -84,33 +121,14 @@ export class TimingManagement extends Component {
           </div>
           <div>
             <ul>
-              {this.props.session.trackGroups.map((group, i) => {
-                return (
-                  <li key={group.name}>
-                    <button
-                      key={group.name}
-                      className={
-                        this.props.active_track_group_name == group.name
-                          ? "highlighted-button"
-                          : ""
-                      }
-                      onClick={(evt) =>
-                        this.props.onSetActiveTrackGroup(group.name)
-                      }
-                    >
-                      {group.name ? group.name : "Main group"}
-                    </button>
-                    ({group.average_bpm.toFixed(0)} bpm
-                    {group.name ? " on average" : ""})
-                    {group.name === "" && (
-                      <TempoChangeButton
-                        onChangeTempoBy={this.props.onChangeTempoBy}
-                        groupName={group.name}
-                      />
-                    )}
-                  </li>
-                );
-              })}
+              {this.props.session.trackGroups.map((group) =>
+                renderTrackGroup(
+                  group,
+                  this.props.active_track_group_name,
+                  this.props.onChangeTempoBy,
+                  this.props.onSetActiveTrackGroup
+                )
+              )}
             </ul>
           </div>
           <div>Playback is {this.props.is_looped ? "" : "not"} looped.</div>

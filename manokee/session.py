@@ -15,6 +15,7 @@ from manokee.playspec_generators import (
     metronome_playspec_entries,
 )
 from manokee.session_history import SessionHistory
+from manokee.timing.audacity_timing import AudacityTiming
 from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.timing import Timing
@@ -263,10 +264,6 @@ class Session(ObservableMixin):
                 return track
         return None
 
-    @property
-    def main_track_group(self) -> Optional[TrackGroup]:
-        return self.track_group_by_name("")
-
     def track_group_by_name(self, name: str) -> TrackGroup:
         for group in self.track_groups:
             if group.name == name:
@@ -386,6 +383,18 @@ class Session(ObservableMixin):
         to the client.
         :return: A Python dictionary with JSON-like session representation.
         """
+
+        def timing_to_js(timing: Timing) -> dict:
+            if isinstance(timing, FixedBpmTiming):
+                return {"type": "fixed-bpm", "bpm": timing.bpm}
+            elif isinstance(timing, AudacityTiming):
+                return {
+                    "type": "audacity",
+                    "averageBpm": 60 / timing.average_beat_length,
+                }
+            else:
+                raise TypeError("Unknown timing type")
+
         return {
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
@@ -399,7 +408,7 @@ class Session(ObservableMixin):
             "trackGroups": [
                 {
                     "name": group.name,
-                    "average_bpm": 60 / group.timing.average_beat_length,
+                    "timing": timing_to_js(group.timing),
                     "tracks": [track.to_js() for track in group.tracks],
                 }
                 for group in self.track_groups

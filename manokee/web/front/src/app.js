@@ -59,7 +59,7 @@ function renderStateUpdate(msg) {
         socket.emit("metronome_pan_change", { pan })
       }
       onChangeTempoBy={(trackGroupName, delta) =>
-        socket.emit("change_tempo_by", { delta })
+        socket.emit("change_tempo_by", { trackGroupName, delta })
       }
       onSetTimeSig={(time_sig) => socket.emit("set_time_sig", { time_sig })}
       onSetActiveTrackGroup={(group_name) =>

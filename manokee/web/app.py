@@ -502,8 +502,16 @@ def volume_up(sid, attr):
 
 @sio.event
 def change_tempo_by(sid, attr):
-    new_bpm = application.session.main_track_group.timing.bpm + attr["delta"]
-    application.session.main_track_group.timing = FixedBpmTiming(new_bpm)
+    group = application.session.track_group_by_name(attr["trackGroupName"])
+    if not isinstance(group.timing, FixedBpmTiming):
+        logging.warning(
+            "Attempt to change timing of track group '%s' which is of type %s",
+            group.name,
+            type(group.timing),
+        )
+        return
+    new_bpm = group.timing.bpm + attr["delta"]
+    group.timing = FixedBpmTiming(new_bpm)
 
 
 @sio.event

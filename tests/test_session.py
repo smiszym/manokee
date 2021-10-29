@@ -18,10 +18,12 @@ def test_load_session():
     assert not session.metronome_enabled
     assert session.metronome_fader.vol_dB == -8.8
     assert session.metronome_fader.pan == 0
-    assert session.main_track_group.timing.bpm == 154
-    assert len(session.track_groups) == 1
-    assert len(session.main_track_group.tracks) == 2
     assert len(session.marks) == 0
+
+    assert len(session.track_groups) == 1
+    main_track_group = session.track_groups[0]
+    assert main_track_group.timing.bpm == 154
+    assert len(main_track_group.tracks) == 2
 
 
 @pytest.mark.skip(reason="Not implemented yet")
