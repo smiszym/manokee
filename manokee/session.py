@@ -390,7 +390,6 @@ class Session(ObservableMixin):
             "name": self.name,
             "are_controls_modified": self.are_controls_modified,
             "configuration": {
-                "bpm": self.main_track_group.timing.bpm,
                 "time_sig": self._time_signature,
                 "metronome": "1" if self.metronome_enabled else "0",
                 "metronome_vol": str(self.metronome_fader.vol_dB),
