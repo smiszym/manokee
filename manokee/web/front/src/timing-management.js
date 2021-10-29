@@ -3,6 +3,58 @@ import Popup from "reactjs-popup";
 
 import PanKnob from "./pan-knob";
 
+class TimeSignatureChangeButton extends Component {
+  render() {
+    return (
+      <Popup modal trigger={<button>Change time signature...</button>}>
+        <div>
+          Time signature:
+          <button onClick={() => this.props.onSetTimeSig(1)}>1/4</button>
+          <button onClick={() => this.props.onSetTimeSig(2)}>2/4</button>
+          <button onClick={() => this.props.onSetTimeSig(3)}>3/4</button>
+          <button onClick={() => this.props.onSetTimeSig(4)}>4/4</button>
+          <button onClick={() => this.props.onSetTimeSig(5)}>5/4</button>
+          <button onClick={() => this.props.onSetTimeSig(6)}>6/4</button>
+          <button onClick={() => this.props.onSetTimeSig(7)}>7/4</button>
+          <button onClick={() => this.props.onSetTimeSig(8)}>8/4</button>
+          <button onClick={() => this.props.onSetTimeSig(9)}>9/4</button>
+        </div>
+      </Popup>
+    );
+  }
+}
+
+class TempoChangeButton extends Component {
+  render() {
+    return (
+      <Popup modal trigger={<button>Change tempo...</button>}>
+        <div>
+          <button
+            onClick={() => this.props.onChangeTempoBy(this.props.groupName, -5)}
+          >
+            -5
+          </button>
+          <button
+            onClick={() => this.props.onChangeTempoBy(this.props.groupName, -1)}
+          >
+            -1
+          </button>
+          <button
+            onClick={() => this.props.onChangeTempoBy(this.props.groupName, +1)}
+          >
+            +1
+          </button>
+          <button
+            onClick={() => this.props.onChangeTempoBy(this.props.groupName, +5)}
+          >
+            +5
+          </button>
+        </div>
+      </Popup>
+    );
+  }
+}
+
 export class TimingManagement extends Component {
   render() {
     const { configuration = {} } = this.props.session || {};
@@ -16,38 +68,11 @@ export class TimingManagement extends Component {
     return (
       <div>
         <div>
-          <button onClick={(evt) => this.props.onToggleMetronome()}>
-            Toggle
-          </button>
-          <button onClick={(evt) => this.props.onMetronomeVolDown()}>-</button>
-          <button onClick={(evt) => this.props.onMetronomeVolUp()}>+</button>
-          <Popup modal trigger={<button>Change tempo...</button>}>
-            <div>
-              <button onClick={(evt) => this.props.onChangeTempoBy(-5)}>
-                -5
-              </button>
-              <button onClick={(evt) => this.props.onChangeTempoBy(-1)}>
-                -1
-              </button>
-              <button onClick={(evt) => this.props.onChangeTempoBy(+1)}>
-                +1
-              </button>
-              <button onClick={(evt) => this.props.onChangeTempoBy(+5)}>
-                +5
-              </button>
-              Time signature:
-              <button onClick={(evt) => this.props.onSetTimeSig(1)}>1/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(2)}>2/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(3)}>3/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(4)}>4/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(5)}>5/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(6)}>6/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(7)}>7/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(8)}>8/4</button>
-              <button onClick={(evt) => this.props.onSetTimeSig(9)}>9/4</button>
-            </div>
-          </Popup>
+          <button onClick={() => this.props.onToggleMetronome()}>Toggle</button>
+          <button onClick={() => this.props.onMetronomeVolDown()}>-</button>
+          <button onClick={() => this.props.onMetronomeVolUp()}>+</button>
           <div>Time signature: {time_sig}/4</div>
+          <TimeSignatureChangeButton onSetTimeSig={this.props.onSetTimeSig} />
           <div>Metronome {metronome == "1" ? "on" : "off"}</div>
           <div>Metronome volume: {parseFloat(metronome_vol).toFixed(1)} dB</div>
           <div>
@@ -77,6 +102,12 @@ export class TimingManagement extends Component {
                     </button>
                     ({group.average_bpm.toFixed(0)} bpm
                     {group.name ? " on average" : ""})
+                    {group.name === "" && (
+                      <TempoChangeButton
+                        onChangeTempoBy={this.props.onChangeTempoBy}
+                        groupName={group.name}
+                      />
+                    )}
                   </li>
                 );
               })}
