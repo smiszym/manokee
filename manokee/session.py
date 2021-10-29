@@ -310,9 +310,9 @@ class Session(ObservableMixin):
         tracks[i + 1], tracks[i] = (tracks[i], tracks[i + 1])
         self._notify_observers()
 
-    async def add_track(self, name: str, frame_rate: float):
-        track = Track.empty(session=self, name=name, frame_rate=frame_rate)
-        self.main_track_group.tracks.append(track)
+    async def add_track(self, *, group_name: str, track_name: str, frame_rate: float):
+        track = Track.empty(session=self, name=track_name, frame_rate=frame_rate)
+        self.track_group_by_name(group_name).tracks.append(track)
         await track.load()
         self._notify_observers()
 

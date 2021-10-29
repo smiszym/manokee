@@ -52,7 +52,10 @@ class TrackGroup extends Component {
         </div>
         {this.props.track_edit_mode && (
           <div>
-            <AddTrackButton onAddTrack={this.props.onAddTrack} />
+            <AddTrackButton
+              groupName={this.props.trackGroup.name}
+              onAddTrack={this.props.onAddTrack}
+            />
           </div>
         )}
       </div>

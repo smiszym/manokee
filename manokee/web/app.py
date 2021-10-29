@@ -365,7 +365,9 @@ def metronome_pan_change(sid, attr):
 @sio.event
 async def add_track(sid, attr):
     await application.session.add_track(
-        attr["name"], application.amio_interface.get_frame_rate()
+        group_name=attr["group_name"],
+        track_name=attr["track_name"],
+        frame_rate=application.amio_interface.get_frame_rate(),
     )
 
 

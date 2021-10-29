@@ -92,7 +92,9 @@ function renderStateUpdate(msg) {
       onPanChange={(track, pan) => socket.emit("set_pan", { track, pan })}
       onVolumeDown={(track) => socket.emit("volume_down", { track })}
       onVolumeUp={(track) => socket.emit("volume_up", { track })}
-      onAddTrack={(name) => socket.emit("add_track", { name })}
+      onAddTrack={(group_name, track_name) =>
+        socket.emit("add_track", { group_name, track_name })
+      }
       onNameChange={(track, new_name) =>
         socket.emit("rename_track", { track, new_name })
       }
@@ -457,7 +459,10 @@ export class App extends Component {
                 <div>This is an empty session with no tracks.</div>
                 <div>Start by adding a track:</div>
                 <div className="standalone-add-track-btn">
-                  <AddTrackButton onAddTrack={this.props.onAddTrack} />
+                  <AddTrackButton
+                    groupName=""
+                    onAddTrack={this.props.onAddTrack}
+                  />
                 </div>
                 <div>or by opening an existing session:</div>
                 <div>

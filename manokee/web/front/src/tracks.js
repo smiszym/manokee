@@ -169,7 +169,9 @@ export class AddTrackButton extends Component {
         }
         prompt="New track name:"
         submit_text="OK"
-        onSubmit={(track_name) => this.props.onAddTrack(track_name)}
+        onSubmit={(trackName) =>
+          this.props.onAddTrack(this.props.groupName, trackName)
+        }
       />
     );
   }
