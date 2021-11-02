@@ -42,6 +42,7 @@ class Track:
 
     average_bpm: Optional[float] = None
     audacity_project: Optional[aup.AudacityProject] = None
+    audacity_track: Optional[str] = None
     beats_in_audacity_beat: int = 1
     source: str = "internal"
     requires_audio_save: bool = False
@@ -94,13 +95,16 @@ class Track:
                 ]
             ),
             audacity_project=audacity_project,
+            audacity_track=element.attrib.get("audacity-track"),
             beats_in_audacity_beat=int(
                 element.attrib.get("beats-in-audacity-beat", "1")
             ),
             source=element.attrib.get("source", "internal"),
         )
         if result.is_audacity_project:
-            result.audio = result.audacity_project.as_audio_clip()  # type: ignore
+            result.audio = result.audacity_project.as_audio_clip(  # type: ignore
+                track=result.audacity_track
+            )
             result.audio.writeable = False
 
         result._calculate_average_bpm()

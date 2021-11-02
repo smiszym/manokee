@@ -1,4 +1,6 @@
 import os
+from typing import List, Optional
+
 from amio import AudioClip
 from xml.etree.ElementTree import Element, ElementTree
 
@@ -110,6 +112,9 @@ class AudacityProject(ElementTree):
             for track in root.findall("ns:wavetrack", self.ns)
         )
 
+    def multichannel_track_by_name(self, name: str) -> List[WaveTrack]:
+        return [track for track in self.get_wave_tracks() if track.get_name() == name]
+
     def get_project_dir(self):
         return os.path.dirname(self.aup_file_path)
 
@@ -122,11 +127,22 @@ class AudacityProject(ElementTree):
             name,
         )
 
-    def as_audio_clip(self):
-        tracks = self.get_wave_tracks()
-        left = next(tracks).as_audio_clip()
-        right = next(tracks).as_audio_clip()
-        return AudioClip.stereo_clip_from_mono_clips(left, right)
+    def as_audio_clip(self, track: Optional[str]):
+        if track is None:
+            # use the first track as the default
+            track = next(self.get_wave_tracks()).get_name()
+        wave_tracks = self.multichannel_track_by_name(track)
+        if len(wave_tracks) == 1:
+            return wave_tracks[0].as_audio_clip()
+        elif len(wave_tracks) == 2:
+            left = wave_tracks[0].as_audio_clip()
+            right = wave_tracks[1].as_audio_clip()
+            return AudioClip.stereo_clip_from_mono_clips(left, right)
+        else:
+            ValueError(
+                f"Unsupported number of channels in Audacity track {track}: "
+                f"{len(wave_tracks)}"
+            )
 
 
 def parse(source, parser=None):

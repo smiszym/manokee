@@ -207,6 +207,8 @@ class Session(ObservableMixin):
                 }
                 if track.is_audacity_project:
                     attrib["audacity-project"] = track.audacity_project.aup_file_path
+                    if track.audacity_track is not None:
+                        attrib["audacity-track"] = track.audacity_track
                 track_el = ET.SubElement(tracks_el, "track", attrib=attrib)
                 for entry in track.wall_time_recorder.entries:
                     ET.SubElement(
