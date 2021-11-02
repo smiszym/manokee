@@ -101,9 +101,16 @@ class AudacityProject(ElementTree):
         self.ns = {"ns": "http://audacity.sourceforge.net/xml/"}
         self.aup_file_path = os.path.join(os.path.curdir, aup_file_path)
 
-    def get_label_track(self):
+    def get_label_track(self, name: Optional[str] = None):
         root = self.getroot()
-        return LabelTrack(root.find("ns:labeltrack", self.ns), self.ns)
+        label_tracks = [
+            LabelTrack(track, self.ns)
+            for track in root.findall("ns:labeltrack", self.ns)
+        ]
+        if name is None:
+            return label_tracks[0]
+        else:
+            return next(track for track in label_tracks if track.get_name() == name)
 
     def get_wave_tracks(self):
         root = self.getroot()
