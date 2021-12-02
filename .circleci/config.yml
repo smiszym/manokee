@@ -11,14 +11,15 @@ workflows:
 jobs:
   build-py:
     docker:
-      - image: circleci/python:3.9.2
+      - image: cimg/python:3.9
     steps:
       - checkout
       - run:
 # libasound2-dev for building python-rtmidi package
 # libjack-jackd2-dev, libsndfile1, swig for building amio package
           command: |
-            sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
+            sudo apt update
+            sudo apt -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
             poetry install --no-ansi
             poetry build
 
@@ -32,18 +33,19 @@ jobs:
 
   mypy:
     docker:
-      - image: circleci/python:3.9.2
+      - image: cimg/python:3.9
     steps:
       - checkout
       - run:
           command: |
-            sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
+            sudo apt update
+            sudo apt -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
             poetry install --no-ansi
             poetry run mypy manokee/
 
   check-black:
     docker:
-      - image: cimg/python:3.9.2
+      - image: cimg/python:3.9
     steps:
       - checkout
       - run:
@@ -53,12 +55,13 @@ jobs:
 
   pytest:
     docker:
-      - image: circleci/python:3.9.2
+      - image: cimg/python:3.9
     steps:
       - checkout
       - run:
           command: |
-            sudo apt-get -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
+            sudo apt update
+            sudo apt -y install libasound2-dev libjack-jackd2-dev libsndfile1 swig
             poetry install --no-ansi
             poetry run coverage run --source manokee -m pytest
             poetry run coverage report -m
