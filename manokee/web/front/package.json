@@ -35,7 +35,7 @@
     "react-collapsible": "^2.8.3",
     "react-dom": "^16.14.0",
     "react-rotary-knob": "^1.1.8",
-    "react-tabs": "^3.2.2",
+    "react-tabs": "^4.0.1",
     "reactjs-popup": "^2.0.4"
   }
 }
