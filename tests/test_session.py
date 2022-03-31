@@ -24,6 +24,10 @@ def test_load_session():
     main_track_group = session.track_groups[0]
     assert main_track_group.timing.bpm == 154
     assert len(main_track_group.tracks) == 2
+    assert [track.filename for track in main_track_group.tracks] == [
+        "./tests/assets/sessions/simple/drums_l.flac",
+        "./tests/assets/sessions/simple/drums_r.flac",
+    ]
 
 
 @pytest.mark.skip(reason="Not implemented yet")

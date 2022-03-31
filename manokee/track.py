@@ -143,11 +143,7 @@ class Track:
 
     @property
     def filename(self):
-        if self.session.session_file_path is None:
-            return None
-        return os.path.join(
-            os.path.dirname(self.session.session_file_path), self.name + ".flac"
-        )
+        return self.session.relative_path(self.name + ".flac")
 
     @property
     def is_audacity_project(self) -> bool:

@@ -244,6 +244,11 @@ class Session(ObservableMixin):
             raise NotImplementedError
         self._session_file_path = value
 
+    def relative_path(self, path: str) -> Optional[str]:
+        if self._session_file_path is None:
+            return None
+        return os.path.join(os.path.dirname(self._session_file_path), path)
+
     @property
     def name(self) -> Optional[str]:
         # TODO: Store the session name inside the session file
