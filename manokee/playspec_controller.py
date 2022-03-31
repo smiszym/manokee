@@ -11,6 +11,8 @@ from typing import Dict, Iterator, List, Optional
 
 LoopSpec = List[LoopFragment]
 
+logger = logging.getLogger(__name__)
+
 
 class PlayspecController:
     def __init__(
@@ -61,7 +63,7 @@ class PlayspecController:
         self._input_chunks_until_recreation = 19  # @48kHz, it's ~0.05 s, or ~20 times/s
         self._requires_playspec_recreation = False
         session = self._session_holder.session
-        logging.debug(
+        logger.debug(
             "Recreating playspecs for groups: "
             + ", ".join([f"'{group.name}'" for group in session.track_groups])
         )

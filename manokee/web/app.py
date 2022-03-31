@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Set
 
 from aiohttp import web
 import jsonpatch
@@ -12,7 +11,6 @@ from manokee.ping import Ping
 from manokee.session import Session
 from manokee.time_formatting import format_beat, format_frame
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
-from manokee.timing_utils import beat_number_to_frame
 import socketio
 
 
@@ -22,6 +20,8 @@ logging.basicConfig(
 logging.getLogger("engineio").setLevel(logging.WARNING)
 logging.getLogger("socketio").setLevel(logging.WARNING)
 logging.getLogger("webserver").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
 
@@ -234,7 +234,7 @@ async def _update_task(app):
     except asyncio.CancelledError:
         pass
     finally:
-        logging.info("Finished background update task")
+        logger.info("Finished background update task")
 
 
 async def start_background_tasks(app):
@@ -318,7 +318,7 @@ async def emit_track_metering_data():
 async def load_session(sid, attr):
     if application.amio_interface is not None:
         path = attr["session"]
-        logging.info("Loading session: " + path)
+        logger.info("Loading session: " + path)
         application.session = Session(application.amio_interface.get_frame_rate(), path)
         application.go_to_beat(0)
 
@@ -421,7 +421,7 @@ def stop_revising(sid):
 @sio.event
 def set_active_track_group(sid, attr):
     name = attr["group_name"]
-    logging.info(f"Setting active track group to: {name}")
+    logger.info(f"Setting active track group to: {name}")
     application.set_active_track_group_name(name)
 
 
@@ -504,7 +504,7 @@ def volume_up(sid, attr):
 def change_tempo_by(sid, attr):
     group = application.session.track_group_by_name(attr["trackGroupName"])
     if not isinstance(group.timing, FixedBpmTiming):
-        logging.warning(
+        logger.warning(
             "Attempt to change timing of track group '%s' which is of type %s",
             group.name,
             type(group.timing),

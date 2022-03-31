@@ -6,6 +6,9 @@ from time import sleep
 from typing import Callable, Optional
 
 
+logger = logging.getLogger(__name__)
+
+
 class MidiInputReceiver(threading.Thread):
     def __init__(self, input_callback: Callable[[mido.Message], None]):
         super(MidiInputReceiver, self).__init__()
@@ -19,7 +22,7 @@ class MidiInputReceiver(threading.Thread):
         if len(available_ports) < 1:
             return
         with mido.open_input(available_ports[0]) as port:
-            logging.info(f"Using {port}")
+            logger.info(f"Using {port}")
             while not self._should_stop.is_set():
                 for message in port.iter_pending():
                     self._input_callback(message)

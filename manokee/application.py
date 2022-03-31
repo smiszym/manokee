@@ -13,7 +13,7 @@ from manokee.workspace import Workspace
 from typing import List, Optional, Tuple
 
 
-logger = logging.getLogger("manokee.application")
+logger = logging.getLogger(__name__)
 
 
 class Application:
