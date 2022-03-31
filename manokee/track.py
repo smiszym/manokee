@@ -42,6 +42,7 @@ class Track:
 
     average_bpm: Optional[float] = None
     audacity_project: Optional[aup.AudacityProject] = None
+    aup_file_path: Optional[str] = None
     audacity_track: Optional[str] = None
     beats_in_audacity_beat: int = 1
     source: str = "internal"
@@ -66,9 +67,10 @@ class Track:
 
     @classmethod
     def from_xml(cls, session, frame_rate: float, element: ET.Element):
+        aup_file_path = element.attrib.get("audacity-project")
         if element.attrib.get("source", "internal") == "audacity-project":
             percent_loaded = None
-            audacity_project = aup.parse(element.attrib.get("audacity-project"))
+            audacity_project = aup.parse(session.relative_path(aup_file_path))
         else:
             percent_loaded = 0
             audacity_project = None
@@ -95,6 +97,7 @@ class Track:
                 ]
             ),
             audacity_project=audacity_project,
+            aup_file_path=aup_file_path,
             audacity_track=element.attrib.get("audacity-track"),
             beats_in_audacity_beat=int(
                 element.attrib.get("beats-in-audacity-beat", "1")
@@ -190,7 +193,8 @@ class Track:
             self.average_bpm = (
                 60.0
                 / AudacityTiming(
-                    self.audacity_project  # type: ignore
+                    project=self.audacity_project,  # type: ignore
+                    aup_file_path=self.aup_file_path,  # type: ignore
                 ).average_beat_length
             )
         else:

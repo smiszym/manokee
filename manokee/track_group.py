@@ -31,10 +31,13 @@ class TrackGroup:
         if timing_el.tag == "fixed-bpm-timing":
             timing: Timing = FixedBpmTiming(float(timing_el.attrib["beats-per-minute"]))
         elif timing_el.tag == "audacity-timing":
-            audacity_project = parse_aup(timing_el.attrib["audacity-project"])
+            aup_file_path = timing_el.attrib["audacity-project"]
+            audacity_project = parse_aup(session.relative_path(aup_file_path))
             beats_in_audacity_beat = int(timing_el.attrib["beats-in-audacity-beat"])
             timing = AudacityTiming(
-                audacity_project, beats_in_audacity_beat=beats_in_audacity_beat
+                project=audacity_project,
+                aup_file_path=aup_file_path,
+                beats_in_audacity_beat=beats_in_audacity_beat,
             )
         else:
             raise ValueError(f"Unknown timing type: {timing_el.tag}")

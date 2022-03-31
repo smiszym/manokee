@@ -187,7 +187,7 @@ class Session(ObservableMixin):
                     timing_el,
                     "audacity-timing",
                     attrib={
-                        "audacity-project": timing.audacity_project.aup_file_path,
+                        "audacity-project": timing.aup_file_path,
                         "beats-in-audacity-beat": str(timing.beats_in_audacity_beat),
                     },
                 )
@@ -206,7 +206,7 @@ class Session(ObservableMixin):
                     "source": track.source,
                 }
                 if track.is_audacity_project:
-                    attrib["audacity-project"] = track.audacity_project.aup_file_path
+                    attrib["audacity-project"] = track.aup_file_path
                     if track.audacity_track is not None:
                         attrib["audacity-track"] = track.audacity_track
                 track_el = ET.SubElement(tracks_el, "track", attrib=attrib)

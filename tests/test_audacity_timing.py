@@ -5,8 +5,9 @@ from manokee.timing.audacity_timing import AudacityTiming
 
 
 def test_audacity_timing():
-    project = parse_aup("tests/assets/audacity-projects/simple.aup")
-    timing = AudacityTiming(project)
+    path = "tests/assets/audacity-projects/simple.aup"
+    project = parse_aup(path)
+    timing = AudacityTiming(project=project, aup_file_path=path)
 
     assert timing.average_beat_length == 2.375
 
@@ -35,8 +36,11 @@ def test_audacity_timing():
 
 
 def test_audacity_timing_beats_in_audacity_beat():
-    project = parse_aup("tests/assets/audacity-projects/simple.aup")
-    timing = AudacityTiming(project, beats_in_audacity_beat=2)
+    path = "tests/assets/audacity-projects/simple.aup"
+    project = parse_aup(path)
+    timing = AudacityTiming(
+        project=project, aup_file_path=path, beats_in_audacity_beat=2
+    )
 
     assert timing.average_beat_length == 2.375 / 2
 
