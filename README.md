@@ -1,34 +1,51 @@
-Manokee -- Audio recording software with a mobile-first web interface
+# Manokee
 
-**Manokee is still under early development**
+Audio recording software with a mobile-first web interface
 
-Michał Szymański, 2020-2021
+:warning: **Manokee is still under early development** :warning:
 
-Install the necessary npm packages for the frontend with:
+You can use Manokee to conveniently record audio material, and then import this material into your favorite Digital Audio Workstation for mixing and mastering.
 
-    $ (cd manokee/web/front && npm install)
+Manokee is going to be a handy tool if using a DAW for a recording session is not too convenient for you. For example, if you're doing home recording, Manokee lets you control the recording session from a browser on a mobile phone. You can wire up all the equipment (instruments, microphones, the audio interface) to the computer, run Manokee, and then access the Manokee user interface on your phone. This setup can be more accessible and convenient than doing everything with the keyboard and mouse on your computer.
 
-Build the frontend with:
+My vision for Manokee is to make it a musical creativity assistant. An application that could let you improvise and save your musical ideas without too much distraction. You could compose and record a song from ideas to a complete arrangement in Manokee, and finally export the session to a DAW for mixing.
 
-    $ (cd manokee/web/front && npm run build-dev)
+# Installation
 
-Run the backend (which will also serve the frontend files) with:
+## Fedora
 
-    $ python3.7 -m manokee
+```bash
+# Install system-wide dependencies
+sudo dnf install -y alsa-lib-devel gcc-c++ git npm pipewire-jack-audio-connection-kit-devel poetry python3-devel swig
 
-Currently, the only supported audio backend is [JACK|https://jackaudio.org/].
-Start JACK daemon (either from the command line or using
-[QJackCtl|https://github.com/rncbc/qjackctl]).
+# Clone the repo
+git clone https://github.com/smiszym/manokee.git
+cd manokee
 
-Navigate in your browser to the address printed in the log. This is Manokee
-user interface. Currently I recommend loading the mobile version (e.g.,
-with your phone), as that's what I focus on when designing.
+# Install npm packages for the frontend
+(cd manokee/web/front && npm install)
 
-First, go to "More" > "Status" and turn on the Audio I/O. If Manokee
-successfully connects to JACK, it will turn green. Then you can start adding
-tracks from the "Track edit mode". It can be found under "More" > "Session".
-Then leave the track edit mode, mark some track for recording and start
-recording.
+# Build the frontend
+(cd manokee/web/front && npm run build-dev)
 
-The audio won't get written onto the track until you commit it. You can do
-that under "More" > "Recorded fragments" section.
+# Install Python packages
+LIBRARY_PATH=/usr/lib64/pipewire-0.3/jack poetry install
+```
+
+# Running
+
+From within the project directory:
+
+```bash
+poetry run python -m manokee
+```
+
+Then navigate in a browser on your mobile phone to the address printed in the console. You can also just scan the printed QR code.
+
+> :warning: The user interface is very energy-consuming! Your mobile phone can quickly discharge.
+
+> :information_source: Manokee uses the [AMIO Python package](https://github.com/smiszym/amio) for audio input/output. AMIO currently only supports [JACK](https://jackaudio.org/) as the underlying audio API. Traditionally, you would need to manually start the JACK server (either from the command line or using [QJackCtl](https://github.com/rncbc/qjackctl)) before you can use Manokee. However, the recent releases of Fedora Workstation have PipeWire (which exposes JACK-compatible API) as the default audio system, so you don't have to do anything.
+
+# Author
+
+Michał Szymański, 2020-2022
