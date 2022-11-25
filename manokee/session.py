@@ -20,7 +20,6 @@ from manokee.track import Track
 from manokee.timing.fixed_bpm_timing import FixedBpmTiming
 from manokee.timing.timing import Timing
 from manokee.track_group import TrackGroup
-from manokee.utils import ET_indent
 
 
 class Session(ObservableMixin):
@@ -221,7 +220,7 @@ class Session(ObservableMixin):
                         },
                     )
 
-        ET_indent(root)
+        ET.indent(root)
         tree = ET.ElementTree(root)
         tree.write(self._session_file_path)
         self._are_controls_modified = False
