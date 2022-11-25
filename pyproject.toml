@@ -11,8 +11,6 @@ classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Topic :: Artistic Software",
@@ -20,25 +18,25 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-aiohttp = "^3.7.4.post0"
+python = "^3.9"
+aiohttp = "^3.8.3"
 amio = "0.1.1"
 jsonpatch = "^1.32"
-mido = "^1.2.9"
-netifaces = "0.10.9"
-psutil = "^5.8.0"
-pygit2 = "^1.5.0"
-python-rtmidi = "^1.4.7"
+mido = "^1.2.10"
+netifaces = "0.11.0"
+psutil = "^5.9.4"
+pygit2 = "^1.11.1"
+python-rtmidi = "^1.4.9"
 python-socketio = "^5.7.2"
-qrcode = "^6.1"
-SoundFile = "0.10.3.post1"
+qrcode = "^7.3.1"
+SoundFile = "0.11.0"
 toml = "0.10.2"
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.812"
-pytest = "^6.2.4"
-black = "^21.5b1"
-coverage = "^5.5"
+mypy = "*"
+pytest = "^7.2.0"
+black = "*"
+coverage = "^6.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
