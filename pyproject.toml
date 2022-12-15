@@ -37,6 +37,7 @@ mypy = "*"
 pytest = "^7.2.0"
 black = "*"
 coverage = "^6.5.0"
+types-toml = "^0.10.8"
 
 [tool.poetry.scripts]
 manokee = 'manokee.entrypoint:main'
